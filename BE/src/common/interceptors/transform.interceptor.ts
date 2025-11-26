@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IResponse } from '../interfaces';
@@ -13,13 +8,8 @@ import { IResponse } from '../interfaces';
  * @description 모든 성공 응답을 일관된 형식으로 변환합니다.
  */
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, IResponse<T>>
-{
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Observable<IResponse<T>> {
+export class TransformInterceptor<T> implements NestInterceptor<T, IResponse<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<IResponse<T>> {
     return next.handle().pipe(
       map((data) => ({
         success: true,
@@ -29,4 +19,3 @@ export class TransformInterceptor<T>
     );
   }
 }
-

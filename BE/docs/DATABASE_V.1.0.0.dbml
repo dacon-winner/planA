@@ -1,0 +1,256 @@
+// =========================================================
+// Enum 정의
+// =========================================================
+Enum vendor_category {
+  VENUE    // 웨딩홀
+  STUDIO
+  DRESS
+  MAKEUP
+}
+
+Enum item_source {
+  AI_RECOMMEND   
+  USER_SELECT    
+}
+
+Enum reservation_status {
+  PENDING           
+  AWAITING_PAYMENT  
+  CONFIRMED         
+  CANCELLED         
+}
+
+Enum policy_type {
+  SUBSIDY    
+  LOAN       
+  ETC        
+}
+
+// =========================================================
+// 1. 사용자 (User)
+// =========================================================
+Table users {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  email varchar [not null, unique]
+  password_hash varchar [null] 
+  provider varchar [default: 'EMAIL']
+  
+  name varchar [not null]
+  phone varchar [not null]
+  
+  wedding_date date [not null]
+  preferred_region varchar [not null] 
+  budget_limit int [not null] 
+  
+  is_push_on boolean [default: true]
+  
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 2. 업체 (Vendor) - 영업시간 포함
+// =========================================================
+Table vendor {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  category vendor_category [not null]
+  name varchar [not null]
+  
+  address varchar [not null]
+  region varchar [not null] 
+  phone varchar [not null]
+  introduction text 
+  
+  // 영업시간 (텍스트)
+  operating_hours varchar [null]
+  
+  latitude decimal(10,7) 
+  longitude decimal(10,7) 
+  
+  naver_rating float [default: 0]
+  review_count int [default: 0]
+  total_score float [default: 0] 
+  
+  naver_place_url varchar
+  thumbnail_url varchar 
+  badges json [default: '[]'] 
+
+  created_at timestamp [default: `now()`]
+}
+
+Table vendor_venue_detail {
+  vendor_id uuid [pk, ref: - vendor.id]
+  hall_type varchar 
+  meal_type varchar 
+  min_guarantee int [default: 200]
+  meal_cost int [default: 0]
+  rental_fee int [default: 0]
+}
+
+Table vendor_image {
+  id uuid [pk]
+  vendor_id uuid [ref: > vendor.id]
+  image_url varchar [not null]
+  role varchar [default: 'DETAIL'] 
+  sort_order int [default: 0]
+}
+
+// =========================================================
+// 3. 상품 (Service)
+// =========================================================
+Table service_item {
+  id uuid [pk]
+  vendor_id uuid [ref: > vendor.id]
+  name varchar [not null]
+  description text
+  thumbnail_url varchar
+  price int [not null] 
+  is_package boolean [default: false]
+  created_at timestamp
+}
+
+// =========================================================
+// 4. 플랜 (Plan)
+// =========================================================
+Table plan {
+  id uuid [pk]
+  user_id uuid [ref: > users.id]
+  title varchar [default: '나의 웨딩']
+  total_budget int
+  is_ai_generated boolean [default: false]
+  created_at timestamp
+}
+
+Table plan_item {
+  id uuid [pk]
+  plan_id uuid [ref: > plan.id]
+  vendor_id uuid [ref: > vendor.id]
+  service_item_id uuid [null, ref: > service_item.id]
+  
+  source item_source [default: 'AI_RECOMMEND'] 
+  selection_reason text 
+  order_index int [default: 0]
+  is_confirmed boolean [default: false]
+  
+  created_at timestamp
+}
+
+// =========================================================
+// 5. 예약 (Reservation)
+// =========================================================
+Table reservation {
+  id uuid [pk]
+  user_id uuid [ref: > users.id]
+  vendor_id uuid [ref: > vendor.id]
+  plan_id uuid [null, ref: > plan.id]
+  
+  reservation_date date [not null]
+  reservation_time time [not null]
+  status reservation_status [default: 'PENDING']
+  
+  is_deposit_paid boolean [default: false]
+  deposit_amount int [default: 0]
+  
+  visitor_name varchar
+  visitor_phone varchar
+  visitor_count int [default: 2]
+  memo text
+  
+  created_at timestamp
+}
+
+// =========================================================
+// 6. 개인 일정 (Personal Schedule)
+// =========================================================
+Table personal_schedule {
+  id uuid [pk]
+  user_id uuid [ref: > users.id]
+  title varchar [not null]
+  memo text
+  schedule_date date [not null]
+  schedule_time time
+  color_hex varchar [default: '#E1E1E1']
+  created_at timestamp
+}
+
+// =========================================================
+// 7. 정책 정보 (Policy)
+// =========================================================
+Table policy_info {
+  id uuid [pk]
+  title varchar [not null]
+  subtitle varchar
+  type varchar 
+  badges json [default: '[]'] 
+  benefit_summary varchar 
+  apply_url varchar
+  thumbnail_url varchar
+}
+
+Table user_policy_scrap {
+  id uuid [pk]
+  user_id uuid [ref: > users.id]
+  policy_info_id uuid [ref: > policy_info.id]
+  created_at timestamp
+  indexes { (user_id, policy_info_id) [unique] }
+}
+
+// =========================================================
+// 8. 리뷰 (Review)
+// =========================================================
+Table review {
+  id uuid [pk]
+  vendor_id uuid [ref: > vendor.id]
+  user_id uuid [ref: > users.id]
+  rating int
+  content text
+  images json 
+  created_at timestamp
+}
+
+// =========================================================
+// [NEW] 10. AI RAG 및 로그 (비용 관리)
+// =========================================================
+
+// [AI 지식 저장소] RAG를 위해 가공된 텍스트 데이터
+Table ai_resource {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  
+  // 우리 서비스의 업체 데이터와 연결 (Optional)
+  vendor_id uuid [null, ref: > vendor.id] 
+  
+  category varchar [not null] // 'studio', 'dress' (1차 필터링용)
+  name varchar [not null]
+  
+  // [핵심] AI가 읽을 텍스트 (업체 특징, 가격대, 분위기 등을 문장형으로 요약)
+  content text [not null] 
+  
+  // [메타데이터] 가격, 지역 등 필터링용 데이터 (JSON)
+  metadata json [default: '{}'] 
+  
+  // (선택) pgvector 등을 쓴다면 임베딩 값 저장
+  // embedding vector(1536) 
+  
+  created_at timestamp [default: `now()`]
+}
+
+// [AI 비용 로그] 내 API Key 사용 내역 추적
+Table ai_log {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [ref: > users.id] // 누가 요청했나
+  
+  request_prompt text // 실제 프롬프트 내용
+  response_result json // AI가 뱉은 추천 결과 (JSON)
+  
+  model_name varchar [default: 'gpt-4o-mini'] // 사용 모델
+  
+  // 비용 계산용 토큰 수
+  input_tokens int [default: 0]
+  output_tokens int [default: 0]
+  total_tokens int [default: 0]
+  
+  created_at timestamp [default: `now()`]
+}
+
+
+작성일: 2025.11.26
+작성자: 김동언

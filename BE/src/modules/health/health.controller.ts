@@ -24,4 +24,3 @@ export class HealthController {
     return this.healthService.getInfo();
   }
 }
-

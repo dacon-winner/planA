@@ -1,11 +1,28 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HealthModule } from './modules/health';
+import {
+  User,
+  Vendor,
+  VendorVenueDetail,
+  VendorImage,
+  ServiceItem,
+  Plan,
+  PlanItem,
+  Reservation,
+  PersonalSchedule,
+  PolicyInfo,
+  UserPolicyScrap,
+  Review,
+  AiResource,
+  AiLog,
+} from './entities';
 
 @Module({
   imports: [
@@ -13,6 +30,36 @@ import { HealthModule } from './modules/health';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    // TypeORM 설정
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres' as const,
+        host: configService.get<string>('DB_HOST', 'localhost'),
+        port: configService.get<number>('DB_PORT', 5432),
+        username: configService.get<string>('DB_USERNAME', 'postgres'),
+        password: configService.get<string>('DB_PASSWORD', 'password'),
+        database: configService.get<string>('DB_DATABASE', 'plana'),
+        entities: [
+          User,
+          Vendor,
+          VendorVenueDetail,
+          VendorImage,
+          ServiceItem,
+          Plan,
+          PlanItem,
+          Reservation,
+          PersonalSchedule,
+          PolicyInfo,
+          UserPolicyScrap,
+          Review,
+          AiResource,
+          AiLog,
+        ],
+        synchronize: false, // 프로덕션에서는 반드시 false
+        logging: configService.get<string>('NODE_ENV') === 'development',
+      }),
     }),
     // Health Check 모듈
     HealthModule,

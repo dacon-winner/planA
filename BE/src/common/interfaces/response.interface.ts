@@ -36,4 +36,3 @@ export interface IPaginationResponse<T> {
     hasPreviousPage: boolean;
   };
 }
-
