@@ -13,4 +13,3 @@ export function ApiCommonResponse(summary: string, description?: string) {
     ApiResponse({ status: 500, description: '서버 오류' }),
   );
 }
-

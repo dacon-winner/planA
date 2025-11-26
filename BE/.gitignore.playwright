@@ -1,0 +1,10 @@
+# Playwright 테스트 결과 및 artifacts
+playwright-report/
+playwright-artifacts/
+test-results/
+playwright/.cache/
+
+# Playwright 스크린샷
+**/screenshots/
+**/videos/
+

@@ -2,6 +2,7 @@
 
 NestJS 기반의 PlanA 백엔드 API 서버입니다.
 
+
 ## 📋 목차
 
 - [기술 스택](#기술-스택)
@@ -12,7 +13,6 @@ NestJS 기반의 PlanA 백엔드 API 서버입니다.
 - [개발 가이드](#개발-가이드)
 
 ## 🛠 기술 스택
-
 - **Framework**: NestJS v11
 - **Language**: TypeScript v5.7
 - **Runtime**: Node.js
@@ -20,7 +20,6 @@ NestJS 기반의 PlanA 백엔드 API 서버입니다.
 - **Validation**: class-validator, class-transformer
 - **Testing**: Jest
 - **Linting**: ESLint, Prettier
-
 ## 📁 프로젝트 구조
 
 ```
@@ -95,21 +94,46 @@ PORT=3000
 # CORS
 CORS_ORIGIN=http://localhost:3000
 
-# Database (추후 설정)
-# DB_HOST=localhost
-# DB_PORT=5432
-# DB_USERNAME=postgres
-# DB_PASSWORD=password
-# DB_DATABASE=plana
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=plana
 
-# JWT (추후 설정)
-# JWT_SECRET=your-secret-key
-# JWT_EXPIRES_IN=1d
+# JWT
+JWT_SECRET=your-secret-key-change-this-in-production
+JWT_EXPIRES_IN=1d
 
 # API
 API_PREFIX=api
 API_VERSION=v1
 ```
+
+## 🗄️ 데이터베이스 설정
+
+### PostgreSQL 설치 및 실행
+```bash
+# macOS (Homebrew)
+brew install postgresql@14
+brew services start postgresql@14
+
+# 데이터베이스 생성
+psql postgres
+CREATE DATABASE plana;
+\q
+```
+
+### 마이그레이션 실행
+```bash
+# 마이그레이션 실행 (데이터베이스 스키마 생성)
+npm run migration:run
+
+# 마이그레이션 되돌리기
+npm run migration:revert
+```
+
+자세한 내용은 [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md)를 참조하세요.
 
 ## 📚 API 문서
 
