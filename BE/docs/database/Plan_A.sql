@@ -219,3 +219,15 @@ ALTER TABLE "review" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 ALTER TABLE "ai_resource" ADD FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id");
 
 ALTER TABLE "ai_log" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+-- =========================================================
+-- 메타데이터
+-- =========================================================
+-- 버전: 1.0.0
+-- 작성일: 2025.11.26
+-- 작성자: 김동언
+-- 설명: PlanA 웨딩 플래닝 서비스 PostgreSQL 스키마
+-- 참조: docs/database/DATABASE.md
+-- 
+-- 사용법:
+-- psql -U postgres -d plana -f Plan_A.sql
