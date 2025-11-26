@@ -1,31 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
+/**
+ * Health Check 서비스
+ */
 @Injectable()
 export class HealthService {
-  constructor(private configService: ConfigService) {}
+  private startTime: number = Date.now();
 
-  check() {
+  /**
+   * 서버 상태 확인
+   */
+  check(): { status: string; timestamp: string; uptime: number; environment: string } {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      environment: this.configService.get('NODE_ENV') || 'development',
+      uptime: (Date.now() - this.startTime) / 1000,
+      environment: process.env.NODE_ENV || 'development',
     };
   }
 
-  getInfo() {
+  /**
+   * 서버 상세 정보
+   */
+  getInfo(): {
+    status: string;
+    version: string;
+    environment: string;
+    uptime: number;
+    memory: NodeJS.MemoryUsage;
+  } {
     return {
-      name: 'PlanA API',
-      version: '1.0.0',
-      environment: this.configService.get('NODE_ENV') || 'development',
-      nodeVersion: process.version,
-      platform: process.platform,
-      uptime: process.uptime(),
-      memory: {
-        total: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)} MB`,
-        used: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`,
-      },
+      status: 'ok',
+      version: process.env.npm_package_version || '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      uptime: (Date.now() - this.startTime) / 1000,
+      memory: process.memoryUsage(),
     };
   }
 }

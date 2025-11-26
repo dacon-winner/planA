@@ -10,6 +10,16 @@ import { Request, Response } from 'express';
 import { IErrorResponse } from '../interfaces';
 
 /**
+ * HTTP 예외 응답 인터페이스
+ */
+interface HttpExceptionResponse {
+  error?: string;
+  message: string | string[];
+  details?: unknown;
+  statusCode?: number;
+}
+
+/**
  * HTTP 예외를 처리하는 전역 필터
  * @description 모든 HTTP 예외를 잡아서 일관된 형식으로 응답합니다.
  */
@@ -24,16 +34,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const exceptionResponse = exception.getResponse();
 
-    const error =
+    const error: HttpExceptionResponse =
       typeof exceptionResponse === 'string'
         ? { message: exceptionResponse }
-        : (exceptionResponse as any);
+        : (exceptionResponse as HttpExceptionResponse);
 
     const errorResponse: IErrorResponse = {
       success: false,
       error: {
         code: error.error || HttpStatus[status],
-        message: error.message || exception.message,
+        message: Array.isArray(error.message) ? error.message.join(', ') : error.message,
         details: error.details || null,
       },
       timestamp: new Date().toISOString(),

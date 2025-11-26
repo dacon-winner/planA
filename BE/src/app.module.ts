@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthModule } from './modules/health';
+import { AuthModule } from './modules/auth';
 import {
   User,
   Vendor,
@@ -61,8 +63,9 @@ import {
         logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
-    // Health Check 모듈
+    // 기능 모듈
     HealthModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -77,11 +80,11 @@ import {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
     },
-    // 전역 가드 설정 (선택사항 - 필요시 주석 해제)
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
+    // 전역 가드 설정 (JWT 인증)
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

@@ -1,18 +1,17 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-
-export const ROLES_KEY = 'roles';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
 /**
  * 역할 기반 접근 제어 Guard
- * @description 특정 역할을 가진 사용자만 접근할 수 있도록 제어합니다.
+ * @description @Roles 데코레이터로 지정된 역할을 가진 사용자만 접근 가능
  *
  * @example
  * ```typescript
- * @SetMetadata(ROLES_KEY, ['admin'])
- * @Get('admin-only')
- * adminOnlyRoute() {
- *   return 'Admin only data';
+ * @Roles('admin', 'manager')
+ * @Get('admin')
+ * adminOnly() {
+ *   return 'Admin only content';
  * }
  * ```
  */
@@ -30,14 +29,12 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user } = context.switchToHttp().getRequest();
-
-    // TODO: 실제 사용자 역할 확인 로직 구현
-    // 현재는 모든 요청을 허용 (개발 단계)
-
-    // 실제 구현 시:
+    // TODO: User 엔티티에 role 필드 추가 후 구현
+    // const request = context.switchToHttp().getRequest();
+    // const user = request.user;
     // return requiredRoles.some((role) => user.roles?.includes(role));
 
+    // 임시: 모든 요청 허용 (역할 기능 미구현)
     return true;
   }
 }

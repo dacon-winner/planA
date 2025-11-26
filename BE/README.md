@@ -142,15 +142,12 @@ BE/
 
 ### 1. RAG 기반 AI 추천 시스템
 
-**2단계 필터링으로 API 비용 99% 절감:**
-
 ```
 2,000개 → [1차 DB 필터링] → 20개 → [2차 LLM 추천] → 4개
 ```
 
 - **1차 필터링**: SQL WHERE 절로 지역/예산/카테고리 필터링
 - **2차 추천**: 20개의 컨텍스트만 LLM에 전달
-- **결과**: 토큰 사용량 100배 절감 ($0.0075 → $0.000075)
 
 자세한 내용: [BUSINESS_LOGIC.md](docs/business/BUSINESS_LOGIC.md#1-rag-기반-ai-추천-시스템)
 
@@ -163,7 +160,6 @@ BE/
 자세한 내용: [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)
 
 ### 3. PostgreSQL + JSONB
-
 - **JSONB 타입**: 유연한 메타데이터 저장 (NoSQL 장점)
 - **GIN 인덱스**: JSON 내부 필드 검색 최적화
 - **pgvector 확장 계획**: 향후 벡터 검색 지원
