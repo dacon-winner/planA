@@ -29,7 +29,7 @@ export const tabLayoutStyles = {
     tabBarLabelStyle: {
       fontSize: parseInt(fontSize["mobile-xs"][0]),
       fontWeight: fontSize["mobile-xs"][1].fontWeight,
-      fontFamily: "Pretendard",
+      fontFamily: "PretendardVariable",
       marginTop: parseInt(spacing.xs),
     },
   },

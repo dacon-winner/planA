@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-3xl-bold"][1].fontWeight,
     color: colors.primary[400],
     marginBottom: parseInt(spacing.md),
-    fontFamily: "Pretendard",
+    fontFamily: "PretendardVariable",
   },
 
   "home-subtitle": {
@@ -46,6 +46,6 @@ export const styles = StyleSheet.create({
       parseInt(fontSize["mobile-l"][0]),
     fontWeight: fontSize["mobile-l"][1].fontWeight,
     color: colors.secondary[700],
-    fontFamily: "Pretendard",
+    fontFamily: "PretendardVariable",
   },
 });

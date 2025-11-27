@@ -12,6 +12,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": ["**/*"],
+    "fonts": {
+      "PretendardVariable": "./assets/fonts/PretendardVariable.ttf"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.plana.app"

@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-3xl-bold'][1].letterSpacing) * parseInt(fontSize['mobile-3xl-bold'][0]),
     fontWeight: fontSize['mobile-3xl-bold'][1].fontWeight,
     color: colors.secondary[50],
-    fontFamily: 'Pretendard',
+    fontFamily: 'PretendardVariable',
   },
 
   'schedule-section': {
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-xl-bold'][1].fontWeight,
     color: colors.secondary[900],
     marginBottom: parseInt(spacing.sm) * 1.5,
-    fontFamily: 'Pretendard',
+    fontFamily: 'PretendardVariable',
   },
 
   /* Utilities */
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
     color: colors.secondary[600],
     textAlign: 'center',
     padding: 40,
-    fontFamily: 'Pretendard',
+    fontFamily: 'PretendardVariable',
   },
 });
 
