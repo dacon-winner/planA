@@ -10,20 +10,17 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { styles } from './styles';
-import { HOME_CONTENT } from '@/commons/enums/gnb';
+import { View, Text } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { styles } from "./styles";
+import { HOME_CONTENT } from "@/commons/enums/gnb";
 
 export default function Home() {
   return (
-    <View style={styles['home-container']}>
-      <Text style={styles['home-title']}>{HOME_CONTENT.TITLE}</Text>
-      <Text style={styles['home-subtitle']}>{HOME_CONTENT.SUBTITLE}</Text>
+    <View style={styles["home-container"]}>
+      <Text style={styles["home-title"]}>{HOME_CONTENT.TITLE}</Text>
+      <Text style={styles["home-subtitle"]}>{HOME_CONTENT.SUBTITLE}</Text>
       <StatusBar style="auto" />
     </View>
   );
 }
-
-
-
