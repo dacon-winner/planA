@@ -48,14 +48,14 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "Pretendard",
+          "PretendardVariable",
           "SF Pro",
           "Apple SD Gothic Neo",
           "Noto Sans KR",
           "sans-serif",
         ],
-        display: ["Pretendard", "SF Pro Display", "sans-serif"],
-        body: ["Pretendard", "SF Pro Text", "sans-serif"],
+        display: ["PretendardVariable", "SF Pro Display", "sans-serif"],
+        body: ["PretendardVariable", "SF Pro Text", "sans-serif"],
       },
       fontSize: {
         // Mobile Typography (13px ~ 24px)
