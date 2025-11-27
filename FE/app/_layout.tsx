@@ -1,6 +1,7 @@
 import "../global.css";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { AuthProvider } from "../commons/providers/auth/auth.provider";
 import { ReactQueryProvider } from "../commons/providers/react-query/react-query.provider";
 import { ModalProvider } from "../commons/providers/modal/modal.provider";
 
@@ -21,10 +22,12 @@ export default function RootLayout() {
   
 
   return (
-    <ReactQueryProvider>
-      <ModalProvider>
-        <Stack />
-      </ModalProvider>
-    </ReactQueryProvider>
+    <AuthProvider>
+      <ReactQueryProvider>
+        <ModalProvider>
+          <Stack />
+        </ModalProvider>
+      </ReactQueryProvider>
+    </AuthProvider>
   );
 }
