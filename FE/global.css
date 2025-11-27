@@ -2,3 +2,463 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 피그마 파운데이션 노드ID: 4193:3751 */
+/* Color Tokens - CSS 변수로 사용 가능 */
+/* Note: :root 대신 html 선택자 사용 (02-wireframe.mdc 규칙 준수) */
+
+html {
+  /* Root 레벨 색상 */
+  --color-root-brand: #ff5c8d;
+  --color-root-text: #524a4e;
+  --color-root-navigation: #e5e7eb;
+  --color-root-vector98: #1f2024;
+  --color-root-blue: #2b7fff;
+  --color-root-red: #fb2c36;
+
+  /* Foundation/Red 색상 팔레트 */
+  --color-foundation-red-1: #ffeff4;
+  --color-foundation-red-2: #ffd8e4;
+  --color-foundation-red-3: #ffb9ce;
+  --color-foundation-red-4: #ff98b7;
+  --color-foundation-red-5: #ff79a2;
+  --color-foundation-red-6: #ff5c8d;
+  --color-foundation-red-7: #d94e78;
+  --color-foundation-red-8: #b54164;
+  --color-foundation-red-9: #913450;
+  --color-foundation-red-10: #73293f;
+
+  /* Foundation/Brown 색상 팔레트 */
+  --color-foundation-brown-1: #eeeded;
+  --color-foundation-brown-2: #d5d4d5;
+  --color-foundation-brown-3: #b5b1b3;
+  --color-foundation-brown-4: #928d8f;
+  --color-foundation-brown-5: #716b6e;
+  --color-foundation-brown-6: #524a4e;
+  --color-foundation-brown-7: #463f42;
+  --color-foundation-brown-8: #3a3537;
+  --color-foundation-brown-9: #2f2a2c;
+  --color-foundation-brown-10: #252123;
+
+  /* Foundation/Blue 색상 팔레트 */
+  --color-foundation-blue-1: #e9eaeb;
+  --color-foundation-blue-2: #c9cccf;
+  --color-foundation-blue-3: #9fa3a9;
+  --color-foundation-blue-4: #727881;
+  --color-foundation-blue-5: #47505b;
+  --color-foundation-blue-6: #1f2937;
+  --color-foundation-blue-7: #1a232f;
+  --color-foundation-blue-8: #161d27;
+  --color-foundation-blue-9: #12171f;
+  --color-foundation-blue-10: #0e1219;
+
+  /* Foundation/Black 색상 팔레트 */
+  --color-foundation-black-1: #ffffff;
+  --color-foundation-black-2: #fcfcfc;
+  --color-foundation-black-3: #f5f5f5;
+  --color-foundation-black-4: #f0f0f0;
+  --color-foundation-black-5: #d9d9d9;
+  --color-foundation-black-6: #bfbfbf;
+  --color-foundation-black-7: #8c8c8c;
+  --color-foundation-black-8: #595959;
+  --color-foundation-black-9: #454545;
+  --color-foundation-black-10: #262626;
+  --color-foundation-black-11: #1f1f1f;
+  --color-foundation-black-12: #141414;
+  --color-foundation-black-13: #000000;
+
+  /* 피그마 파운데이션 노드ID: 4193:4398 */
+  /* Typography Tokens - CSS 변수로 사용 가능 */
+
+  /* Mobile Typography - Korean */
+  /* Mobile XS */
+  --typography-mobile-xs-light-font-size: 13px;
+  --typography-mobile-xs-light-line-height: 18px;
+  --typography-mobile-xs-light-letter-spacing: 0em;
+  --typography-mobile-xs-light-font-weight: 300;
+  --typography-mobile-xs-font-size: 13px;
+  --typography-mobile-xs-line-height: 18px;
+  --typography-mobile-xs-letter-spacing: 0em;
+  --typography-mobile-xs-font-weight: 400;
+  --typography-mobile-xs-medium-font-size: 13px;
+  --typography-mobile-xs-medium-line-height: 18px;
+  --typography-mobile-xs-medium-letter-spacing: 0em;
+  --typography-mobile-xs-medium-font-weight: 500;
+  --typography-mobile-xs-semibold-font-size: 13px;
+  --typography-mobile-xs-semibold-line-height: 18px;
+  --typography-mobile-xs-semibold-letter-spacing: 0em;
+  --typography-mobile-xs-semibold-font-weight: 600;
+  --typography-mobile-xs-bold-font-size: 13px;
+  --typography-mobile-xs-bold-line-height: 18px;
+  --typography-mobile-xs-bold-letter-spacing: 0em;
+  --typography-mobile-xs-bold-font-weight: 700;
+  --typography-mobile-xs-extrabold-font-size: 13px;
+  --typography-mobile-xs-extrabold-line-height: 18px;
+  --typography-mobile-xs-extrabold-letter-spacing: 0em;
+  --typography-mobile-xs-extrabold-font-weight: 800;
+
+  /* Mobile S */
+  --typography-mobile-s-light-font-size: 14px;
+  --typography-mobile-s-light-line-height: 20px;
+  --typography-mobile-s-light-letter-spacing: 0em;
+  --typography-mobile-s-light-font-weight: 300;
+  --typography-mobile-s-font-size: 14px;
+  --typography-mobile-s-line-height: 20px;
+  --typography-mobile-s-letter-spacing: 0em;
+  --typography-mobile-s-font-weight: 400;
+  --typography-mobile-s-medium-font-size: 14px;
+  --typography-mobile-s-medium-line-height: 20px;
+  --typography-mobile-s-medium-letter-spacing: 0em;
+  --typography-mobile-s-medium-font-weight: 500;
+  --typography-mobile-s-semibold-font-size: 14px;
+  --typography-mobile-s-semibold-line-height: 20px;
+  --typography-mobile-s-semibold-letter-spacing: 0em;
+  --typography-mobile-s-semibold-font-weight: 600;
+  --typography-mobile-s-bold-font-size: 14px;
+  --typography-mobile-s-bold-line-height: 20px;
+  --typography-mobile-s-bold-letter-spacing: 0em;
+  --typography-mobile-s-bold-font-weight: 700;
+  --typography-mobile-s-extrabold-font-size: 14px;
+  --typography-mobile-s-extrabold-line-height: 20px;
+  --typography-mobile-s-extrabold-letter-spacing: 0em;
+  --typography-mobile-s-extrabold-font-weight: 800;
+
+  /* Mobile M */
+  --typography-mobile-m-light-font-size: 16px;
+  --typography-mobile-m-light-line-height: 24px;
+  --typography-mobile-m-light-letter-spacing: 0em;
+  --typography-mobile-m-light-font-weight: 300;
+  --typography-mobile-m-font-size: 16px;
+  --typography-mobile-m-line-height: 24px;
+  --typography-mobile-m-letter-spacing: 0em;
+  --typography-mobile-m-font-weight: 400;
+  --typography-mobile-m-medium-font-size: 16px;
+  --typography-mobile-m-medium-line-height: 24px;
+  --typography-mobile-m-medium-letter-spacing: 0em;
+  --typography-mobile-m-medium-font-weight: 500;
+  --typography-mobile-m-semibold-font-size: 16px;
+  --typography-mobile-m-semibold-line-height: 24px;
+  --typography-mobile-m-semibold-letter-spacing: 0em;
+  --typography-mobile-m-semibold-font-weight: 600;
+  --typography-mobile-m-bold-font-size: 16px;
+  --typography-mobile-m-bold-line-height: 24px;
+  --typography-mobile-m-bold-letter-spacing: 0em;
+  --typography-mobile-m-bold-font-weight: 700;
+  --typography-mobile-m-extrabold-font-size: 16px;
+  --typography-mobile-m-extrabold-line-height: 24px;
+  --typography-mobile-m-extrabold-letter-spacing: 0em;
+  --typography-mobile-m-extrabold-font-weight: 800;
+
+  /* Mobile L */
+  --typography-mobile-l-light-font-size: 18px;
+  --typography-mobile-l-light-line-height: 26px;
+  --typography-mobile-l-light-letter-spacing: 0em;
+  --typography-mobile-l-light-font-weight: 300;
+  --typography-mobile-l-font-size: 18px;
+  --typography-mobile-l-line-height: 26px;
+  --typography-mobile-l-letter-spacing: 0em;
+  --typography-mobile-l-font-weight: 400;
+  --typography-mobile-l-medium-font-size: 18px;
+  --typography-mobile-l-medium-line-height: 26px;
+  --typography-mobile-l-medium-letter-spacing: 0em;
+  --typography-mobile-l-medium-font-weight: 500;
+  --typography-mobile-l-semibold-font-size: 18px;
+  --typography-mobile-l-semibold-line-height: 26px;
+  --typography-mobile-l-semibold-letter-spacing: 0em;
+  --typography-mobile-l-semibold-font-weight: 600;
+  --typography-mobile-l-bold-font-size: 18px;
+  --typography-mobile-l-bold-line-height: 26px;
+  --typography-mobile-l-bold-letter-spacing: 0em;
+  --typography-mobile-l-bold-font-weight: 700;
+  --typography-mobile-l-extrabold-font-size: 18px;
+  --typography-mobile-l-extrabold-line-height: 26px;
+  --typography-mobile-l-extrabold-letter-spacing: 0em;
+  --typography-mobile-l-extrabold-font-weight: 800;
+
+  /* Mobile XL */
+  --typography-mobile-xl-light-font-size: 20px;
+  --typography-mobile-xl-light-line-height: 28px;
+  --typography-mobile-xl-light-letter-spacing: 0em;
+  --typography-mobile-xl-light-font-weight: 300;
+  --typography-mobile-xl-font-size: 20px;
+  --typography-mobile-xl-line-height: 28px;
+  --typography-mobile-xl-letter-spacing: 0em;
+  --typography-mobile-xl-font-weight: 400;
+  --typography-mobile-xl-medium-font-size: 20px;
+  --typography-mobile-xl-medium-line-height: 28px;
+  --typography-mobile-xl-medium-letter-spacing: 0em;
+  --typography-mobile-xl-medium-font-weight: 500;
+  --typography-mobile-xl-semibold-font-size: 20px;
+  --typography-mobile-xl-semibold-line-height: 28px;
+  --typography-mobile-xl-semibold-letter-spacing: 0em;
+  --typography-mobile-xl-semibold-font-weight: 600;
+  --typography-mobile-xl-bold-font-size: 20px;
+  --typography-mobile-xl-bold-line-height: 28px;
+  --typography-mobile-xl-bold-letter-spacing: 0em;
+  --typography-mobile-xl-bold-font-weight: 700;
+  --typography-mobile-xl-extrabold-font-size: 20px;
+  --typography-mobile-xl-extrabold-line-height: 28px;
+  --typography-mobile-xl-extrabold-letter-spacing: 0em;
+  --typography-mobile-xl-extrabold-font-weight: 800;
+
+  /* Mobile 2XL */
+  --typography-mobile-2xl-light-font-size: 22px;
+  --typography-mobile-2xl-light-line-height: 30px;
+  --typography-mobile-2xl-light-letter-spacing: -0.01em;
+  --typography-mobile-2xl-light-font-weight: 300;
+  --typography-mobile-2xl-font-size: 22px;
+  --typography-mobile-2xl-line-height: 30px;
+  --typography-mobile-2xl-letter-spacing: -0.01em;
+  --typography-mobile-2xl-font-weight: 400;
+  --typography-mobile-2xl-medium-font-size: 22px;
+  --typography-mobile-2xl-medium-line-height: 30px;
+  --typography-mobile-2xl-medium-letter-spacing: -0.01em;
+  --typography-mobile-2xl-medium-font-weight: 500;
+  --typography-mobile-2xl-semibold-font-size: 22px;
+  --typography-mobile-2xl-semibold-line-height: 30px;
+  --typography-mobile-2xl-semibold-letter-spacing: -0.01em;
+  --typography-mobile-2xl-semibold-font-weight: 600;
+  --typography-mobile-2xl-bold-font-size: 22px;
+  --typography-mobile-2xl-bold-line-height: 30px;
+  --typography-mobile-2xl-bold-letter-spacing: -0.01em;
+  --typography-mobile-2xl-bold-font-weight: 700;
+  --typography-mobile-2xl-extrabold-font-size: 22px;
+  --typography-mobile-2xl-extrabold-line-height: 30px;
+  --typography-mobile-2xl-extrabold-letter-spacing: -0.01em;
+  --typography-mobile-2xl-extrabold-font-weight: 800;
+
+  /* Mobile 3XL */
+  --typography-mobile-3xl-light-font-size: 24px;
+  --typography-mobile-3xl-light-line-height: 32px;
+  --typography-mobile-3xl-light-letter-spacing: -0.01em;
+  --typography-mobile-3xl-light-font-weight: 300;
+  --typography-mobile-3xl-font-size: 24px;
+  --typography-mobile-3xl-line-height: 32px;
+  --typography-mobile-3xl-letter-spacing: -0.01em;
+  --typography-mobile-3xl-font-weight: 400;
+  --typography-mobile-3xl-medium-font-size: 24px;
+  --typography-mobile-3xl-medium-line-height: 32px;
+  --typography-mobile-3xl-medium-letter-spacing: -0.01em;
+  --typography-mobile-3xl-medium-font-weight: 500;
+  --typography-mobile-3xl-semibold-font-size: 24px;
+  --typography-mobile-3xl-semibold-line-height: 32px;
+  --typography-mobile-3xl-semibold-letter-spacing: -0.01em;
+  --typography-mobile-3xl-semibold-font-weight: 600;
+  --typography-mobile-3xl-bold-font-size: 24px;
+  --typography-mobile-3xl-bold-line-height: 32px;
+  --typography-mobile-3xl-bold-letter-spacing: -0.01em;
+  --typography-mobile-3xl-bold-font-weight: 700;
+  --typography-mobile-3xl-extrabold-font-size: 24px;
+  --typography-mobile-3xl-extrabold-line-height: 32px;
+  --typography-mobile-3xl-extrabold-letter-spacing: -0.01em;
+  --typography-mobile-3xl-extrabold-font-weight: 800;
+
+  /* Desktop Typography - Korean */
+  /* Desktop XS */
+  --typography-desktop-xs-light-font-size: 16px;
+  --typography-desktop-xs-light-line-height: 24px;
+  --typography-desktop-xs-light-letter-spacing: 0em;
+  --typography-desktop-xs-light-font-weight: 300;
+  --typography-desktop-xs-font-size: 16px;
+  --typography-desktop-xs-line-height: 24px;
+  --typography-desktop-xs-letter-spacing: 0em;
+  --typography-desktop-xs-font-weight: 400;
+  --typography-desktop-xs-medium-font-size: 16px;
+  --typography-desktop-xs-medium-line-height: 24px;
+  --typography-desktop-xs-medium-letter-spacing: 0em;
+  --typography-desktop-xs-medium-font-weight: 500;
+  --typography-desktop-xs-semibold-font-size: 16px;
+  --typography-desktop-xs-semibold-line-height: 24px;
+  --typography-desktop-xs-semibold-letter-spacing: 0em;
+  --typography-desktop-xs-semibold-font-weight: 600;
+  --typography-desktop-xs-bold-font-size: 16px;
+  --typography-desktop-xs-bold-line-height: 24px;
+  --typography-desktop-xs-bold-letter-spacing: 0em;
+  --typography-desktop-xs-bold-font-weight: 700;
+  --typography-desktop-xs-extrabold-font-size: 16px;
+  --typography-desktop-xs-extrabold-line-height: 24px;
+  --typography-desktop-xs-extrabold-letter-spacing: 0em;
+  --typography-desktop-xs-extrabold-font-weight: 800;
+
+  /* Desktop S */
+  --typography-desktop-s-light-font-size: 18px;
+  --typography-desktop-s-light-line-height: 26px;
+  --typography-desktop-s-light-letter-spacing: 0em;
+  --typography-desktop-s-light-font-weight: 300;
+  --typography-desktop-s-font-size: 18px;
+  --typography-desktop-s-line-height: 26px;
+  --typography-desktop-s-letter-spacing: 0em;
+  --typography-desktop-s-font-weight: 400;
+  --typography-desktop-s-medium-font-size: 18px;
+  --typography-desktop-s-medium-line-height: 26px;
+  --typography-desktop-s-medium-letter-spacing: 0em;
+  --typography-desktop-s-medium-font-weight: 500;
+  --typography-desktop-s-semibold-font-size: 18px;
+  --typography-desktop-s-semibold-line-height: 26px;
+  --typography-desktop-s-semibold-letter-spacing: 0em;
+  --typography-desktop-s-semibold-font-weight: 600;
+  --typography-desktop-s-bold-font-size: 18px;
+  --typography-desktop-s-bold-line-height: 26px;
+  --typography-desktop-s-bold-letter-spacing: 0em;
+  --typography-desktop-s-bold-font-weight: 700;
+  --typography-desktop-s-extrabold-font-size: 18px;
+  --typography-desktop-s-extrabold-line-height: 26px;
+  --typography-desktop-s-extrabold-letter-spacing: 0em;
+  --typography-desktop-s-extrabold-font-weight: 800;
+
+  /* Desktop M */
+  --typography-desktop-m-light-font-size: 20px;
+  --typography-desktop-m-light-line-height: 28px;
+  --typography-desktop-m-light-letter-spacing: 0em;
+  --typography-desktop-m-light-font-weight: 300;
+  --typography-desktop-m-font-size: 20px;
+  --typography-desktop-m-line-height: 28px;
+  --typography-desktop-m-letter-spacing: 0em;
+  --typography-desktop-m-font-weight: 400;
+  --typography-desktop-m-medium-font-size: 20px;
+  --typography-desktop-m-medium-line-height: 28px;
+  --typography-desktop-m-medium-letter-spacing: 0em;
+  --typography-desktop-m-medium-font-weight: 500;
+  --typography-desktop-m-semibold-font-size: 20px;
+  --typography-desktop-m-semibold-line-height: 28px;
+  --typography-desktop-m-semibold-letter-spacing: 0em;
+  --typography-desktop-m-semibold-font-weight: 600;
+  --typography-desktop-m-bold-font-size: 20px;
+  --typography-desktop-m-bold-line-height: 28px;
+  --typography-desktop-m-bold-letter-spacing: 0em;
+  --typography-desktop-m-bold-font-weight: 700;
+  --typography-desktop-m-extrabold-font-size: 20px;
+  --typography-desktop-m-extrabold-line-height: 28px;
+  --typography-desktop-m-extrabold-letter-spacing: 0em;
+  --typography-desktop-m-extrabold-font-weight: 800;
+
+  /* Desktop L */
+  --typography-desktop-l-light-font-size: 24px;
+  --typography-desktop-l-light-line-height: 32px;
+  --typography-desktop-l-light-letter-spacing: 0em;
+  --typography-desktop-l-light-font-weight: 300;
+  --typography-desktop-l-font-size: 24px;
+  --typography-desktop-l-line-height: 32px;
+  --typography-desktop-l-letter-spacing: 0em;
+  --typography-desktop-l-font-weight: 400;
+  --typography-desktop-l-medium-font-size: 24px;
+  --typography-desktop-l-medium-line-height: 32px;
+  --typography-desktop-l-medium-letter-spacing: 0em;
+  --typography-desktop-l-medium-font-weight: 500;
+  --typography-desktop-l-semibold-font-size: 24px;
+  --typography-desktop-l-semibold-line-height: 32px;
+  --typography-desktop-l-semibold-letter-spacing: 0em;
+  --typography-desktop-l-semibold-font-weight: 600;
+  --typography-desktop-l-bold-font-size: 24px;
+  --typography-desktop-l-bold-line-height: 32px;
+  --typography-desktop-l-bold-letter-spacing: 0em;
+  --typography-desktop-l-bold-font-weight: 700;
+  --typography-desktop-l-extrabold-font-size: 24px;
+  --typography-desktop-l-extrabold-line-height: 32px;
+  --typography-desktop-l-extrabold-letter-spacing: 0em;
+  --typography-desktop-l-extrabold-font-weight: 800;
+
+  /* Desktop XL */
+  --typography-desktop-xl-light-font-size: 28px;
+  --typography-desktop-xl-light-line-height: 36px;
+  --typography-desktop-xl-light-letter-spacing: -0.01em;
+  --typography-desktop-xl-light-font-weight: 300;
+  --typography-desktop-xl-font-size: 28px;
+  --typography-desktop-xl-line-height: 36px;
+  --typography-desktop-xl-letter-spacing: -0.01em;
+  --typography-desktop-xl-font-weight: 400;
+  --typography-desktop-xl-medium-font-size: 28px;
+  --typography-desktop-xl-medium-line-height: 36px;
+  --typography-desktop-xl-medium-letter-spacing: -0.01em;
+  --typography-desktop-xl-medium-font-weight: 500;
+  --typography-desktop-xl-semibold-font-size: 28px;
+  --typography-desktop-xl-semibold-line-height: 36px;
+  --typography-desktop-xl-semibold-letter-spacing: -0.01em;
+  --typography-desktop-xl-semibold-font-weight: 600;
+  --typography-desktop-xl-bold-font-size: 28px;
+  --typography-desktop-xl-bold-line-height: 36px;
+  --typography-desktop-xl-bold-letter-spacing: -0.01em;
+  --typography-desktop-xl-bold-font-weight: 700;
+  --typography-desktop-xl-extrabold-font-size: 28px;
+  --typography-desktop-xl-extrabold-line-height: 36px;
+  --typography-desktop-xl-extrabold-letter-spacing: -0.01em;
+  --typography-desktop-xl-extrabold-font-weight: 800;
+
+  /* Desktop 2XL */
+  --typography-desktop-2xl-light-font-size: 36px;
+  --typography-desktop-2xl-light-line-height: 44px;
+  --typography-desktop-2xl-light-letter-spacing: -0.01em;
+  --typography-desktop-2xl-light-font-weight: 300;
+  --typography-desktop-2xl-font-size: 36px;
+  --typography-desktop-2xl-line-height: 44px;
+  --typography-desktop-2xl-letter-spacing: -0.01em;
+  --typography-desktop-2xl-font-weight: 400;
+  --typography-desktop-2xl-medium-font-size: 36px;
+  --typography-desktop-2xl-medium-line-height: 44px;
+  --typography-desktop-2xl-medium-letter-spacing: -0.01em;
+  --typography-desktop-2xl-medium-font-weight: 500;
+  --typography-desktop-2xl-semibold-font-size: 36px;
+  --typography-desktop-2xl-semibold-line-height: 44px;
+  --typography-desktop-2xl-semibold-letter-spacing: -0.01em;
+  --typography-desktop-2xl-semibold-font-weight: 600;
+  --typography-desktop-2xl-bold-font-size: 36px;
+  --typography-desktop-2xl-bold-line-height: 44px;
+  --typography-desktop-2xl-bold-letter-spacing: -0.01em;
+  --typography-desktop-2xl-bold-font-weight: 700;
+  --typography-desktop-2xl-extrabold-font-size: 36px;
+  --typography-desktop-2xl-extrabold-line-height: 44px;
+  --typography-desktop-2xl-extrabold-letter-spacing: -0.01em;
+  --typography-desktop-2xl-extrabold-font-weight: 800;
+
+  /* Desktop 3XL */
+  --typography-desktop-3xl-light-font-size: 48px;
+  --typography-desktop-3xl-light-line-height: 56px;
+  --typography-desktop-3xl-light-letter-spacing: -0.02em;
+  --typography-desktop-3xl-light-font-weight: 300;
+  --typography-desktop-3xl-font-size: 48px;
+  --typography-desktop-3xl-line-height: 56px;
+  --typography-desktop-3xl-letter-spacing: -0.02em;
+  --typography-desktop-3xl-font-weight: 400;
+  --typography-desktop-3xl-medium-font-size: 48px;
+  --typography-desktop-3xl-medium-line-height: 56px;
+  --typography-desktop-3xl-medium-letter-spacing: -0.02em;
+  --typography-desktop-3xl-medium-font-weight: 500;
+  --typography-desktop-3xl-semibold-font-size: 48px;
+  --typography-desktop-3xl-semibold-line-height: 56px;
+  --typography-desktop-3xl-semibold-letter-spacing: -0.02em;
+  --typography-desktop-3xl-semibold-font-weight: 600;
+  --typography-desktop-3xl-bold-font-size: 48px;
+  --typography-desktop-3xl-bold-line-height: 56px;
+  --typography-desktop-3xl-bold-letter-spacing: -0.02em;
+  --typography-desktop-3xl-bold-font-weight: 700;
+  --typography-desktop-3xl-extrabold-font-size: 48px;
+  --typography-desktop-3xl-extrabold-line-height: 56px;
+  --typography-desktop-3xl-extrabold-letter-spacing: -0.02em;
+  --typography-desktop-3xl-extrabold-font-weight: 800;
+
+  /* Desktop 4XL */
+  --typography-desktop-4xl-light-font-size: 64px;
+  --typography-desktop-4xl-light-line-height: 72px;
+  --typography-desktop-4xl-light-letter-spacing: -0.02em;
+  --typography-desktop-4xl-light-font-weight: 300;
+  --typography-desktop-4xl-font-size: 64px;
+  --typography-desktop-4xl-line-height: 72px;
+  --typography-desktop-4xl-letter-spacing: -0.02em;
+  --typography-desktop-4xl-font-weight: 400;
+  --typography-desktop-4xl-medium-font-size: 64px;
+  --typography-desktop-4xl-medium-line-height: 72px;
+  --typography-desktop-4xl-medium-letter-spacing: -0.02em;
+  --typography-desktop-4xl-medium-font-weight: 500;
+  --typography-desktop-4xl-semibold-font-size: 64px;
+  --typography-desktop-4xl-semibold-line-height: 72px;
+  --typography-desktop-4xl-semibold-letter-spacing: -0.02em;
+  --typography-desktop-4xl-semibold-font-weight: 600;
+  --typography-desktop-4xl-bold-font-size: 64px;
+  --typography-desktop-4xl-bold-line-height: 72px;
+  --typography-desktop-4xl-bold-letter-spacing: -0.02em;
+  --typography-desktop-4xl-bold-font-weight: 700;
+  --typography-desktop-4xl-extrabold-font-size: 64px;
+  --typography-desktop-4xl-extrabold-line-height: 72px;
+  --typography-desktop-4xl-extrabold-letter-spacing: -0.02em;
+  --typography-desktop-4xl-extrabold-font-weight: 800;
+}
+
