@@ -17,6 +17,7 @@ import { styles } from "./styles";
 import { HOME_CONTENT } from "@/commons/enums/gnb";
 import Button from "@/commons/components/button";
 import Input from "@/commons/components/input";
+import ContentSwitcher from "@/commons/components/content-switcher";
 import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
@@ -26,6 +27,9 @@ export default function Home() {
   const [planName, setPlanName] = useState("");
   const [filledValue, setFilledValue] = useState("이름을 입력해주세요.");
   const [smallFilledValue, setSmallFilledValue] = useState("플랜 A");
+
+  // ContentSwitcher 상태 관리
+  const [selectedCategory, setSelectedCategory] = useState(0);
 
   return (
     <ScrollView
@@ -125,6 +129,20 @@ export default function Home() {
           <Button variant="filled" size="large">
             저장하기
           </Button>
+        </View>
+
+        {/* ContentSwitcher 컴포넌트 예시 */}
+        <View style={styles["content-switcher-demo-section"]}>
+          <Text style={styles["section-title"]}>ContentSwitcher 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            선택된 카테고리: {["스튜디오", "드레스", "메이크업", "웨딩홀"][selectedCategory]}
+          </Text>
+
+          {/* 기본 ContentSwitcher */}
+          <ContentSwitcher
+            selectedIndex={selectedCategory}
+            onSelectionChange={setSelectedCategory}
+          />
         </View>
       </View>
     </ScrollView>

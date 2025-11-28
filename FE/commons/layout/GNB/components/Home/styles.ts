@@ -73,6 +73,24 @@ export const styles = StyleSheet.create({
     paddingVertical: parseInt(spacing.md),
   },
 
+  "content-switcher-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  "demo-description": {
+    fontSize: parseInt(fontSize["mobile-m"][0]),
+    lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize["mobile-m"][1].letterSpacing) *
+      parseInt(fontSize["mobile-m"][0]),
+    fontWeight: fontSize["mobile-m"][1].fontWeight,
+    color: colors.secondary[600],
+    fontFamily: "PretendardVariable",
+  },
+
   "section-title": {
     fontSize: parseInt(fontSize["mobile-xl-bold"][0]),
     lineHeight: parseInt(fontSize["mobile-xl-bold"][1].lineHeight),
