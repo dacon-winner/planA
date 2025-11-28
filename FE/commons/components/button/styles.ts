@@ -188,6 +188,32 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  /**
+   * Filled Large Text
+   * fontSize 16, fontWeight 700, letterSpacing -0.150390625, lineHeight 24, color #ffffff
+   */
+  textFilledLarge: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.150390625,
+    lineHeight: 24,
+    color: blackColors['black-1'], // #ffffff
+    textAlign: 'center',
+  },
+
+  /**
+   * Outlined Large Text
+   * fontSize 16, fontWeight 700, letterSpacing -0.150390625, lineHeight 24, color #ff5c8d
+   */
+  textOutlinedLarge: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.150390625,
+    lineHeight: 24,
+    color: rootColors.brand, // #ff5c8d
+    textAlign: 'center',
+  },
+
   /* ========================================
    * ICON STYLES
    * ======================================== */

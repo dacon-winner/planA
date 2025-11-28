@@ -76,7 +76,13 @@ export const Button: React.FC<ButtonProps> = ({
     }
 
     if (variant === "filled") {
+      if (size === "large") return styles.textFilledLarge;
       return styles.textFilled;
+    }
+
+    if (variant === "outlined") {
+      if (size === "large") return styles.textOutlinedLarge;
+      return styles.textOutlined;
     }
 
     return styles.textOutlined;
