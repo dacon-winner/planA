@@ -9,7 +9,13 @@
  */
 
 import { useRouter } from "expo-router";
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URL_PATHS } from "../../enums/url";
 
@@ -158,31 +164,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   /**
-   * AsyncStorage 변경 감지 및 상태 업데이트
+   * 초기 인증 상태 로드
    */
   useEffect(() => {
     /**
      * 상태 업데이트 함수 (비동기)
      */
-    const updateAuthState = async (): Promise<void> => {
+    const loadAuthState = async (): Promise<void> => {
       const authStatus = await checkAuth();
       const userData = await getUser();
       setIsAuthenticated(authStatus);
       setUser(userData);
     };
 
-    // 초기 상태 설정
-    updateAuthState();
-
-    // 주기적으로 상태 확인 (AsyncStorage 변경 감지)
-    // React Native에서는 단일 앱 컨텍스트이므로 setInterval로 충분
-    const intervalId = setInterval(() => {
-      updateAuthState();
-    }, 1000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
+    // 초기 마운트 시 한 번만 상태 로드
+    // logout/login 등에서 이미 상태를 직접 업데이트하므로 주기적 체크 불필요
+    loadAuthState();
   }, []);
 
   const value: AuthContextType = {
@@ -196,4 +193,3 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
