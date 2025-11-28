@@ -14,6 +14,7 @@ import { View, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { styles } from "./styles";
 import { HOME_CONTENT } from "@/commons/enums/gnb";
+import Button from "@/commons/components/button";
 
 export default function Home() {
   return (
@@ -21,6 +22,14 @@ export default function Home() {
       <Text style={styles["home-title"]}>{HOME_CONTENT.TITLE}</Text>
       <Text style={styles["home-subtitle"]}>{HOME_CONTENT.SUBTITLE}</Text>
       <StatusBar style="auto" />
+      <Button
+        variant="outlined"
+        size="small"
+        onPress={() => console.log("cancel")}
+      >
+        취소
+      </Button>
+      <Button disabled={true}>예약 신청</Button>
     </View>
   );
 }
