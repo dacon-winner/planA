@@ -172,7 +172,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
 
     // Storage 이벤트 리스너 등록 (다른 탭/윈도우에서의 변경 감지)
-    if (typeof window !== "undefined") {
+    // React Native 환경에서는 window.addEventListener가 없으므로 체크
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
       window.addEventListener("storage", handleStorageChange);
     }
 
@@ -180,7 +181,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const intervalId = setInterval(updateAuthState, 1000);
 
     return () => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && typeof window.removeEventListener === "function") {
         window.removeEventListener("storage", handleStorageChange);
       }
       clearInterval(intervalId);
