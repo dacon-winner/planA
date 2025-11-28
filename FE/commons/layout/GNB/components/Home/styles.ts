@@ -80,6 +80,13 @@ export const styles = StyleSheet.create({
     paddingVertical: parseInt(spacing.md),
   },
 
+  "filter-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
   "demo-description": {
     fontSize: parseInt(fontSize["mobile-m"][0]),
     lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
