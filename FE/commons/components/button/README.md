@@ -143,10 +143,17 @@ blackColors["black-6"]; // #bfbfbf (비활성화 배경)
 #### Typography
 
 ```typescript
+// Small & Medium
 fontSize: 12;
 fontWeight: "700"(Bold);
 letterSpacing: -0.150390625;
 lineHeight: 20;
+
+// Large
+fontSize: 16;
+fontWeight: "700"(Bold);
+letterSpacing: -0.150390625;
+lineHeight: 24;
 ```
 
 #### Spacing
@@ -233,6 +240,22 @@ export const styles = StyleSheet.create({
     color: blackColors["black-1"],
     fontSize: 12,
     fontWeight: "700",
+    // ...
+  },
+
+  textFilledLarge: {
+    color: blackColors["black-1"],
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 24,
+    // ...
+  },
+
+  textOutlinedLarge: {
+    color: rootColors.brand,
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 24,
     // ...
   },
 
@@ -537,6 +560,7 @@ describe("Button", () => {
 | 1.0.0 | 2025-11-28 | 초기 버전 생성                                      | Plan A Team |
 | 1.0.1 | 2025-11-28 | Outlined Large 사이즈 추가                          | Plan A Team |
 | 1.0.2 | 2025-11-28 | Width 고정값 제거, 내용에 따라 자동 조정되도록 변경 | Plan A Team |
+| 1.0.3 | 2025-11-28 | Large 사이즈 폰트 16px로 변경 (lineHeight 24)       | 김은경      |
 
 ---
 
