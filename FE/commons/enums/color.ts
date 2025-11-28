@@ -70,6 +70,24 @@ export const blueColors = {
 } as const;
 
 /**
+ * Secondary 색상 팔레트
+ * 뉴트럴 컬러 (블랙-화이트 스펙트럼)
+ */
+export const secondaryColors = {
+  'secondary-50': '#FFFDFE',
+  'secondary-100': '#FFF0F6',
+  'secondary-200': '#E9D7DE',
+  'secondary-300': '#D2BEC7',
+  'secondary-400': '#BBA6AF',
+  'secondary-500': '#A58F98',
+  'secondary-600': '#8E7982',
+  'secondary-700': '#77646C',
+  'secondary-800': '#614F57',
+  'secondary-900': '#4A3B41',
+  'secondary-950': '#4A3B41',
+} as const;
+
+/**
  * Foundation/Black 색상 팔레트
  * 검정색 계열의 13단계 색상 팔레트 (1: 흰색, 13: 검정색)
  */
@@ -95,6 +113,7 @@ export const blackColors = {
  */
 export const colors = {
   root: rootColors,
+  secondary: secondaryColors,
   red: redColors,
   brown: brownColors,
   blue: blueColors,
@@ -107,6 +126,9 @@ export const colors = {
 
 /** Root 색상 키 타입 */
 export type RootColorKey = keyof typeof rootColors;
+
+/** Secondary 색상 키 타입 */
+export type SecondaryColorKey = keyof typeof secondaryColors;
 
 /** Red 색상 키 타입 */
 export type RedColorKey = keyof typeof redColors;
@@ -126,6 +148,7 @@ export type BlackColorKey = keyof typeof blackColors;
  */
 export type ColorValue =
   | typeof rootColors[keyof typeof rootColors]
+  | typeof secondaryColors[keyof typeof secondaryColors]
   | typeof redColors[keyof typeof redColors]
   | typeof brownColors[keyof typeof brownColors]
   | typeof blueColors[keyof typeof blueColors]
