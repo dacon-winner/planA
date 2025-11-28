@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { secondaryColors, blackColors, brownColors } from '../../enums/color';
 
 export const styles = StyleSheet.create({
   container: {
@@ -15,25 +16,27 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeButton: {
-    backgroundColor: '#655D61',
+    backgroundColor: secondaryColors['secondary-800'],
+    borderWidth: 1,
+    borderColor: secondaryColors['secondary-800'],
   },
   inactiveButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: blackColors['black-1'],
     borderWidth: 1,
-    borderColor: '#D1D5DC',
+    borderColor: blackColors['black-5'],
   },
   activeText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
+    color: blackColors['black-1'],
+    fontSize: 14, // mobile-s
+    fontWeight: '500', // medium
+    lineHeight: 20, // mobile-s lineHeight
     fontFamily: 'PretendardVariable',
   },
   inactiveText: {
-    color: '#524A4E',
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
+    color: brownColors['brown-6'],
+    fontSize: 14, // mobile-s
+    fontWeight: '500', // medium
+    lineHeight: 20, // mobile-s lineHeight
     fontFamily: 'PretendardVariable',
   },
 });

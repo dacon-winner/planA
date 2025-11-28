@@ -12,7 +12,7 @@
 | **위치** | `commons/components/filter/Filter/` |
 | **작성일** | 2025-01-29 |
 | **작성자** | - |
-| **버전** | 1.0.0 |
+| **버전** | 1.0.1 |
 | **상태** | ✅ 완료 |
 
 ---
@@ -84,11 +84,13 @@ export interface FilterProps {
 
 #### Colors
 ```typescript
-// 직접 hex 색상 사용 (피그마 디자인 스펙 준수)
-'#655D61'  // active 배경색
-'#FFFFFF'  // inactive 배경색
-'#D1D5DC'  // inactive border 색상
-'#524A4E'  // inactive 텍스트 색상
+// tailwind.config.js에 정의된 색상 토큰 사용
+import { secondaryColors, blackColors, brownColors } from '../../enums/color';
+
+secondaryColors['secondary-800']  // active 배경색/테두리 (#614F57)
+blackColors['black-1']            // inactive 배경색/active 텍스트 (#FFFFFF)
+blackColors['black-5']            // inactive 테두리 (#D9D9D9)
+brownColors['brown-6']            // inactive 텍스트 (#524A4E)
 ```
 
 #### Typography
@@ -112,16 +114,19 @@ gap: 8              // 버튼 간 간격
 
 ```typescript
 // styles.ts
+import { StyleSheet } from 'react-native';
+import { secondaryColors, blackColors, brownColors } from '../../enums/color';
+
 export const styles = StyleSheet.create({
   /* Layout */
-  'container': {
+  container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
   },
 
   /* Components */
-  'filterButton': {
+  filterButton: {
     height: 32,
     borderRadius: 16,
     paddingHorizontal: 12,
@@ -131,29 +136,31 @@ export const styles = StyleSheet.create({
   },
 
   /* States */
-  'activeButton': {
-    backgroundColor: '#655D61',
-  },
-
-  'inactiveButton': {
-    backgroundColor: '#FFFFFF',
+  activeButton: {
+    backgroundColor: secondaryColors['secondary-800'],
     borderWidth: 1,
-    borderColor: '#D1D5DC',
+    borderColor: secondaryColors['secondary-800'],
   },
 
-  'activeText': {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
+  inactiveButton: {
+    backgroundColor: blackColors['black-1'],
+    borderWidth: 1,
+    borderColor: blackColors['black-5'],
+  },
+
+  activeText: {
+    color: blackColors['black-1'],
+    fontSize: 14, // mobile-s
+    fontWeight: '500', // medium
+    lineHeight: 20, // mobile-s lineHeight
     fontFamily: 'PretendardVariable',
   },
 
-  'inactiveText': {
-    color: '#524A4E',
-    fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 20,
+  inactiveText: {
+    color: brownColors['brown-6'],
+    fontSize: 14, // mobile-s
+    fontWeight: '500', // medium
+    lineHeight: 20, // mobile-s lineHeight
     fontFamily: 'PretendardVariable',
   },
 });
@@ -310,6 +317,7 @@ describe('Filter', () => {
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
+| 1.0.1 | 2025-11-28 | 색상 토큰 적용 및 README 업데이트 | - |
 | 1.0.0 | 2025-01-29 | 초기 버전 구현 (피그마 디자인 기반) | - |
 
 ---
