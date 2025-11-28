@@ -33,6 +33,8 @@ export const styles = StyleSheet.create({
   buttonFilledMedium: {
     height: 40,
     backgroundColor: rootColors.brand, // #ff5c8d
+    borderWidth: 1,
+    borderColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
     flexDirection: "row",
     justifyContent: "center",
@@ -48,6 +50,8 @@ export const styles = StyleSheet.create({
   buttonFilledSmall: {
     height: 32,
     backgroundColor: rootColors.brand, // #ff5c8d
+    borderWidth: 1,
+    borderColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
     flexDirection: "row",
     justifyContent: "center",
@@ -63,6 +67,8 @@ export const styles = StyleSheet.create({
   buttonFilledLarge: {
     height: 44,
     backgroundColor: rootColors.brand, // #ff5c8d
+    borderWidth: 1,
+    borderColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
     flexDirection: "row",
     justifyContent: "center",
