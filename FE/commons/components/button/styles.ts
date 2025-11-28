@@ -3,7 +3,7 @@
  * 버전: v1.0.0
  * 생성 시각: 2025-11-28
  * 피그마 노드ID: 4116:384
- * 
+ *
  * 체크리스트:
  * [✓] tailwind.config.js 수정 안 함 확인
  * [✓] 색상값 직접 입력 0건 (hex/rgb/hsl 사용 0건)
@@ -14,8 +14,8 @@
  * [✓] 접근성: 시맨틱/포커스/명도 대비/탭타겟 통과
  */
 
-import { StyleSheet } from 'react-native';
-import { rootColors, blackColors } from '../../enums/color';
+import { StyleSheet } from "react-native";
+import { rootColors, blackColors } from "../../enums/color";
 
 /**
  * Button Styles
@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
   /* ========================================
    * FILLED VARIANT STYLES
    * ======================================== */
-  
+
   /**
    * Filled Medium (기본)
    * 피그마: height 40, cornerRadius 8, bg #ff5c8d
@@ -34,9 +34,9 @@ export const styles = StyleSheet.create({
     height: 40,
     backgroundColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -49,9 +49,9 @@ export const styles = StyleSheet.create({
     height: 32,
     backgroundColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -64,9 +64,9 @@ export const styles = StyleSheet.create({
     height: 44,
     backgroundColor: rootColors.brand, // #ff5c8d
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -74,20 +74,20 @@ export const styles = StyleSheet.create({
   /* ========================================
    * OUTLINED VARIANT STYLES
    * ======================================== */
-  
+
   /**
    * Outlined Medium
    * 피그마: height 40, cornerRadius 8, border #ff5c8d
    */
   buttonOutlinedMedium: {
     height: 40,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: rootColors.brand, // #ff5c8d
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -98,13 +98,13 @@ export const styles = StyleSheet.create({
    */
   buttonOutlinedSmall: {
     height: 32,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: rootColors.brand, // #ff5c8d
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -115,13 +115,13 @@ export const styles = StyleSheet.create({
    */
   buttonOutlinedLarge: {
     height: 44,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: rootColors.brand, // #ff5c8d
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -129,18 +129,18 @@ export const styles = StyleSheet.create({
   /* ========================================
    * DISABLED STATE STYLES
    * ======================================== */
-  
+
   /**
    * Disabled
    * 피그마: height 40, cornerRadius 8, bg #c2b8b8 (가장 유사한 토큰: #bfbfbf)
    */
   buttonDisabled: {
     height: 40,
-    backgroundColor: blackColors['black-6'], // #bfbfbf (피그마 #c2b8b8와 가장 유사)
+    backgroundColor: blackColors["black-6"], // #bfbfbf (피그마 #c2b8b8와 가장 유사)
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
     gap: 4,
   },
@@ -148,18 +148,18 @@ export const styles = StyleSheet.create({
   /* ========================================
    * TEXT STYLES
    * ======================================== */
-  
+
   /**
    * Filled Text
    * 피그마: fontSize 12, fontWeight 700, letterSpacing -0.150390625, lineHeight 20, color #ffffff
    */
   textFilled: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.150390625,
     lineHeight: 20,
-    color: blackColors['black-1'], // #ffffff
-    textAlign: 'center',
+    color: blackColors["black-1"], // #ffffff
+    textAlign: "center",
   },
 
   /**
@@ -168,11 +168,11 @@ export const styles = StyleSheet.create({
    */
   textOutlined: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.150390625,
     lineHeight: 20,
     color: rootColors.brand, // #ff5c8d
-    textAlign: 'center',
+    textAlign: "center",
   },
 
   /**
@@ -181,11 +181,11 @@ export const styles = StyleSheet.create({
    */
   textDisabled: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.150390625,
     lineHeight: 20,
-    color: blackColors['black-1'], // #ffffff
-    textAlign: 'center',
+    color: blackColors["black-1"], // #ffffff
+    textAlign: "center",
   },
 
   /**
@@ -194,11 +194,11 @@ export const styles = StyleSheet.create({
    */
   textFilledLarge: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.150390625,
     lineHeight: 24,
-    color: blackColors['black-1'], // #ffffff
-    textAlign: 'center',
+    color: blackColors["black-1"], // #ffffff
+    textAlign: "center",
   },
 
   /**
@@ -207,17 +207,17 @@ export const styles = StyleSheet.create({
    */
   textOutlinedLarge: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.150390625,
     lineHeight: 24,
     color: rootColors.brand, // #ff5c8d
-    textAlign: 'center',
+    textAlign: "center",
   },
 
   /* ========================================
    * ICON STYLES
    * ======================================== */
-  
+
   /**
    * Icon Container
    * 피그마: 20x20
@@ -225,10 +225,9 @@ export const styles = StyleSheet.create({
   iconContainer: {
     width: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
 export default styles;
-

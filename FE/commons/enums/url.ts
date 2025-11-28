@@ -6,7 +6,7 @@
 /**
  * 접근 가능 상태 타입
  */
-export type AccessType = 'PUBLIC' | 'MEMBER_ONLY';
+export type AccessType = "PUBLIC" | "MEMBER_ONLY";
 
 /**
  * URL 경로 정보
@@ -25,23 +25,23 @@ export interface UrlInfo {
  */
 export const URL_PATHS = {
   /** 로그인 */
-  AUTH_LOGIN: '/auth/login',
+  AUTH_LOGIN: "/auth/login",
   /** 회원가입 */
-  AUTH_SIGNUP: '/auth/signup',
+  AUTH_SIGNUP: "/auth/signup",
   /** 폼 페이지 */
-  FORM: '/form',
+  FORM: "/form",
   /** 폼 로딩 페이지 */
-  FORM_LOADING: '/form/loading',
+  FORM_LOADING: "/form/loading",
   /** 홈 페이지 */
-  HOME: '/home',
+  HOME: "/home",
   /** 상세페이지 (다이나믹 라우팅) */
-  PLANS_DETAIL: '/plans/[id]',
+  PLANS_DETAIL: "/plans/[id]",
   /** 검색페이지 */
-  SEARCH: '/search',
+  SEARCH: "/search",
   /** 플랜페이지 */
-  MY_PLAN: '/my-plan',
+  MY_PLAN: "/my-plan",
   /** 마이페이지 */
-  MY_PAGE: '/my-page',
+  MY_PAGE: "/my-page",
 } as const;
 
 /**
@@ -50,47 +50,47 @@ export const URL_PATHS = {
 export const URL_INFO: Record<keyof typeof URL_PATHS, UrlInfo> = {
   AUTH_LOGIN: {
     pattern: URL_PATHS.AUTH_LOGIN,
-    accessType: 'PUBLIC',
+    accessType: "PUBLIC",
     showInNavigation: false,
   },
   AUTH_SIGNUP: {
     pattern: URL_PATHS.AUTH_SIGNUP,
-    accessType: 'PUBLIC',
+    accessType: "PUBLIC",
     showInNavigation: false,
   },
   FORM: {
     pattern: URL_PATHS.FORM,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: false,
   },
   FORM_LOADING: {
     pattern: URL_PATHS.FORM_LOADING,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: false,
   },
   HOME: {
     pattern: URL_PATHS.HOME,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: true,
   },
   PLANS_DETAIL: {
     pattern: URL_PATHS.PLANS_DETAIL,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: true,
   },
   SEARCH: {
     pattern: URL_PATHS.SEARCH,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: true,
   },
   MY_PLAN: {
     pattern: URL_PATHS.MY_PLAN,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: true,
   },
   MY_PAGE: {
     pattern: URL_PATHS.MY_PAGE,
-    accessType: 'MEMBER_ONLY',
+    accessType: "MEMBER_ONLY",
     showInNavigation: true,
   },
 } as const;
@@ -106,14 +106,14 @@ export const NAVIGATION_URLS = Object.entries(URL_INFO)
  * 회원 전용 URL 목록
  */
 export const MEMBER_ONLY_URLS = Object.entries(URL_INFO)
-  .filter(([, info]) => info.accessType === 'MEMBER_ONLY')
+  .filter(([, info]) => info.accessType === "MEMBER_ONLY")
   .map(([key]) => URL_PATHS[key as keyof typeof URL_PATHS]);
 
 /**
  * 공개 URL 목록
  */
 export const PUBLIC_URLS = Object.entries(URL_INFO)
-  .filter(([, info]) => info.accessType === 'PUBLIC')
+  .filter(([, info]) => info.accessType === "PUBLIC")
   .map(([key]) => URL_PATHS[key as keyof typeof URL_PATHS]);
 
 /**
@@ -155,8 +155,8 @@ export function getPlanDetailUrl(id: string | number): string {
 export function isMemberOnlyUrl(url: string): boolean {
   return MEMBER_ONLY_URLS.some((memberUrl) => {
     // 다이나믹 라우팅 패턴 매칭
-    if (memberUrl.includes('[')) {
-      const pattern = memberUrl.replace(/\[.*?\]/g, '[^/]+');
+    if (memberUrl.includes("[")) {
+      const pattern = memberUrl.replace(/\[.*?\]/g, "[^/]+");
       const regex = new RegExp(`^${pattern}$`);
       return regex.test(url);
     }
@@ -172,5 +172,3 @@ export function isMemberOnlyUrl(url: string): boolean {
 export function isPublicUrl(url: string): boolean {
   return PUBLIC_URLS.includes(url as (typeof PUBLIC_URLS)[number]);
 }
-
-
