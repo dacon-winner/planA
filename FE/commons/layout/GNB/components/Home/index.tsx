@@ -15,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { styles } from "./styles";
 import { HOME_CONTENT } from "@/commons/enums/gnb";
 import Button from "@/commons/components/button";
+import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
   return (
@@ -29,7 +30,17 @@ export default function Home() {
       >
         취소
       </Button>
-      <Button disabled={true}>예약 신청</Button>
+      <Button
+        disabled={true}
+        size="medium"
+        icon={true}
+        iconComponent={<AlarmClock size={20} color={"#fff"} />}
+      >
+        예약 신청
+      </Button>
+      <Button variant="filled" size="large">
+        지호바보
+      </Button>
     </View>
   );
 }
