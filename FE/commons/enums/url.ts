@@ -30,6 +30,8 @@ export const URL_PATHS = {
   AUTH_SIGNUP: '/auth/signup',
   /** 폼 페이지 */
   FORM: '/form',
+  /** 폼 로딩 페이지 */
+  FORM_LOADING: '/form/loading',
   /** 홈 페이지 */
   HOME: '/home',
   /** 상세페이지 (다이나믹 라우팅) */
@@ -58,6 +60,11 @@ export const URL_INFO: Record<keyof typeof URL_PATHS, UrlInfo> = {
   },
   FORM: {
     pattern: URL_PATHS.FORM,
+    accessType: 'MEMBER_ONLY',
+    showInNavigation: false,
+  },
+  FORM_LOADING: {
+    pattern: URL_PATHS.FORM_LOADING,
     accessType: 'MEMBER_ONLY',
     showInNavigation: false,
   },
