@@ -18,6 +18,7 @@ import { HOME_CONTENT } from "@/commons/enums/gnb";
 import Button from "@/commons/components/button";
 import Input from "@/commons/components/input";
 import ContentSwitcher from "@/commons/components/content-switcher";
+import Filter from "@/commons/components/filter";
 import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
@@ -30,6 +31,9 @@ export default function Home() {
 
   // ContentSwitcher 상태 관리
   const [selectedCategory, setSelectedCategory] = useState(0);
+
+  // Filter 상태 관리
+  const [selectedFilters, setSelectedFilters] = useState<{id: string, label: string, isSelected: boolean}[]>([]);
 
   return (
     <ScrollView
@@ -142,6 +146,20 @@ export default function Home() {
           <ContentSwitcher
             selectedIndex={selectedCategory}
             onSelectionChange={setSelectedCategory}
+          />
+        </View>
+
+        {/* Filter 컴포넌트 예시 */}
+        <View style={styles["filter-demo-section"]}>
+          <Text style={styles["section-title"]}>Filter 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            선택된 필터: {selectedFilters.filter(item => item.isSelected).map(item => item.label).join(', ') || '없음'}
+          </Text>
+
+          {/* 기본 Filter */}
+          <Filter
+            onSelectionChange={setSelectedFilters}
+            variant="inActive"
           />
         </View>
       </View>
