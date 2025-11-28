@@ -5,15 +5,16 @@
  * 규칙 준수: 01-common.mdc
  * - [x] 독립적인 부품 형태로 구현
  * - [x] Context API를 통한 인증 상태 관리
- * - [x] 로컬스토리지 기반 인증 상태 관리
+ * - [x] AsyncStorage 기반 인증 상태 관리 (React Native)
  */
 
 import { useRouter } from "expo-router";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URL_PATHS } from "../../enums/url";
 
 /**
- * 로컬스토리지 키 상수
+ * AsyncStorage 키 상수
  */
 const STORAGE_KEYS = {
   ACCESS_TOKEN: "accessToken",
@@ -40,9 +41,9 @@ interface AuthContextType {
   /** 로그아웃 함수 */
   logout: () => void;
   /** 로그인 상태 확인 함수 */
-  checkAuth: () => boolean;
+  checkAuth: () => Promise<boolean>;
   /** 사용자 정보 조회 함수 */
-  getUser: () => User | null;
+  getUser: () => Promise<User | null>;
 }
 
 /**
@@ -70,21 +71,36 @@ interface AuthProviderProps {
 }
 
 /**
- * 로컬스토리지에서 값 가져오기
+ * AsyncStorage에서 값 가져오기
  */
-const getStorageItem = (key: string): string | null => {
-  if (typeof window !== "undefined" && window.localStorage) {
-    return localStorage.getItem(key);
+const getStorageItem = async (key: string): Promise<string | null> => {
+  try {
+    return await AsyncStorage.getItem(key);
+  } catch (error) {
+    console.error(`AsyncStorage getItem error: ${key}`, error);
+    return null;
   }
-  return null;
 };
 
 /**
- * 로컬스토리지에서 값 제거하기
+ * AsyncStorage에 값 저장하기
  */
-const removeStorageItem = (key: string): void => {
-  if (typeof window !== "undefined" && window.localStorage) {
-    localStorage.removeItem(key);
+const setStorageItem = async (key: string, value: string): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (error) {
+    console.error(`AsyncStorage setItem error: ${key}`, error);
+  }
+};
+
+/**
+ * AsyncStorage에서 값 제거하기
+ */
+const removeStorageItem = async (key: string): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    console.error(`AsyncStorage removeItem error: ${key}`, error);
   }
 };
 
@@ -99,16 +115,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * 로그인 상태 확인 함수
    */
-  const checkAuth = (): boolean => {
-    const accessToken = getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
+  const checkAuth = async (): Promise<boolean> => {
+    const accessToken = await getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
     return accessToken !== null && accessToken !== "";
   };
 
   /**
    * 사용자 정보 조회 함수
    */
-  const getUser = (): User | null => {
-    const userStr = getStorageItem(STORAGE_KEYS.USER);
+  const getUser = async (): Promise<User | null> => {
+    const userStr = await getStorageItem(STORAGE_KEYS.USER);
     if (userStr) {
       try {
         return JSON.parse(userStr);
@@ -129,11 +145,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * 로그아웃 함수
    */
-  const logout = (): void => {
-    // 로컬스토리지에서 accessToken 제거
-    removeStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
-    // 로컬스토리지에서 user 제거
-    removeStorageItem(STORAGE_KEYS.USER);
+  const logout = async (): Promise<void> => {
+    // AsyncStorage에서 accessToken 제거
+    await removeStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
+    // AsyncStorage에서 user 제거
+    await removeStorageItem(STORAGE_KEYS.USER);
     // 상태 업데이트
     setIsAuthenticated(false);
     setUser(null);
@@ -142,15 +158,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   /**
-   * 로컬스토리지 변경 감지 및 상태 업데이트
+   * AsyncStorage 변경 감지 및 상태 업데이트
    */
   useEffect(() => {
     /**
-     * 상태 업데이트 함수
+     * 상태 업데이트 함수 (비동기)
      */
-    const updateAuthState = (): void => {
-      const authStatus = checkAuth();
-      const userData = getUser();
+    const updateAuthState = async (): Promise<void> => {
+      const authStatus = await checkAuth();
+      const userData = await getUser();
       setIsAuthenticated(authStatus);
       setUser(userData);
     };
@@ -158,32 +174,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // 초기 상태 설정
     updateAuthState();
 
-    /**
-     * 로컬스토리지 변경 이벤트 리스너
-     */
-    const handleStorageChange = (e: StorageEvent): void => {
-      if (
-        e.key === STORAGE_KEYS.ACCESS_TOKEN ||
-        e.key === STORAGE_KEYS.USER ||
-        e.key === null
-      ) {
-        updateAuthState();
-      }
-    };
-
-    // Storage 이벤트 리스너 등록 (다른 탭/윈도우에서의 변경 감지)
-    // React Native 환경에서는 window.addEventListener가 없으므로 체크
-    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
-      window.addEventListener("storage", handleStorageChange);
-    }
-
-    // 주기적으로 상태 확인 (같은 탭에서의 변경 감지)
-    const intervalId = setInterval(updateAuthState, 1000);
+    // 주기적으로 상태 확인 (AsyncStorage 변경 감지)
+    // React Native에서는 단일 앱 컨텍스트이므로 setInterval로 충분
+    const intervalId = setInterval(() => {
+      updateAuthState();
+    }, 1000);
 
     return () => {
-      if (typeof window !== "undefined" && typeof window.removeEventListener === "function") {
-        window.removeEventListener("storage", handleStorageChange);
-      }
       clearInterval(intervalId);
     };
   }, []);
