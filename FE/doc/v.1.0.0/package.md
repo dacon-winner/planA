@@ -9,6 +9,7 @@
 | 1 | `lucide-react-native` | `^0.555.0` | 25-11-27 | 아이콘 라이브러리 |
 | 2 | `@tanstack/react-query` | `^5.90.11` | 25-11-27 | 서버 상태 관리 및 데이터 페칭 라이브러리 |
 | 3 | `react-native-toast-message` | `^2.3.3` | 25-11-27 | 토스트 메시지 표시 라이브러리 |
+| 4 | `@react-native-async-storage/async-storage` | `2.2.0` | 25-11-28 | React Native용 영구 저장소 (인증 상태 관리) |
 
 ---
 
@@ -44,6 +45,16 @@
 | **설치 이유** | 토스트 메시지 표시 라이브러리 |
 | **카테고리** | UI Components |
 
+### 4. @react-native-async-storage/async-storage
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `@react-native-async-storage/async-storage` |
+| **버전** | `2.2.0` |
+| **설치 날짜** | 25-11-28 |
+| **설치 이유** | React Native용 영구 저장소 (인증 상태 관리) |
+| **카테고리** | Storage |
+
 ---
 
 ## 변경 이력
@@ -52,3 +63,4 @@
 |------|------|-----------|--------|
 | 1.0.0 | 25-11-27 | 초기 문서 작성 | - |
 | 1.1.0 | 25-11-27 | react-native-toast-message 패키지 추가 | - |
+| 1.2.0 | 25-11-28 | @react-native-async-storage/async-storage 패키지 추가 | - |
