@@ -28,7 +28,10 @@ export default function Home() {
   const [smallFilledValue, setSmallFilledValue] = useState("플랜 A");
 
   return (
-    <ScrollView contentContainerStyle={styles["home-scroll-container"]}>
+    <ScrollView 
+      style={styles["home-scroll-view"]}
+      contentContainerStyle={styles["home-scroll-container"]}
+    >
       <View style={styles["home-container"]}>
         <Text style={styles["home-title"]}>{HOME_CONTENT.TITLE}</Text>
         <Text style={styles["home-subtitle"]}>{HOME_CONTENT.SUBTITLE}</Text>

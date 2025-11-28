@@ -18,16 +18,18 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 
 /* Layout */
 export const styles = StyleSheet.create({
+  "home-scroll-view": {
+    flex: 1,
+    backgroundColor: colors.secondary[50],
+  },
+
   "home-scroll-container": {
-    flexGrow: 1,
     paddingVertical: parseInt(spacing.lg),
+    paddingHorizontal: parseInt(spacing.md),
   },
 
   "home-container": {
-    flex: 1,
     alignItems: "center",
-    paddingHorizontal: parseInt(spacing.md),
-    backgroundColor: colors.secondary[50],
     gap: parseInt(spacing.md),
   },
 
