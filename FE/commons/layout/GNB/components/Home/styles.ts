@@ -18,11 +18,17 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 
 /* Layout */
 export const styles = StyleSheet.create({
+  "home-scroll-container": {
+    flexGrow: 1,
+    paddingVertical: parseInt(spacing.lg),
+  },
+
   "home-container": {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
+    paddingHorizontal: parseInt(spacing.md),
     backgroundColor: colors.secondary[50],
+    gap: parseInt(spacing.md),
   },
 
   /* Components */
@@ -47,5 +53,33 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-l"][1].fontWeight,
     color: colors.secondary[700],
     fontFamily: "PretendardVariable",
+    marginBottom: parseInt(spacing.lg),
+  },
+
+  /* Demo Sections */
+  "input-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  "button-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  "section-title": {
+    fontSize: parseInt(fontSize["mobile-xl-bold"][0]),
+    lineHeight: parseInt(fontSize["mobile-xl-bold"][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize["mobile-xl-bold"][1].letterSpacing) *
+      parseInt(fontSize["mobile-xl-bold"][0]),
+    fontWeight: fontSize["mobile-xl-bold"][1].fontWeight,
+    color: colors.primary[500],
+    fontFamily: "PretendardVariable",
+    marginBottom: parseInt(spacing.sm),
   },
 });
