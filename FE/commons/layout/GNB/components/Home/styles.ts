@@ -113,6 +113,25 @@ export const styles = StyleSheet.create({
     fontFamily: "PretendardVariable",
   },
 
+  "radio-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  "demo-label": {
+    fontSize: parseInt(fontSize["mobile-m"][0]),
+    lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize["mobile-m"][1].letterSpacing) *
+      parseInt(fontSize["mobile-m"][0]),
+    fontWeight: fontSize["mobile-m"][1].fontWeight,
+    color: colors.secondary[700],
+    fontFamily: "PretendardVariable",
+    marginTop: parseInt(spacing.sm),
+  },
+
   "demo-description": {
     fontSize: parseInt(fontSize["mobile-m"][0]),
     lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
