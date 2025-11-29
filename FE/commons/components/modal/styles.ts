@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary['secondary-900'],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     textAlign: 'center',
     paddingHorizontal: parseInt(spacing.md),
     marginBottom: 2,
@@ -163,7 +163,7 @@ export const styles = StyleSheet.create({
     letterSpacing: -0.12,
     fontWeight: '400',
     color: colors.brown['brown-6'],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 });
 

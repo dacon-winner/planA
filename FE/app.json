@@ -14,7 +14,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "fonts": {
-      "PretendardVariable": "./assets/fonts/PretendardVariable.ttf"
+      "Pretendard": "./assets/fonts/Pretendard-Regular.otf"
     },
     "ios": {
       "supportsTablet": true,

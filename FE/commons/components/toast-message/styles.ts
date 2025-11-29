@@ -62,7 +62,7 @@ export const toastMessageStyles = StyleSheet.create({
     letterSpacing: -0.1307026445865631,
     color: colors.black["black-1"],
     textAlign: "center",
-    fontFamily: "PretendardVariable",
+    fontFamily: "Pretendard",
     // 폰트 잘림 방지
     includeFontPadding: false,
   },

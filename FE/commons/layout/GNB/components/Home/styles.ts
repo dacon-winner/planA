@@ -1,190 +1,298 @@
 /**
  * Home Styles
  * 버전: 1.0.0
- * 생성 시각: 2025-11-14
+ * 생성 시각: 2025-11-29
+ * 피그마 노드ID: 4116:260
  * 규칙 준수: 03-ui.mdc
  * - [x] tailwind.config.js의 토큰만 사용
- * - [x] 하드코딩 색상 0건
+ * - [x] 하드코딩 색상 0건 (Gradient 배경 제외 - 요청사항)
  * - [x] StyleSheet 전용
+ * - [x] Flexbox만 사용 (position absolute 금지)
  * - [x] 반응형/접근성 고려
  */
 
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform, StatusBar } from "react-native";
+import { mobileTypography } from "../../../../enums/typography";
 
 const tailwindConfig = require("@/tailwind.config.js");
 const colors = tailwindConfig.theme.extend.colors;
 const spacing = tailwindConfig.theme.extend.spacing;
-const fontSize = tailwindConfig.theme.extend.fontSize;
+
+const STATUSBAR_HEIGHT =
+  Platform.OS === "ios" ? 44 : StatusBar.currentHeight || 0;
 
 /* Layout */
 export const styles = StyleSheet.create({
+  "home-wrapper": {
+    flex: 1,
+    backgroundColor: colors.foundationBlack[1],
+    overflow: "visible",
+  },
+
   "home-scroll-view": {
     flex: 1,
-    backgroundColor: colors.secondary[50],
+    overflow: "visible",
   },
 
   "home-scroll-container": {
-    paddingVertical: parseInt(spacing.lg),
-    paddingHorizontal: parseInt(spacing.md),
+    flexGrow: 1,
+    overflow: "visible",
   },
 
   "home-container": {
-    alignItems: "center",
-    gap: parseInt(spacing.md),
+    flex: 1,
+    position: "relative",
+    paddingHorizontal: 24,
+    paddingTop: STATUSBAR_HEIGHT + 82,
+    gap: 32,
+    overflow: "visible",
   },
 
-  /* Components */
-  "home-title": {
-    fontSize: parseInt(fontSize["mobile-3xl-bold"][0]),
-    lineHeight: parseInt(fontSize["mobile-3xl-bold"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-3xl-bold"][1].letterSpacing) *
-      parseInt(fontSize["mobile-3xl-bold"][0]),
-    fontWeight: fontSize["mobile-3xl-bold"][1].fontWeight,
-    color: colors.primary[400],
-    marginBottom: parseInt(spacing.md),
-    fontFamily: "PretendardVariable",
+  /* 배경 그라데이션 */
+  "background-gradient": {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 0,
   },
 
-  "home-subtitle": {
-    fontSize: parseInt(fontSize["mobile-l"][0]),
-    lineHeight: parseInt(fontSize["mobile-l"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-l"][1].letterSpacing) *
-      parseInt(fontSize["mobile-l"][0]),
-    fontWeight: fontSize["mobile-l"][1].fontWeight,
-    color: colors.secondary[700],
-    fontFamily: "PretendardVariable",
-    marginBottom: parseInt(spacing.lg),
+  /* 상단 텍스트 섹션 */
+  "header-section": {
+    gap: 4,
+    zIndex: 1,
   },
 
-  /* Demo Sections */
-  "input-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "header-subtitle": {
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: -0.3125,
+    fontWeight: "400" as any,
+    color: "rgba(0, 0, 0, 0.9)",
+    fontFamily: "Pretendard",
   },
 
-  "button-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "header-title": {
+    fontSize: 24,
+    lineHeight: 36,
+    letterSpacing: 0.0703,
+    fontWeight: "700" as any,
+    color: colors.foundationBlack[13],
+    fontFamily: "Pretendard",
   },
 
-  "content-switcher-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  /* 중앙 정보 카드 */
+  "info-card-wrapper": {
+    alignSelf: "center",
+    width: 353,
+    height: 121,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.foundationBlack[1],
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    overflow: "hidden",
+    shadowColor: "rgba(128, 12, 58, 0.1)",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 5,
+    zIndex: 1,
   },
 
-  "filter-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
-  },
-
-  "toggle-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
-  },
-
-  "toggle-item": {
-    width: "100%",
+  "info-card-content": {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingVertical: 20,
+    paddingHorizontal: 5.5,
+  },
+
+  "info-item": {
+    width: 108,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    flexDirection: "column",
+    gap: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  "info-icon": {
+    width: 20,
+    height: 20,
+  },
+
+  "info-icon-placeholder": {
+    width: 20,
+    height: 20,
+    backgroundColor: colors.foundationBlack[5],
+    borderRadius: 4,
+  },
+
+  "info-label": {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "400",
+    color: "rgba(82, 74, 78, 0.7)",
+    fontFamily: "Pretendard",
+  },
+
+  "info-value-primary": {
+    fontSize: 14,
+    lineHeight: 24,
+    letterSpacing: -0.3125,
+    fontWeight: "700",
+    color: colors.root.brand,
+    fontFamily: "Pretendard",
+    textAlign: "center",
+  },
+
+  "info-value": {
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: -0.1504,
+    fontWeight: "700",
+    color: colors.root.text,
+    textAlign: "center",
+    fontFamily: "Pretendard",
+  },
+
+  "info-divider": {
+    width: 1,
+    height: 78,
+    backgroundColor: colors.foundationBlack[5],
+  },
+
+  /* 하단 카드 그리드 */
+  "card-grid": {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "flex-start",
+    zIndex: 1,
+  },
+
+  /* 업체 카드 */
+  "vendor-card": {
+    width: 167,
+    height: 218,
+    backgroundColor: colors.foundationBlack[1],
+    borderRadius: 8,
+    opacity: 0.85,
+    shadowColor: "rgba(128, 12, 58, 0.1)",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 5,
+    overflow: "hidden",
+  },
+
+  "card-content": {
+    flex: 1,
+    flexDirection: "column",
     justifyContent: "space-between",
-    paddingVertical: parseInt(spacing.sm),
   },
 
-  "toggle-label": {
-    fontSize: parseInt(fontSize["mobile-m"][0]),
-    lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-m"][1].letterSpacing) *
-      parseInt(fontSize["mobile-m"][0]),
-    fontWeight: fontSize["mobile-m"][1].fontWeight,
-    color: colors.secondary[800],
-    fontFamily: "PretendardVariable",
+  "card-info": {
+    paddingTop: 12,
+    paddingHorizontal: 12,
+    gap: 6,
+    zIndex: 1,
   },
 
-  "radio-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "card-header": {
+    gap: 0,
   },
 
-  "calendar-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "card-title": {
+    fontSize: 14,
+    lineHeight: 24,
+    letterSpacing: -0.14,
+    fontWeight: "700",
+    color: colors.root.text,
+    fontFamily: "Pretendard",
   },
 
-  "card-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "card-title-inactive": {
+    fontSize: 14,
+    lineHeight: 24,
+    letterSpacing: -0.14,
+    fontWeight: "700",
+    color: "#d6cfcf",
+    fontFamily: "Pretendard",
   },
 
-  "select-button-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
-  },
-
-  "single-button-row": {
+  "card-meta": {
     flexDirection: "row",
-    gap: parseInt(spacing.sm),
+    gap: 4,
+    alignItems: "flex-start",
   },
 
-  "stepper-demo-section": {
-    width: "100%",
-    maxWidth: 400,
-    gap: parseInt(spacing.md),
-    paddingVertical: parseInt(spacing.md),
+  "card-category-bold": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "700",
+    color: colors.root.text,
+    fontFamily: "Pretendard",
   },
 
-  "demo-label": {
-    fontSize: parseInt(fontSize["mobile-m"][0]),
-    lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-m"][1].letterSpacing) *
-      parseInt(fontSize["mobile-m"][0]),
-    fontWeight: fontSize["mobile-m"][1].fontWeight,
-    color: colors.secondary[700],
-    fontFamily: "PretendardVariable",
-    marginTop: parseInt(spacing.sm),
+  "card-category-inactive": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "700",
+    color: "#d6cfcf",
+    fontFamily: "Pretendard",
   },
 
-  "demo-description": {
-    fontSize: parseInt(fontSize["mobile-m"][0]),
-    lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-m"][1].letterSpacing) *
-      parseInt(fontSize["mobile-m"][0]),
-    fontWeight: fontSize["mobile-m"][1].fontWeight,
-    color: colors.secondary[600],
-    fontFamily: "PretendardVariable",
+  "card-location": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "500",
+    color: colors.root.text,
+    fontFamily: "Pretendard",
   },
 
-  "section-title": {
-    fontSize: parseInt(fontSize["mobile-xl-bold"][0]),
-    lineHeight: parseInt(fontSize["mobile-xl-bold"][1].lineHeight),
-    letterSpacing:
-      parseFloat(fontSize["mobile-xl-bold"][1].letterSpacing) *
-      parseInt(fontSize["mobile-xl-bold"][0]),
-    fontWeight: fontSize["mobile-xl-bold"][1].fontWeight,
-    color: colors.primary[500],
-    fontFamily: "PretendardVariable",
-    marginBottom: parseInt(spacing.sm),
+  "card-location-inactive": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "500",
+    color: "#d6cfcf",
+    fontFamily: "Pretendard",
+  },
+
+  "card-status": {
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+  },
+
+  "card-status-text": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "400",
+    color: colors.root.text,
+    fontFamily: "Pretendard",
+  },
+
+  "card-status-text-inactive": {
+    fontSize: 10,
+    lineHeight: 12,
+    letterSpacing: -0.1,
+    fontWeight: "400",
+    color: "#d6cfcf",
+    fontFamily: "Pretendard",
+  },
+
+  "card-image": {
+    width: 167,
+    height: 141,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
 });

@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-xs-bold"][1].fontWeight, // 700
     color: colors.foundationBrown[4], // #928d8f (내장 색상)
     textAlign: "center",
-    fontFamily: "PretendardVariable",
+    fontFamily: "Pretendard",
   },
 
   /**
@@ -152,7 +152,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-xs-bold"][1].fontWeight, // 700
     color: colors.foundationBrown[4], // #928d8f (내장 색상)
     textAlign: "center",
-    fontFamily: "PretendardVariable",
+    fontFamily: "Pretendard",
   },
 });
 

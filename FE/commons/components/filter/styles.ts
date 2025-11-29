@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
     fontSize: 14, // mobile-s
     fontWeight: "500", // medium
     lineHeight: 20, // mobile-s lineHeight
-    fontFamily: "PretendardVariable",
+    fontFamily: "Pretendard",
   },
 
   /**
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
     fontSize: 14, // mobile-s
     fontWeight: "500", // medium
     lineHeight: 20, // mobile-s lineHeight
-    fontFamily: "PretendardVariable",
+    fontFamily: "Pretendard",
   },
 });
 

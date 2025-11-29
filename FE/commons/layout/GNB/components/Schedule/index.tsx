@@ -17,20 +17,22 @@ import { SCHEDULE_CONTENT } from '@/commons/enums/gnb';
 
 export default function Schedule() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles['schedule-container']}>
-        <View style={styles['schedule-header']}>
-          <Text style={styles['schedule-header-title']}>{SCHEDULE_CONTENT.HEADER_TITLE}</Text>
-        </View>
-        <ScrollView style={styles['schedule-content']}>
-          <View style={styles['schedule-section']}>
-            <Text style={styles['schedule-section-title']}>{SCHEDULE_CONTENT.SECTION_TITLE}</Text>
-            <Text style={styles['schedule-placeholder']}>{SCHEDULE_CONTENT.PLACEHOLDER}</Text>
+    <View style={styles['schedule-wrapper']}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles['schedule-container']}>
+          <View style={styles['schedule-header']}>
+            <Text style={styles['schedule-header-title']}>{SCHEDULE_CONTENT.HEADER_TITLE}</Text>
           </View>
-        </ScrollView>
-        <StatusBar style="auto" />
-      </View>
-    </SafeAreaView>
+          <ScrollView style={styles['schedule-content']}>
+            <View style={styles['schedule-section']}>
+              <Text style={styles['schedule-section-title']}>{SCHEDULE_CONTENT.SECTION_TITLE}</Text>
+              <Text style={styles['schedule-placeholder']}>{SCHEDULE_CONTENT.PLACEHOLDER}</Text>
+            </View>
+          </ScrollView>
+          <StatusBar style="auto" />
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
