@@ -34,9 +34,11 @@ export const TOAST_DEFAULT_CONFIG = {
  * Success Toast 컴포넌트
  */
 const SuccessToast: React.FC<BaseToastProps> = ({ text1 }) => (
-  <View style={toastMessageStyles.container}>
-    <CircleCheck size={16} color={iconColors.toast} strokeWidth={2} />
-    <Text style={toastMessageStyles.text}>{text1}</Text>
+  <View style={toastMessageStyles.wrapper}>
+    <View style={toastMessageStyles.container}>
+      <CircleCheck size={16} color={iconColors.toast} strokeWidth={2} />
+      <Text style={toastMessageStyles.text}>{text1}</Text>
+    </View>
   </View>
 );
 
@@ -44,9 +46,11 @@ const SuccessToast: React.FC<BaseToastProps> = ({ text1 }) => (
  * Error Toast 컴포넌트
  */
 const ErrorToast: React.FC<BaseToastProps> = ({ text1 }) => (
-  <View style={toastMessageStyles.container}>
-    <ShieldAlert size={16} color={iconColors.toast} strokeWidth={2} />
-    <Text style={toastMessageStyles.text}>{text1}</Text>
+  <View style={toastMessageStyles.wrapper}>
+    <View style={toastMessageStyles.container}>
+      <ShieldAlert size={16} color={iconColors.toast} strokeWidth={2} />
+      <Text style={toastMessageStyles.text}>{text1}</Text>
+    </View>
   </View>
 );
 

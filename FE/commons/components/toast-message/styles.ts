@@ -14,6 +14,15 @@ import { colors } from "@/commons/enums/color";
  */
 export const toastMessageStyles = StyleSheet.create({
   /**
+   * 래퍼 스타일
+   * 그림자가 그려질 공간을 확보하기 위한 투명한 여백
+   * Blur: 20이므로 충분한 padding 확보
+   */
+  wrapper: {
+    padding: 20, // 그림자 blur(20)만큼의 여백 확보
+  },
+
+  /**
    * 컨테이너 스타일
    * 아이콘과 텍스트를 중앙에 배치하고 8px 간격 유지
    * Drop shadow: X:0, Y:0, Blur:20, Spread:-3.48, Color:red-10 (20% opacity)
