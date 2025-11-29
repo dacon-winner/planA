@@ -120,6 +120,13 @@ export const styles = StyleSheet.create({
     paddingVertical: parseInt(spacing.md),
   },
 
+  "calendar-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
   "select-button-demo-section": {
     width: "100%",
     maxWidth: 400,

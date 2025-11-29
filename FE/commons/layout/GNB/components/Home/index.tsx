@@ -21,6 +21,7 @@ import ContentSwitcher from "@/commons/components/content-switcher";
 import Filter from "@/commons/components/filter";
 import Toggle from "@/commons/components/toggle";
 import { Radio, RadioGroup } from "@/commons/components/radio";
+import Calendar from "@/commons/components/calendar";
 import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
@@ -49,6 +50,9 @@ export default function Home() {
   // Radio 상태 관리
   const [gender, setGender] = useState("male");
   const [plan, setPlan] = useState("basic");
+
+  // Calendar 상태 관리
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   return (
     <ScrollView
@@ -270,6 +274,24 @@ export default function Home() {
               ? "프리미엄"
               : "엔터프라이즈"}
           </Text>
+        </View>
+
+        {/* Calendar 컴포넌트 예시 */}
+        <View style={styles["calendar-demo-section"]}>
+          <Text style={styles["section-title"]}>Calendar 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            선택된 날짜:{" "}
+            {selectedDate
+              ? `${selectedDate.getFullYear()}년 ${
+                  selectedDate.getMonth() + 1
+                }월 ${selectedDate.getDate()}일`
+              : "없음"}
+          </Text>
+
+          <Calendar
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+          />
         </View>
       </View>
     </ScrollView>
