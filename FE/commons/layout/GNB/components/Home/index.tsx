@@ -39,7 +39,9 @@ export default function Home() {
   >([]);
 
   // Toggle 상태 관리
-  const [notificationToggle, setNotificationToggle] = useState<"on" | "off">("off");
+  const [notificationToggle, setNotificationToggle] = useState<"on" | "off">(
+    "off"
+  );
   const [darkModeToggle, setDarkModeToggle] = useState<"on" | "off">("on");
   const [autoSaveToggle, setAutoSaveToggle] = useState<"on" | "off">("off");
 
@@ -191,28 +193,19 @@ export default function Home() {
           {/* 다크 모드 Toggle - ON 상태 */}
           <View style={styles["toggle-item"]}>
             <Text style={styles["toggle-label"]}>다크 모드</Text>
-            <Toggle
-              state={darkModeToggle}
-              onToggle={setDarkModeToggle}
-            />
+            <Toggle state={darkModeToggle} onToggle={setDarkModeToggle} />
           </View>
 
           {/* 자동 저장 Toggle - OFF 상태 */}
           <View style={styles["toggle-item"]}>
             <Text style={styles["toggle-label"]}>자동 저장</Text>
-            <Toggle
-              state={autoSaveToggle}
-              onToggle={setAutoSaveToggle}
-            />
+            <Toggle state={autoSaveToggle} onToggle={setAutoSaveToggle} />
           </View>
 
           {/* Disabled 상태 예시 */}
           <View style={styles["toggle-item"]}>
             <Text style={styles["toggle-label"]}>활성화 안 됨</Text>
-            <Toggle
-              state="on"
-              disabled={true}
-            />
+            <Toggle state="on" disabled={true} />
           </View>
 
           <Text style={styles["demo-description"]}>
