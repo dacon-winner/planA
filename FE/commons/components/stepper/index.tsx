@@ -167,6 +167,10 @@ export interface StepperProps {
   onStepChange?: (stepIndex: number) => void;
   /** 스텝 완료 핸들러 */
   onStepComplete?: (stepIndex: number) => void;
+  /** 자동 진행 옵션 (기본값: false) */
+  autoProgress?: boolean;
+  /** 자동 진행 딜레이 (ms, 기본값: 500) */
+  autoProgressDelay?: number;
 }
 
 /**
@@ -322,6 +326,12 @@ export interface StepperContextValue {
   goToNextStep: () => void;
   goToPreviousStep: () => void;
   goToStep: (stepIndex: number) => void;
+  /** 자동 진행 옵션 */
+  autoProgress: boolean;
+  /** 자동 진행 딜레이 */
+  autoProgressDelay: number;
+  /** 자동으로 다음 스텝으로 진행 (autoProgress가 true일 때만 동작) */
+  autoCompleteStep: () => void;
 }
 
 export const StepperContext = React.createContext<StepperContextValue | null>(
@@ -346,6 +356,9 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
   const [completedSteps, setCompletedSteps] = useState<number[]>(
     props.completedSteps || []
   );
+
+  const autoProgress = props.autoProgress ?? false;
+  const autoProgressDelay = props.autoProgressDelay ?? 500;
 
   const goToNextStep = () => {
     const nextStepIndex = currentStep + 1;
@@ -385,12 +398,27 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
     }
   };
 
+  /**
+   * 자동으로 다음 스텝으로 진행
+   * autoProgress가 true일 때만 동작
+   */
+  const autoCompleteStep = () => {
+    if (autoProgress) {
+      setTimeout(() => {
+        goToNextStep();
+      }, autoProgressDelay);
+    }
+  };
+
   const contextValue: StepperContextValue = {
     currentStep,
     completedSteps,
     goToNextStep,
     goToPreviousStep,
     goToStep,
+    autoProgress,
+    autoProgressDelay,
+    autoCompleteStep,
   };
 
   return (

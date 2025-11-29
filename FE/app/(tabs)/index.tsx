@@ -28,90 +28,121 @@ import { brownColors } from "@/commons/enums/color";
 
 // Stepper 예시를 위한 폼 데이터 타입
 interface StepperFormData {
-  personalName: string;
-  personalEmail: string;
-  twitter: string;
-  linkedin: string;
-  cardNumber: string;
-  cvv: string;
+  region: string;
+  budget: string;
+  time: string;
 }
 
 // Stepper 예시를 위한 폼 컴포넌트들
-function PersonalInfoForm({
+function RegionSelectionForm({
   data,
   onChange,
 }: {
   data: StepperFormData;
   onChange: (field: keyof StepperFormData, value: string) => void;
 }) {
-  const { goToNextStep } = useStepperContext();
+  const { autoCompleteStep } = useStepperContext();
+  const ICON_COLOR_DEFAULT = brownColors["brown-2"];
+  const ICON_COLOR_SELECTED = "#861043";
+
+  const regionOptions = [
+    {
+      value: "gangnam",
+      label: "강남구",
+      icon: (
+        <MapPin
+          size={20}
+          color={data.region === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "seocho",
+      label: "서초구",
+      icon: (
+        <MapPin
+          size={20}
+          color={data.region === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "songpa",
+      label: "송파구",
+      icon: (
+        <MapPin
+          size={20}
+          color={data.region === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "jongno",
+      label: "종로구",
+      icon: (
+        <MapPin
+          size={20}
+          color={data.region === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+  ];
 
   return (
     <View style={{ gap: 12 }}>
-      <Input
-        label="이름"
-        placeholder="이름을 입력해주세요"
-        size="small"
-        value={data.personalName}
-        onChangeText={(value) => onChange("personalName", value)}
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        지역을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.region}
+        onChange={(value) => {
+          onChange("region", value);
+          autoCompleteStep();
+        }}
+        options={regionOptions}
+        size="medium"
+        direction="horizontal"
       />
-      <Input
-        label="이메일"
-        placeholder="이메일을 입력해주세요"
-        size="small"
-        value={data.personalEmail}
-        onChangeText={(value) => onChange("personalEmail", value)}
-      />
-      <Button
-        variant="filled"
-        size="small"
-        onPress={goToNextStep}
-        disabled={!data.personalName || !data.personalEmail}
-      >
-        다음 단계
-      </Button>
     </View>
   );
 }
 
-function SocialAccountsForm({
+function BudgetSelectionForm({
   data,
   onChange,
 }: {
   data: StepperFormData;
   onChange: (field: keyof StepperFormData, value: string) => void;
 }) {
-  const { goToNextStep, goToPreviousStep } = useStepperContext();
+  const { autoCompleteStep } = useStepperContext();
+
+  const budgetOptions = [
+    { value: "1000", label: "1,000만원" },
+    { value: "3000", label: "3,000만원" },
+    { value: "5000", label: "5,000만원" },
+    { value: "10000", label: "1억원" },
+  ];
 
   return (
     <View style={{ gap: 12 }}>
-      <Input
-        label="Twitter"
-        placeholder="@username"
-        size="small"
-        value={data.twitter}
-        onChangeText={(value) => onChange("twitter", value)}
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        예산을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.budget}
+        onChange={(value) => {
+          onChange("budget", value);
+          autoCompleteStep();
+        }}
+        options={budgetOptions}
+        size="medium"
+        direction="horizontal"
       />
-      <Input
-        label="LinkedIn"
-        placeholder="linkedin.com/in/username"
-        size="small"
-        value={data.linkedin}
-        onChangeText={(value) => onChange("linkedin", value)}
-      />
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        <Button variant="outlined" size="small" onPress={goToPreviousStep}>
-          이전
-        </Button>
-        <Button variant="filled" size="small" onPress={goToNextStep}>
-          다음 단계
-        </Button>
-      </View>
     </View>
   );
 }
 
-function PaymentInfoForm({
+function TimeSelectionForm({
   data,
   onChange,
   onSubmit,
@@ -120,37 +151,79 @@ function PaymentInfoForm({
   onChange: (field: keyof StepperFormData, value: string) => void;
   onSubmit: () => void;
 }) {
-  const { goToPreviousStep } = useStepperContext();
+  const ICON_COLOR_DEFAULT = brownColors["brown-2"];
+  const ICON_COLOR_SELECTED = "#861043";
+
+  const timeOptions = [
+    {
+      value: "09:00",
+      label: "09:00",
+      icon: (
+        <Clock
+          size={16}
+          color={data.time === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "11:00",
+      label: "11:00",
+      icon: (
+        <Clock
+          size={16}
+          color={data.time === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "14:00",
+      label: "14:00",
+      icon: (
+        <Clock
+          size={16}
+          color={data.time === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "16:00",
+      label: "16:00",
+      icon: (
+        <Clock
+          size={16}
+          color={data.time === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+    {
+      value: "18:00",
+      label: "18:00",
+      icon: (
+        <Clock
+          size={16}
+          color={data.time === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+        />
+      ),
+    },
+  ];
 
   return (
     <View style={{ gap: 12 }}>
-      <Input
-        label="카드 번호"
-        placeholder="1234-5678-9012-3456"
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        시간을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.time}
+        onChange={(value) => {
+          onChange("time", value);
+          setTimeout(() => {
+            onSubmit();
+          }, 500);
+        }}
+        options={timeOptions}
         size="small"
-        value={data.cardNumber}
-        onChangeText={(value) => onChange("cardNumber", value)}
+        direction="horizontal"
       />
-      <Input
-        label="CVV"
-        placeholder="123"
-        size="small"
-        value={data.cvv}
-        onChangeText={(value) => onChange("cvv", value)}
-      />
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        <Button variant="outlined" size="small" onPress={goToPreviousStep}>
-          이전
-        </Button>
-        <Button
-          variant="filled"
-          size="small"
-          onPress={onSubmit}
-          disabled={!data.cardNumber || !data.cvv}
-        >
-          완료
-        </Button>
-      </View>
     </View>
   );
 }
@@ -165,12 +238,9 @@ export default function Home() {
 
   // Stepper 폼 데이터 상태 관리
   const [stepperFormData, setStepperFormData] = useState<StepperFormData>({
-    personalName: "",
-    personalEmail: "",
-    twitter: "",
-    linkedin: "",
-    cardNumber: "",
-    cvv: "",
+    region: "",
+    budget: "",
+    time: "",
   });
 
   // Stepper 폼 데이터 변경 핸들러
@@ -188,7 +258,7 @@ export default function Home() {
   const handleStepperFormSubmit = () => {
     console.log("Stepper Form Data:", stepperFormData);
     alert(
-      `회원가입 완료!\n이름: ${stepperFormData.personalName}\n이메일: ${stepperFormData.personalEmail}`
+      `선택 완료!\n지역: ${stepperFormData.region}\n예산: ${stepperFormData.budget}만원\n시간: ${stepperFormData.time}`
     );
   };
 
@@ -620,27 +690,27 @@ export default function Home() {
           <StepperWithContext
             steps={[
               {
-                title: "Personal info",
+                title: "지역 선택",
                 content: (
-                  <PersonalInfoForm
+                  <RegionSelectionForm
                     data={stepperFormData}
                     onChange={handleStepperFormChange}
                   />
                 ),
               },
               {
-                title: "Social accounts",
+                title: "예산 선택",
                 content: (
-                  <SocialAccountsForm
+                  <BudgetSelectionForm
                     data={stepperFormData}
                     onChange={handleStepperFormChange}
                   />
                 ),
               },
               {
-                title: "Payment info",
+                title: "시간 선택",
                 content: (
-                  <PaymentInfoForm
+                  <TimeSelectionForm
                     data={stepperFormData}
                     onChange={handleStepperFormChange}
                     onSubmit={handleStepperFormSubmit}
@@ -648,6 +718,8 @@ export default function Home() {
                 ),
               },
             ]}
+            autoProgress={true}
+            autoProgressDelay={500}
           />
         </View>
       </View>
