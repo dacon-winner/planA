@@ -402,7 +402,7 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
     if (autoProgress) {
       setTimeout(() => {
         const nextStepIndex = currentStep + 1;
-        
+
         // 마지막 스텝이 아닌 경우: 다음 스텝으로 이동
         if (nextStepIndex < props.steps.length) {
           goToNextStep();
@@ -414,6 +414,8 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
             }
             return prev;
           });
+          // 모든 폼을 닫기 위해 currentStep을 -1로 설정
+          setCurrentStep(-1);
           if (props.onStepComplete) {
             props.onStepComplete(currentStep);
           }
