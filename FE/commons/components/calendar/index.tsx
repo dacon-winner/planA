@@ -65,8 +65,10 @@ export const DayCell: React.FC<DayCellProps> = ({
   const effectiveState: DayCellState = isSelected ? "selected" : dateData.state;
 
   const getCellStyle = () => {
-    const baseStyle = isFirstInRow ? styles.dayCellBaseFirst : styles.dayCellBase;
-    
+    const baseStyle = isFirstInRow
+      ? styles.dayCellBaseFirst
+      : styles.dayCellBase;
+
     switch (effectiveState) {
       case "selected":
         return [baseStyle, styles.dayCellSelected];
@@ -395,7 +397,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollX = event.nativeEvent.contentOffset.x;
     const monthIndex = Math.round(scrollX / MONTH_WIDTH);
-    
+
     if (monthIndex >= 0 && monthIndex < months.length) {
       setCurrentVisibleMonthIndex(monthIndex);
     }
