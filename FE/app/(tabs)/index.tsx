@@ -22,8 +22,118 @@ import Filter from "@/commons/components/filter";
 import Toggle from "@/commons/components/toggle";
 import { RadioGroup } from "@/commons/components/radio";
 import { SelectButton, SelectButtonGroup } from "@/commons/components/select-button";
+import { StepperWithContext, useStepperContext } from "@/commons/components/stepper";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
+
+// Stepper 예시를 위한 폼 컴포넌트들
+function PersonalInfoForm() {
+  const { goToNextStep } = useStepperContext();
+  const [personalName, setPersonalName] = useState("");
+  const [personalEmail, setPersonalEmail] = useState("");
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Input
+        label="이름"
+        placeholder="이름을 입력해주세요"
+        size="small"
+        value={personalName}
+        onChangeText={setPersonalName}
+      />
+      <Input
+        label="이메일"
+        placeholder="이메일을 입력해주세요"
+        size="small"
+        value={personalEmail}
+        onChangeText={setPersonalEmail}
+      />
+      <Button
+        variant="filled"
+        size="small"
+        onPress={goToNextStep}
+        disabled={!personalName || !personalEmail}
+      >
+        다음 단계
+      </Button>
+    </View>
+  );
+}
+
+function SocialAccountsForm() {
+  const { goToNextStep, goToPreviousStep } = useStepperContext();
+  const [twitter, setTwitter] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Input
+        label="Twitter"
+        placeholder="@username"
+        size="small"
+        value={twitter}
+        onChangeText={setTwitter}
+      />
+      <Input
+        label="LinkedIn"
+        placeholder="linkedin.com/in/username"
+        size="small"
+        value={linkedin}
+        onChangeText={setLinkedin}
+      />
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <Button variant="outlined" size="small" onPress={goToPreviousStep}>
+          이전
+        </Button>
+        <Button variant="filled" size="small" onPress={goToNextStep}>
+          다음 단계
+        </Button>
+      </View>
+    </View>
+  );
+}
+
+function PaymentInfoForm() {
+  const { goToPreviousStep } = useStepperContext();
+  const [cardNumber, setCardNumber] = useState("");
+  const [cvv, setCvv] = useState("");
+
+  const handleSubmit = () => {
+    alert("결제 정보가 저장되었습니다!");
+  };
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Input
+        label="카드 번호"
+        placeholder="1234-5678-9012-3456"
+        size="small"
+        value={cardNumber}
+        onChangeText={setCardNumber}
+      />
+      <Input
+        label="CVV"
+        placeholder="123"
+        size="small"
+        value={cvv}
+        onChangeText={setCvv}
+      />
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <Button variant="outlined" size="small" onPress={goToPreviousStep}>
+          이전
+        </Button>
+        <Button
+          variant="filled"
+          size="small"
+          onPress={handleSubmit}
+          disabled={!cardNumber || !cvv}
+        >
+          완료
+        </Button>
+      </View>
+    </View>
+  );
+}
 
 export default function Home() {
   // Input 상태 관리
@@ -448,6 +558,32 @@ export default function Home() {
               onSelect={() => console.log("Selected clicked")}
             />
           </View>
+        </View>
+
+        {/* Stepper 컴포넌트 예시 */}
+        <View style={styles["stepper-demo-section"]}>
+          <Text style={styles["section-title"]}>Stepper 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            순차적인 단계를 진행하는 컴포넌트입니다. 각 단계를 클릭하여 다시 열 수
+            있습니다.
+          </Text>
+
+          <StepperWithContext
+            steps={[
+              {
+                title: "Personal info",
+                content: <PersonalInfoForm />,
+              },
+              {
+                title: "Social accounts",
+                content: <SocialAccountsForm />,
+              },
+              {
+                title: "Payment info",
+                content: <PaymentInfoForm />,
+              },
+            ]}
+          />
         </View>
       </View>
     </ScrollView>
