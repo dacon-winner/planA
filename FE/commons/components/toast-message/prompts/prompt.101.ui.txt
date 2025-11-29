@@ -1,0 +1,61 @@
+아래의 조건을 모두 적용하여, 아래의 요구사항을 모두 구현할 것.
+구현 결과를 체크리스트로 반환할 것.
+
+==============================================
+
+조건-커서룰) 아래의 커서룰을 적용하여 작업하고, 이 작업이 끝나면 해당 rules 적용 결과를 체크리스트로 반환할 것.
+            - @01-common.mdc
+            - @02-wireframe.mdc
+            - @03-ui.mdc
+
+==============================================
+
+조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: fk83ig24)
+조건-피그마) 참고할 공통컴포넌트 노드ID: 4178:656
+
+조건-파일경로) 구현될 TSX 파일경로: planA/FE/commons/components/toast-message/index.tsx
+조건-파일경로) 구현될 CSS 파일경로: planA/FE/commons/components/toast-message/styles.ts
+조건-파일경로) 작성될 README.md 파일경로: planA/FE/commons/components/toast-message/README.md
+
+조건-공통룰) `color.ts`와 `typographt.ts`에 등록된 상수를 최우선으로 사용할 것.(enums/하위파일)
+조건-공통룰) 이미 설치되어있는 'lucide-react-native'라이브러리를 사용할 것.
+조건-공통룰) 이미 설치되어있는 `react-native-toast-message`라이브러리를 사용하여 스타일 커스텀 할 것.
+
+==============================================
+
+핵심요구사항) MCP를 연동하여 피그마의 디자인을 그대로 소스코드로 구현할 것.
+
+핵심요구사항) 핵심요구사항을 모두 구현한 후, planA/FE/doc/v.1.0.0/component-template.md 에 맞춰서 README.md파일을 작성할 것.
+      - 최상위 파일에서 `<Toast config={toastConfig} />`를 설정하는 방법과, 실제 사용 예시(`Toast.show(...)`)를 포함할 것.
+
+핵심요구사항) toast-message는 다음과 같이 정의 될것
+      1. 구성
+        - `index.tsx`는 `success`, `error` 키를 가진 `toastConfig` 객체를 생성하여 export 해야 할 것.
+        - 각 키(`success`, `error`)는 커스텀 UI 컴포넌트를 렌더링하는 함수여야 할 것.
+      2.  Props
+        - 라이브러리에서 전달하는 `props` (text1 등)를 받아 메시지를 렌더링합니다.
+
+핵심요구사항) 디자인 및 기능 명세는 아래를 따를 것
+      1.  위치 및 레이아웃
+          - 화면 하단 중앙에 표시됩니다.
+          - **위치:** 하단 탭(Bottom Tab) 및 Safe Area를 고려하여 바닥으로부터 **약 24px** 떨어진 위치에 뜨도록 `bottomOffset`이나 스타일을 조정하세요.
+          - 애니메이션: 나타났다가 일정 시간 후 자동으로 사라져야 합니다 (라이브러리 기본 동작 활용).
+
+      2.  공통 스타일 (Common Style)
+          - 배경색: `brand` 컬러 (color.ts 참조)
+          - 글자색: `#ffffff` (typography.ts 참조)
+          - 아이콘: 사이즈 16px, Stroke 굵기 2px, 색상 `#ffffff`
+
+      3.  Variant 정의:
+          - Type 1: `success`
+              - 아이콘: `CircleCheck` (Lucide React Native)
+              - 메시지: 호출 시 입력된 텍스트 표시
+          - Type 2: `error`
+              - 아이콘: `ShieldAlert` (Lucide React Native)
+              - 메시지: 호출 시 입력된 텍스트 표시
+
+핵심요구사항) 시각적 디자인 및 레이아웃을 다음과 같이 구현할 것.
+        - `styles.ts`에 스타일을 정의하되, 두 컴포넌트용 스타일을 명확히 구분할 것.
+        - `color.ts`와 `typography.ts`에 정의된 상수를 우선적으로 사용하고, 없는 경우에만 위 Hex 코드를 사용할 것.
+
+
