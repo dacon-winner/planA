@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
+import { Plan } from './plan.entity';
 
 /**
  * 사용자 상세 정보 엔티티
@@ -51,4 +53,7 @@ export class UsersInfo {
   @ManyToOne(() => User, (user) => user.users_info)
   @JoinColumn({ name: 'user_id' })
   user?: User;
+
+  @OneToOne(() => Plan, (plan) => plan.users_info)
+  plan?: Plan;
 }

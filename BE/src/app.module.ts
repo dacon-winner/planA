@@ -11,6 +11,7 @@ import { HealthModule } from './modules/health';
 import { AuthModule } from './modules/auth';
 import {
   User,
+  UsersInfo,
   Vendor,
   VendorVenueDetail,
   VendorImage,
@@ -45,6 +46,7 @@ import {
         database: configService.get<string>('DB_DATABASE', 'plana'),
         entities: [
           User,
+          UsersInfo,
           Vendor,
           VendorVenueDetail,
           VendorImage,

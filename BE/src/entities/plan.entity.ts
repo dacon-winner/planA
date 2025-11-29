@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToOne,
   JoinColumn,
   OneToMany,
 } from 'typeorm';
@@ -42,7 +43,7 @@ export class Plan {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => UsersInfo)
+  @OneToOne(() => UsersInfo, (usersInfo) => usersInfo.plan)
   @JoinColumn({ name: 'users_info_id' })
   users_info: UsersInfo;
 
