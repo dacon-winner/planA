@@ -1,8 +1,8 @@
 /**
  * Marker Styles
- * 버전: v1.0.0
+ * 버전: v2.0.0
  * 생성 시각: 2025-01-27
- * 피그마 노드ID: 4183:8055
+ * 피그마 노드ID: 4183:8055 (category), 4188:8084 (location)
  *
  * 체크리스트:
  * [✓] tailwind.config.js 수정 안 함 확인
@@ -18,24 +18,8 @@ import { StyleSheet } from "react-native";
 import { blackColors, rootColors } from "../../enums/color";
 
 /**
- * Marker Styles
- * 피그마 디자인 토큰 기반 스타일 정의
- *
- * 피그마 스펙:
- * - 크기: 32x32
- * - cornerRadius: 16 (완전히 둥근 원)
- * - 배경: #ffffff
- * - 테두리: variant별 색상
- * - 아이콘: 12x12
- *
- * Variant별 색상:
- * - shirt: #ff5c8d (brand)
- * - camera: #b885fa (보라색 - color.ts에 없으므로 직접 정의)
- * - palette: #ffa537 (주황색 - color.ts에 없으므로 직접 정의)
- * - hotel: #73c600 (초록색 - color.ts에 없으므로 직접 정의)
+ * Variant별 색상 정의 (color.ts에 없는 색상)
  */
-
-// Variant별 색상 정의 (color.ts에 없는 색상)
 export const variantColors = {
   shirt: rootColors.brand, // #ff5c8d
   camera: "#b885fa", // 보라색 - color.ts에 없음
@@ -43,81 +27,118 @@ export const variantColors = {
   hotel: "#73c600", // 초록색 - color.ts에 없음
 } as const;
 
+/**
+ * Variant 색상 가져오기 함수
+ * 색상 로직을 중앙에서 관리
+ */
+export const getVariantColor = (
+  variant: "shirt" | "camera" | "palette" | "hotel"
+): string => {
+  return variantColors[variant];
+};
+
 export const styles = StyleSheet.create({
   /* ========================================
-   * CONTAINER STYLES
+   * 비활성 상태 (기본 원형 마커)
    * ======================================== */
 
   /**
-   * Marker Container (기본)
-   * 피그마: width 32, height 32, cornerRadius 16, bg #ffffff
+   * Marker Container (비활성)
+   * 피그마 노드ID: 4183:8055
+   * width 32, height 32, cornerRadius 16, bg #ffffff, 테두리 variant별 색상
+   * borderWidth 4이므로 내부 원 크기는 24x24 (32 - 4*2)
    */
   container: {
     width: 32,
     height: 32,
     backgroundColor: blackColors["black-1"], // #ffffff
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 4, // border 4
     justifyContent: "center",
     alignItems: "center",
   },
-
-  /**
-   * Shirt Variant Container
-   * 테두리 색상: #ff5c8d (brand)
-   */
-  "container-shirt": {
-    borderColor: variantColors.shirt, // #ff5c8d
-  },
-
-  /**
-   * Camera Variant Container
-   * 테두리 색상: #b885fa
-   */
-  "container-camera": {
-    borderColor: variantColors.camera, // #b885fa
-  },
-
-  /**
-   * Palette Variant Container
-   * 테두리 색상: #ffa537
-   */
-  "container-palette": {
-    borderColor: variantColors.palette, // #ffa537
-  },
-
-  /**
-   * Hotel Variant Container
-   * 테두리 색상: #73c600
-   */
-  "container-hotel": {
-    borderColor: variantColors.hotel, // #73c600
-  },
-
-  /* ========================================
-   * ICON STYLES
-   * ======================================== */
 
   /**
    * Icon Container
-   * 피그마: 아이콘 크기 12x12
+   * 비활성화 상태의 내부 원 크기 (border 제외)
+   * 32 - (4 * 2) = 24x24
    */
   iconContainer: {
-    width: 12,
-    height: 12,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
 
+  /* ========================================
+   * 활성 상태 (캡슐 형태 마커)
+   * ======================================== */
+
   /**
-   * Icon Color
-   * variant별 테두리 색상과 동일하게 설정
-   * (동적으로 설정되므로 기본값만 정의)
+   * Selected Container (활성)
+   * 캡슐과 꼬리표를 포함하는 컨테이너
    */
-  icon: {
-    color: variantColors.shirt, // 기본값 (실제로는 variant에 따라 동적 변경)
+  selectedContainer: {
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+
+  /**
+   * Capsule (캡슐 본체)
+   * 색상 배경 + 내부 흰색 아이콘 원 + 가격 라벨
+   */
+  capsule: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    paddingRight: 7,
+    borderRadius: 20,
+    minHeight: 32,
+  },
+
+  /**
+   * Selected Icon Circle (내부 흰색 아이콘 원)
+   * 활성 상태일 때 아이콘을 감싸는 흰색 원
+   * 비활성화 상태의 내부 원 크기와 동일하게 24x24
+   */
+  selectedIconCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: blackColors["black-1"], // #ffffff
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 6,
+  },
+
+  /**
+   * Label (가격 라벨)
+   * 캡슐 내부에 표시되는 텍스트
+   */
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: blackColors["black-1"], // #ffffff
+    lineHeight: 16,
+  },
+
+  /**
+   * Triangle (꼬리표)
+   * 캡슐 하단에 붙는 역삼각형
+   * border hack을 사용하여 구현
+   */
+  triangle: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    marginTop: -1, // 캡슐과 겹치도록
   },
 });
 
 export default styles;
-

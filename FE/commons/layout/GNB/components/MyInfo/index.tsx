@@ -104,9 +104,9 @@ export default function MyInfo() {
           </View>
         </View>
 
-        {/* Marker 컴포넌트 예시 */}
+        {/* Marker 컴포넌트 예시 - 비활성 상태 */}
         <View style={styles['badge-demo-section']}>
-          <Text style={styles['section-title']}>Marker 컴포넌트 예시</Text>
+          <Text style={styles['section-title']}>Marker 컴포넌트 예시 (비활성)</Text>
           <View style={styles['badge-demo-row']}>
             <View style={styles['badge-demo-item']}>
               <Marker variant="shirt" />
@@ -122,6 +122,29 @@ export default function MyInfo() {
             </View>
             <View style={styles['badge-demo-item']}>
               <Marker variant="hotel" />
+              <Text style={styles['badge-demo-label']}>Hotel</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Marker 컴포넌트 예시 - 활성 상태 */}
+        <View style={styles['badge-demo-section']}>
+          <Text style={styles['section-title']}>Marker 컴포넌트 예시 (활성)</Text>
+          <View style={styles['badge-demo-row']}>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="shirt" selected label="150만" />
+              <Text style={styles['badge-demo-label']}>Shirt</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="camera" selected label="80만" />
+              <Text style={styles['badge-demo-label']}>Camera</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="palette" selected label="120만" />
+              <Text style={styles['badge-demo-label']}>Palette</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="hotel" selected label="200만" />
               <Text style={styles['badge-demo-label']}>Hotel</Text>
             </View>
           </View>
