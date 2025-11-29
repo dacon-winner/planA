@@ -30,6 +30,7 @@ import {
   useStepperContext,
 } from "@/commons/components/stepper";
 import { Calendar } from "@/commons/components/calendar";
+import { Card } from "@/commons/components/card";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
 
@@ -838,6 +839,74 @@ export default function Home() {
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
             subtitle="원하는 날짜를 선택해주세요"
+          />
+        </View>
+
+        {/* Card 컴포넌트 예시 */}
+        <View style={styles["card-demo-section"]}>
+          <Text style={styles["section-title"]}>Card 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            정책 정보를 표시하는 카드 컴포넌트입니다.
+          </Text>
+
+          {/* 신혼부부 전세자금 대출 카드 */}
+          <Card
+            categories={["loan", "always"]}
+            title="신혼부부 전세자금 대출"
+            description="무주택 신혼부부를 위한 저금리 전세자금 대출"
+            benefits={{
+              text: "연 1.2~2.1% 저금리 대출",
+              amount: "최대 20,000만원",
+            }}
+            details={[
+              { icon: "📋", text: "주택도시기금" },
+              {
+                icon: "ℹ️",
+                text: "혼인신고 후 7년 이내, 부부합산 소득 7천만원 이하",
+              },
+              { icon: "📅", text: "신청기한: 상시" },
+            ]}
+            fullDescription="무주택 세대주인 신혼부부(혼인신고일로부터 7년 이내)를 대상으로 연 1.2~2.1%의 저금리로 최대 2억원까지 전세자금을 대출해드립니다."
+            onApply={() => console.log("신혼부부 전세자금 대출 신청")}
+            onPress={() => console.log("신혼부부 전세자금 대출 카드 클릭")}
+          />
+
+          {/* 청년 월세 지원금 카드 */}
+          <Card
+            categories={["subsidy", "period"]}
+            title="청년 월세 지원금"
+            description="만 19~34세 청년을 위한 월세 지원 사업"
+            benefits={{
+              text: "월 최대 20만원 지원",
+              amount: "최대 240만원 (12개월)",
+            }}
+            details={[
+              { icon: "📋", text: "국토교통부" },
+              { icon: "ℹ️", text: "만 19~34세, 독립거주 무주택 청년" },
+              { icon: "📅", text: "신청기한: 2024.12.31" },
+            ]}
+            fullDescription="만 19세에서 34세 이하의 독립거주 무주택 청년에게 월 최대 20만원씩 12개월간 월세를 지원합니다. 본인 소득이 있어야 하며, 부모 소득도 심사 대상입니다."
+            onApply={() => console.log("청년 월세 지원금 신청")}
+            onPress={() => console.log("청년 월세 지원금 카드 클릭")}
+          />
+
+          {/* 첫 주택 구입 지원 카드 */}
+          <Card
+            categories={["loan", "period"]}
+            title="생애최초 주택구입 특별공급"
+            description="생애 최초 주택 구입자를 위한 특별 공급"
+            benefits={{
+              text: "시중은행 대비 0.5~1.0%p 우대금리",
+              amount: "최대 50,000만원",
+            }}
+            details={[
+              { icon: "📋", text: "한국주택금융공사" },
+              { icon: "ℹ️", text: "생애 최초 주택구입자, 연 소득 7천만원 이하" },
+              { icon: "📅", text: "신청기한: 2024.06.30" },
+            ]}
+            fullDescription="생애 최초로 주택을 구입하는 무주택 세대주를 대상으로 최대 5억원까지 시중은행 대비 0.5~1.0%p 우대금리로 주택담보대출을 지원합니다."
+            onApply={() => console.log("생애최초 주택구입 특별공급 신청")}
+            onPress={() => console.log("생애최초 주택구입 특별공급 카드 클릭")}
           />
         </View>
       </View>
