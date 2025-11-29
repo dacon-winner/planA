@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
    */
   calendarContainer: {
     width: "100%",
-    height: 500,
+    minHeight: 400,
   },
 
   /**
@@ -44,7 +44,8 @@ export const styles = StyleSheet.create({
    */
   scrollContent: {
     flexDirection: "row",
-    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
   },
 
   /* ========================================
@@ -60,7 +61,6 @@ export const styles = StyleSheet.create({
     width: 328,
     marginRight: 32, // 다음 섹션과의 간격
     flexDirection: "column",
-    gap: 16,
   },
 
   /**
@@ -75,6 +75,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-xl-bold"][1].fontWeight, // 700
     color: colors.foundationBlue[10], // #0e1219 - 가장 유사한 어두운 색
     fontFamily: "Pretendard Variable",
+    marginBottom: 16,
   },
 
   /**
@@ -89,6 +90,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize["mobile-s-normal"][1].fontWeight, // 400
     color: colors.foundationBrown[4], // #928d8f
     fontFamily: "Pretendard Variable",
+    marginBottom: 16,
   },
 
   /* ========================================
@@ -103,7 +105,8 @@ export const styles = StyleSheet.create({
   weekdayHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 16,
+    width: 328,
   },
 
   /**
@@ -157,7 +160,8 @@ export const styles = StyleSheet.create({
   dateGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    justifyContent: "space-between",
+    width: 328,
   },
 
   /**
@@ -168,6 +172,7 @@ export const styles = StyleSheet.create({
   dateCellWrapper: {
     width: 40,
     height: 40,
+    marginBottom: 8,
   },
 
   /* ========================================
