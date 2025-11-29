@@ -26,26 +26,22 @@ export const styles = StyleSheet.create({
   "home-wrapper": {
     flex: 1,
     backgroundColor: colors.foundationBlack[1],
-    overflow: "visible",
   },
 
   "home-scroll-view": {
     flex: 1,
-    overflow: "visible",
   },
 
   "home-scroll-container": {
     flexGrow: 1,
-    overflow: "visible",
+    paddingBottom: 100,
   },
 
   "home-container": {
-    flex: 1,
     position: "relative",
     paddingHorizontal: 24,
     paddingTop: STATUSBAR_HEIGHT + 82,
     gap: 32,
-    overflow: "visible",
   },
 
   /* 배경 그라데이션 */
@@ -88,28 +84,37 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.foundationBlack[1],
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    backgroundColor: "transparent",
     overflow: "hidden",
-    shadowColor: "rgba(128, 12, 58, 0.1)",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    elevation: 5,
+    position: "relative",
     zIndex: 1,
   },
 
+  "info-card-blur": {
+    position: "absolute",
+    top: -1,
+    left: -1,
+    width: 353,
+    height: 121,
+    backgroundColor: colors.foundationBlack[1],
+    opacity: 0.85,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.foundationBlack[1],
+  },
+
   "info-card-content": {
-    flex: 1,
+    position: "absolute",
+    top: 19.5,
+    left: 5.5,
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
     gap: 4,
-    paddingVertical: 20,
-    paddingHorizontal: 5.5,
   },
 
   "info-item": {
     width: 108,
+    height: 80,
     paddingVertical: 12,
     paddingHorizontal: 12,
     flexDirection: "column",
@@ -118,22 +123,10 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  "info-icon": {
-    width: 20,
-    height: 20,
-  },
-
-  "info-icon-placeholder": {
-    width: 20,
-    height: 20,
-    backgroundColor: colors.foundationBlack[5],
-    borderRadius: 4,
-  },
-
   "info-label": {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: "400",
+    fontWeight: "400" as any,
     color: "rgba(82, 74, 78, 0.7)",
     fontFamily: "Pretendard",
   },
@@ -142,7 +135,7 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 24,
     letterSpacing: -0.3125,
-    fontWeight: "700",
+    fontWeight: "700" as any,
     color: colors.root.brand,
     fontFamily: "Pretendard",
     textAlign: "center",
@@ -152,16 +145,17 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: -0.1504,
-    fontWeight: "700",
+    fontWeight: "700" as any,
     color: colors.root.text,
     textAlign: "center",
     fontFamily: "Pretendard",
   },
 
   "info-divider": {
-    width: 1,
+    width: 0,
     height: 78,
-    backgroundColor: colors.foundationBlack[5],
+    borderRightWidth: 1,
+    borderRightColor: colors.foundationBlack[5],
   },
 
   /* 하단 카드 그리드 */
