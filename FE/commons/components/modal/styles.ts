@@ -135,10 +135,10 @@ export const styles = StyleSheet.create({
   },
 
   'plan-info-text': {
-    fontSize: parseInt(fontSize['mobile-s'][0]),
-    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
-    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
-    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    fontSize: 12,
+    lineHeight: 12,
+    letterSpacing: -0.12,
+    fontWeight: '400',
     color: colors.brown['brown-6'],
     fontFamily: 'PretendardVariable',
   },
