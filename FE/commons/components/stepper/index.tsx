@@ -79,7 +79,7 @@ export const StepItem: React.FC<StepItemProps> = ({
         Animated.timing(animatedOpacity, {
           toValue: 1,
           duration: 300,
-          useNativeDriver: true,
+          useNativeDriver: false, // maxHeight와 함께 사용하므로 false로 설정
         }),
       ]).start();
     } else {
@@ -93,7 +93,7 @@ export const StepItem: React.FC<StepItemProps> = ({
         Animated.timing(animatedOpacity, {
           toValue: 0,
           duration: 300,
-          useNativeDriver: true,
+          useNativeDriver: false, // maxHeight와 함께 사용하므로 false로 설정
         }),
       ]).start();
     }
