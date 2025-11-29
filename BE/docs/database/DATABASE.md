@@ -50,7 +50,7 @@
 
 ```
 ┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-│    User     │1      1│  UsersInfo  │1      n│    Plan     │
+│    User     │1      n│  UsersInfo  │1      1│    Plan     │
 │             ├────────→│             ├────────→│             │
 │  (사용자)    │         │ (상세정보)   │         │  (웨딩플랜)   │
 └─────┬───────┘         └─────────────┘         └──────┬──────┘
@@ -108,16 +108,16 @@
 
 ### 2.2 주요 관계
 
-| 관계                       | 카디널리티 | 설명                              |
-| -------------------------- | ---------- | --------------------------------- |
-| User → UsersInfo           | **1:N**    | 사용자는 여러 상세 정보 보유 가능 |
-| UsersInfo → Plan           | 1:N        | 사용자 상세 정보로 여러 플랜 생성 |
-| User → Plan                | 1:N        | 사용자는 여러 플랜 생성 가능      |
-| Plan → PlanItem            | 1:N        | 플랜은 여러 항목으로 구성         |
-| User → Reservation         | 1:N        | 사용자는 여러 예약 가능           |
-| Vendor → VendorVenueDetail | 1:1        | 웨딩홀만 상세 정보 보유           |
-| Vendor → AiResource        | 1:N        | 업체당 여러 AI 리소스             |
-| User → AiLog               | 1:N        | 사용자의 AI 요청 이력             |
+| 관계                       | 카디널리티 | 설명                                            |
+| -------------------------- | ---------- | ----------------------------------------------- |
+| User → UsersInfo           | **1:N**    | 사용자는 여러 상세 정보 보유 가능               |
+| UsersInfo → Plan           | **1:1**    | 하나의 상세 정보는 하나의 플랜만 보유           |
+| User → Plan                | 1:N        | 사용자는 여러 플랜 생성 가능 (UsersInfo를 통해) |
+| Plan → PlanItem            | 1:N        | 플랜은 여러 항목으로 구성                       |
+| User → Reservation         | 1:N        | 사용자는 여러 예약 가능                         |
+| Vendor → VendorVenueDetail | 1:1        | 웨딩홀만 상세 정보 보유                         |
+| Vendor → AiResource        | 1:N        | 업체당 여러 AI 리소스                           |
+| User → AiLog               | 1:N        | 사용자의 AI 요청 이력                           |
 
 ---
 
@@ -149,7 +149,7 @@
 
 **관계:**
 
-- users_info (1:1)
+- users_info (1:N)
 - plans (1:N)
 - reservations (1:N)
 - personal_schedules (1:N)
@@ -173,17 +173,17 @@
 **설계 의도:**
 
 - users 테이블과 **1:N 관계** (한 사용자가 여러 개의 상세 정보 보유 가능)
+- 각 users_info는 정확히 **하나의 plan과 1:1 관계** (동일한 조건으로 여러 플랜 생성 시 새로운 users_info 생성)
 - 2단계 회원가입에서 입력되는 결혼 계획 관련 정보 관리
 - **여러 시나리오 관리 가능**: 사용자가 결혼 계획을 여러 번 수정하거나 다양한 옵션 비교 가능
 - **메인 플랜 지정**: `is_main_plan=true`인 것이 현재 활성화된 플랜 (한 유저당 하나만 존재)
 - **API 응답**: Auth 및 사용자 정보 조회 시 `is_main_plan=true`인 데이터만 반환
 - `wedding_date`, `preferred_region`, `budget_limit`: AI 추천의 핵심 파라미터
-- plans 테이블이 이 테이블을 직접 참조하여 플랜별 맞춤 정보 활용
 
 **관계:**
 
 - user (N:1) → users.id
-- plans (1:N)
+- plan (1:1)
 
 ---
 
@@ -614,4 +614,4 @@ CREATE EXTENSION IF NOT EXISTS vector;
 ---
 
 **문서 버전**: 1.0.0  
-**최종 수정일**: 2025.11.26
+**최종 수정일**: 2025.11.29

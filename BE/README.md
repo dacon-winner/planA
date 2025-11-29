@@ -40,11 +40,33 @@ npm install
 
 ### 2. 환경 변수 설정
 
+`.env` 파일을 생성하고 다음 환경변수를 설정하세요:
+
 ```bash
-cp .env.example .env
+# 데이터베이스 설정
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=plana
+
+# JWT 인증 설정
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=7d
+
+# OpenAI API 설정 (AI 추천 기능)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# 서버 설정
+NODE_ENV=development
+PORT=3000
 ```
 
-`.env` 파일을 열어 데이터베이스 정보 등을 설정하세요.
+**⚠️ OPENAI_API_KEY 발급 방법:**
+1. [OpenAI Platform](https://platform.openai.com/) 접속
+2. 로그인 후 **API keys** 메뉴 선택
+3. **Create new secret key** 클릭
+4. 생성된 키를 `.env` 파일에 추가
 
 ### 3. 데이터베이스 설정
 
@@ -94,6 +116,10 @@ http://localhost:3000/api-docs 에서 Swagger 문서를 확인할 수 있습니�
 ### 💼 Business (비즈니스 로직)
 
 - **[BUSINESS_LOGIC.md](docs/business/BUSINESS_LOGIC.md)**: RAG AI 추천, 플랜 관리, 예약 프로세스
+
+### 🤖 AI (AI 추천 시스템)
+
+- **[AI_RECOMMENDATION.md](docs/AI_RECOMMENDATION.md)**: AI 스드메 추천 구현 가이드, 환경변수 설정
 
 ### 📖 Guides (가이드)
 

@@ -9,6 +9,9 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthModule } from './modules/health';
 import { AuthModule } from './modules/auth';
+import { UsersInfoModule } from './modules/users_info';
+import { AiModule } from './modules/ai';
+import { PlansModule } from './modules/plans';
 import {
   User,
   UsersInfo,
@@ -68,6 +71,9 @@ import {
     // 기능 모듈
     HealthModule,
     AuthModule,
+    AiModule,
+    PlansModule,
+    UsersInfoModule,
   ],
   controllers: [AppController],
   providers: [

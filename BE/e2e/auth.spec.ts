@@ -18,10 +18,8 @@ interface UserData {
   id: string;
   email: string;
   name: string;
+  gender: string;
   phone: string;
-  wedding_date: string;
-  preferred_region: string;
-  budget_limit: number;
   provider: string;
   is_push_on: boolean;
   created_at: string;
@@ -48,10 +46,10 @@ interface ErrorResponse {
 }
 
 /**
- * Auth API E2E Tests
+ * Auth API E2E Tests (1단계 회원가입)
  *
  * 테스트 순서:
- * 1. 회원가입 테스트
+ * 1. 회원가입 테스트 (email, password, name, gender, phone)
  * 2. 로그인 테스트
  * 3. 인증된 API 테스트 (토큰 필요)
  * 4. 통합 테스트
@@ -64,15 +62,13 @@ test.describe('Auth API E2E Tests', () => {
     email: generateTestEmail(),
     password: 'Password123!',
     name: '홍길동',
+    gender: 'MALE',
     phone: '010-1234-5678',
-    wedding_date: '2026-05-15',
-    preferred_region: '강남구',
-    budget_limit: 10000000,
   };
   let accessToken: string;
 
   test.describe.serial('회원가입 및 로그인 흐름', () => {
-    test('[1] 회원가입 성공', async ({ request }) => {
+    test('[1] 회원가입 성공 (1단계)', async ({ request }) => {
       const response = await request.post(`${BASE_URL}${API_PREFIX}/register`, {
         data: testUser,
       });
@@ -84,6 +80,9 @@ test.describe('Auth API E2E Tests', () => {
       expect(body.data).toHaveProperty('access_token');
       expect(body.data).toHaveProperty('user');
       expect(body.data.user.email).toBe(testUser.email);
+      expect(body.data.user.name).toBe(testUser.name);
+      expect(body.data.user.gender).toBe(testUser.gender);
+      expect(body.data.user.phone).toBe(testUser.phone);
       expect(body.data.user).not.toHaveProperty('password_hash');
 
       // 토큰 저장
@@ -133,6 +132,7 @@ test.describe('Auth API E2E Tests', () => {
       expect(body.success).toBe(true);
       expect(body.data.email).toBe(testUser.email);
       expect(body.data.name).toBe(testUser.name);
+      expect(body.data.gender).toBe(testUser.gender);
       expect(body.data).not.toHaveProperty('password_hash');
     });
 
@@ -205,11 +205,57 @@ test.describe('Auth API E2E Tests', () => {
       expect(body.success).toBe(false);
     });
 
-    test('필수 필드 누락', async ({ request }) => {
+    test('필수 필드 누락 - name', async ({ request }) => {
       const response = await request.post(`${BASE_URL}${API_PREFIX}/register`, {
         data: {
           email: generateTestEmail(),
           password: 'Password123!',
+          gender: 'MALE',
+          phone: '010-1234-5678',
+        },
+      });
+
+      expect(response.status()).toBe(400);
+      const body = (await response.json()) as ErrorResponse;
+      expect(body.success).toBe(false);
+    });
+
+    test('필수 필드 누락 - gender', async ({ request }) => {
+      const response = await request.post(`${BASE_URL}${API_PREFIX}/register`, {
+        data: {
+          email: generateTestEmail(),
+          password: 'Password123!',
+          name: '홍길동',
+          phone: '010-1234-5678',
+        },
+      });
+
+      expect(response.status()).toBe(400);
+      const body = (await response.json()) as ErrorResponse;
+      expect(body.success).toBe(false);
+    });
+
+    test('필수 필드 누락 - phone', async ({ request }) => {
+      const response = await request.post(`${BASE_URL}${API_PREFIX}/register`, {
+        data: {
+          email: generateTestEmail(),
+          password: 'Password123!',
+          name: '홍길동',
+          gender: 'MALE',
+        },
+      });
+
+      expect(response.status()).toBe(400);
+      const body = (await response.json()) as ErrorResponse;
+      expect(body.success).toBe(false);
+    });
+
+    test('잘못된 gender 값', async ({ request }) => {
+      const response = await request.post(`${BASE_URL}${API_PREFIX}/register`, {
+        data: {
+          ...testUser,
+          email: generateTestEmail(),
+          gender: 'INVALID',
         },
       });
 
@@ -328,15 +374,13 @@ test.describe('Auth API E2E Tests', () => {
   });
 
   test.describe('통합 테스트', () => {
-    test('완전한 인증 흐름', async ({ request }) => {
+    test('완전한 인증 흐름 (1단계)', async ({ request }) => {
       const newUser = {
         email: generateTestEmail(),
         password: 'TestPassword123!',
         name: '통합테스트',
+        gender: 'FEMALE',
         phone: '010-9876-5432',
-        wedding_date: '2026-06-20',
-        preferred_region: '서초구',
-        budget_limit: 15000000,
       };
 
       // 1. 회원가입
@@ -360,6 +404,7 @@ test.describe('Auth API E2E Tests', () => {
       expect(meRes.status()).toBe(200);
       const meBody = (await meRes.json()) as ApiResponse<UserData>;
       expect(meBody.data.email).toBe(newUser.email);
+      expect(meBody.data.gender).toBe(newUser.gender);
 
       // 4. 토큰 재발급
       const refreshRes = await request.post(`${BASE_URL}${API_PREFIX}/refresh`, {
@@ -381,10 +426,8 @@ test.describe('Auth API E2E Tests', () => {
         email: generateTestEmail(),
         password: `TestPass${i}123!`,
         name: `병렬테스트${i}`,
+        gender: i % 2 === 0 ? 'MALE' : 'FEMALE',
         phone: `010-1111-222${i}`,
-        wedding_date: '2026-07-15',
-        preferred_region: '강남구',
-        budget_limit: 10000000,
       }));
 
       // 동시에 회원가입
@@ -426,10 +469,8 @@ test.describe('Auth API E2E Tests', () => {
           email: generateTestEmail(),
           password: 'Password123!',
           name: '<script>alert("XSS")</script>',
+          gender: 'MALE',
           phone: '010-3333-4444',
-          wedding_date: '2026-08-01',
-          preferred_region: '강남구',
-          budget_limit: 10000000,
         },
       });
 
