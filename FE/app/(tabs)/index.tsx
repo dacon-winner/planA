@@ -165,6 +165,7 @@ function TimeSelectionForm({
   onChange: (field: keyof StepperFormData, value: string) => void;
   onSubmit: () => void;
 }) {
+  const { autoCompleteStep, autoProgressDelay } = useStepperContext();
   const ICON_COLOR_DEFAULT = brownColors["brown-2"];
   const ICON_COLOR_SELECTED = "#861043";
 
@@ -240,9 +241,11 @@ function TimeSelectionForm({
         value={data.time}
         onChange={(value) => {
           onChange("time", value);
+          autoCompleteStep();
+          // 마지막 스텝이므로 0.5초 후 onSubmit 호출
           setTimeout(() => {
             onSubmit();
-          }, 500);
+          }, autoProgressDelay);
         }}
         options={timeOptions}
         size="small"
@@ -312,8 +315,8 @@ export default function Home() {
     };
 
     const value = stepperFormData[step];
-    if (value && labels[step][value as keyof typeof labels[typeof step]]) {
-      return labels[step][value as keyof typeof labels[typeof step]];
+    if (value && labels[step][value as keyof (typeof labels)[typeof step]]) {
+      return labels[step][value as keyof (typeof labels)[typeof step]];
     }
     return labels[step].default;
   };
