@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
   calendarContainer: {
     width: "100%",
     backgroundColor: "#ffffff",
+    overflow: "hidden",
   },
 
   // Header Section
@@ -113,7 +114,7 @@ export const styles = StyleSheet.create({
 
   // Scroll View
   scrollView: {
-    width: "100%",
+    width: 280,
     alignSelf: "center",
   },
 
