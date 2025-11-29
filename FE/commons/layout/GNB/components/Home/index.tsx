@@ -99,9 +99,10 @@ export default function Home() {
               </View>
             </View>
           </View>
+        </View>
 
-          {/* 하단 카드 그리드 */}
-          <View style={styles["card-grid"]}>
+        {/* 하단 카드 그리드 - full width */}
+        <View style={styles["card-grid"]}>
             {/* 카드 1 - 에이비 스튜디오 */}
             <View style={styles["vendor-card"]}>
               <View style={styles["card-content"]}>
@@ -215,7 +216,6 @@ export default function Home() {
               </View>
             </View>
           </View>
-        </View>
       </ScrollView>
     </View>
   );

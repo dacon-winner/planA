@@ -164,8 +164,9 @@ export const styles = StyleSheet.create({
     flexWrap: "wrap",
     columnGap: 12,
     rowGap: 12,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignContent: "flex-start",
+    paddingHorizontal: 12,
     zIndex: 1,
   },
 
