@@ -215,29 +215,11 @@ export const styles = StyleSheet.create({
 
   /**
    * Step Content Container
-   * 각 스텝의 폼 영역
+   * 각 스텝의 폼 영역 (애니메이션 적용됨)
    */
   stepContent: {
     paddingHorizontal: 24,
     paddingBottom: 16,
-    overflow: "hidden",
-  },
-
-  /**
-   * Step Content - Collapsed
-   * 접혀있는 상태
-   */
-  stepContentCollapsed: {
-    height: 0,
-    paddingBottom: 0,
-  },
-
-  /**
-   * Step Content - Expanded
-   * 펼쳐진 상태
-   */
-  stepContentExpanded: {
-    height: "auto",
   },
 
   /* ========================================
