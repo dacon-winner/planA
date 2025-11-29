@@ -108,6 +108,27 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'PretendardVariable',
   },
+
+  /* Toast Demo Section */
+  'toast-demo-button': {
+    backgroundColor: colors.primary[400],
+    paddingHorizontal: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.sm),
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 80,
+  },
+
+  'toast-demo-button-text': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s-bold'][1].fontWeight,
+    color: colors.secondary[50],
+    textAlign: 'center',
+    fontFamily: 'PretendardVariable',
+  },
 });
 
 

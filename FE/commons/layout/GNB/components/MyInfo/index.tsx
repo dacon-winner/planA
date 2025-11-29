@@ -10,11 +10,13 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import ToastLib from 'react-native-toast-message';
 import { styles } from './styles';
 import { MY_INFO_CONTENT } from '@/commons/enums/gnb';
 import { Badge, BadgePolicy } from '@/commons/components/badge';
+import { toastConfig, Toast } from '@/commons/components/toast-message';
 
 export default function MyInfo() {
   return (
@@ -69,7 +71,35 @@ export default function MyInfo() {
             </View>
           </View>
         </View>
+
+        {/* ToastMessage 컴포넌트 예시 */}
+        <View style={styles['badge-demo-section']}>
+          <Text style={styles['section-title']}>ToastMessage 컴포넌트 예시</Text>
+          <View style={styles['badge-demo-row']}>
+            <View style={styles['badge-demo-item']}>
+              <TouchableOpacity
+                style={styles['toast-demo-button']}
+                onPress={() => {
+                  Toast.success('저장이 완료되었습니다.');
+                }}
+              >
+                <Text style={styles['toast-demo-button-text']}>성공 토스트</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <TouchableOpacity
+                style={styles['toast-demo-button']}
+                onPress={() => {
+                  Toast.error('이미 존재하는 플랜 이름입니다.');
+                }}
+              >
+                <Text style={styles['toast-demo-button-text']}>오류 토스트</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       </ScrollView>
+      <ToastLib config={toastConfig} />
       <StatusBar style="auto" />
     </View>
   );
