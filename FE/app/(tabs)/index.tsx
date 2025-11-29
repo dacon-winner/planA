@@ -26,11 +26,25 @@ import { StepperWithContext, useStepperContext } from "@/commons/components/step
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
 
+// Stepper 예시를 위한 폼 데이터 타입
+interface StepperFormData {
+  personalName: string;
+  personalEmail: string;
+  twitter: string;
+  linkedin: string;
+  cardNumber: string;
+  cvv: string;
+}
+
 // Stepper 예시를 위한 폼 컴포넌트들
-function PersonalInfoForm() {
+function PersonalInfoForm({
+  data,
+  onChange,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+}) {
   const { goToNextStep } = useStepperContext();
-  const [personalName, setPersonalName] = useState("");
-  const [personalEmail, setPersonalEmail] = useState("");
 
   return (
     <View style={{ gap: 12 }}>
@@ -38,21 +52,21 @@ function PersonalInfoForm() {
         label="이름"
         placeholder="이름을 입력해주세요"
         size="small"
-        value={personalName}
-        onChangeText={setPersonalName}
+        value={data.personalName}
+        onChangeText={(value) => onChange("personalName", value)}
       />
       <Input
         label="이메일"
         placeholder="이메일을 입력해주세요"
         size="small"
-        value={personalEmail}
-        onChangeText={setPersonalEmail}
+        value={data.personalEmail}
+        onChangeText={(value) => onChange("personalEmail", value)}
       />
       <Button
         variant="filled"
         size="small"
         onPress={goToNextStep}
-        disabled={!personalName || !personalEmail}
+        disabled={!data.personalName || !data.personalEmail}
       >
         다음 단계
       </Button>
@@ -60,10 +74,14 @@ function PersonalInfoForm() {
   );
 }
 
-function SocialAccountsForm() {
+function SocialAccountsForm({
+  data,
+  onChange,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+}) {
   const { goToNextStep, goToPreviousStep } = useStepperContext();
-  const [twitter, setTwitter] = useState("");
-  const [linkedin, setLinkedin] = useState("");
 
   return (
     <View style={{ gap: 12 }}>
@@ -71,15 +89,15 @@ function SocialAccountsForm() {
         label="Twitter"
         placeholder="@username"
         size="small"
-        value={twitter}
-        onChangeText={setTwitter}
+        value={data.twitter}
+        onChangeText={(value) => onChange("twitter", value)}
       />
       <Input
         label="LinkedIn"
         placeholder="linkedin.com/in/username"
         size="small"
-        value={linkedin}
-        onChangeText={setLinkedin}
+        value={data.linkedin}
+        onChangeText={(value) => onChange("linkedin", value)}
       />
       <View style={{ flexDirection: "row", gap: 8 }}>
         <Button variant="outlined" size="small" onPress={goToPreviousStep}>
@@ -93,14 +111,16 @@ function SocialAccountsForm() {
   );
 }
 
-function PaymentInfoForm() {
+function PaymentInfoForm({
+  data,
+  onChange,
+  onSubmit,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+  onSubmit: () => void;
+}) {
   const { goToPreviousStep } = useStepperContext();
-  const [cardNumber, setCardNumber] = useState("");
-  const [cvv, setCvv] = useState("");
-
-  const handleSubmit = () => {
-    alert("결제 정보가 저장되었습니다!");
-  };
 
   return (
     <View style={{ gap: 12 }}>
@@ -108,15 +128,15 @@ function PaymentInfoForm() {
         label="카드 번호"
         placeholder="1234-5678-9012-3456"
         size="small"
-        value={cardNumber}
-        onChangeText={setCardNumber}
+        value={data.cardNumber}
+        onChangeText={(value) => onChange("cardNumber", value)}
       />
       <Input
         label="CVV"
         placeholder="123"
         size="small"
-        value={cvv}
-        onChangeText={setCvv}
+        value={data.cvv}
+        onChangeText={(value) => onChange("cvv", value)}
       />
       <View style={{ flexDirection: "row", gap: 8 }}>
         <Button variant="outlined" size="small" onPress={goToPreviousStep}>
@@ -125,8 +145,8 @@ function PaymentInfoForm() {
         <Button
           variant="filled"
           size="small"
-          onPress={handleSubmit}
-          disabled={!cardNumber || !cvv}
+          onPress={onSubmit}
+          disabled={!data.cardNumber || !data.cvv}
         >
           완료
         </Button>
@@ -142,6 +162,35 @@ export default function Home() {
   const [planName, setPlanName] = useState("");
   const [filledValue, setFilledValue] = useState("이름을 입력해주세요.");
   const [smallFilledValue, setSmallFilledValue] = useState("플랜 A");
+
+  // Stepper 폼 데이터 상태 관리
+  const [stepperFormData, setStepperFormData] = useState<StepperFormData>({
+    personalName: "",
+    personalEmail: "",
+    twitter: "",
+    linkedin: "",
+    cardNumber: "",
+    cvv: "",
+  });
+
+  // Stepper 폼 데이터 변경 핸들러
+  const handleStepperFormChange = (
+    field: keyof StepperFormData,
+    value: string
+  ) => {
+    setStepperFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Stepper 폼 제출 핸들러
+  const handleStepperFormSubmit = () => {
+    console.log("Stepper Form Data:", stepperFormData);
+    alert(
+      `회원가입 완료!\n이름: ${stepperFormData.personalName}\n이메일: ${stepperFormData.personalEmail}`
+    );
+  };
 
   // ContentSwitcher 상태 관리
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -572,15 +621,31 @@ export default function Home() {
             steps={[
               {
                 title: "Personal info",
-                content: <PersonalInfoForm />,
+                content: (
+                  <PersonalInfoForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                  />
+                ),
               },
               {
                 title: "Social accounts",
-                content: <SocialAccountsForm />,
+                content: (
+                  <SocialAccountsForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                  />
+                ),
               },
               {
                 title: "Payment info",
-                content: <PaymentInfoForm />,
+                content: (
+                  <PaymentInfoForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                    onSubmit={handleStepperFormSubmit}
+                  />
+                ),
               },
             ]}
           />
