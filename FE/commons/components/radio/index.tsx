@@ -101,6 +101,8 @@ export interface RadioGroupProps {
     value: string;
     label: string;
   }>;
+  /** 정렬 방향 */
+  direction?: "horizontal" | "vertical";
   /** 비활성화 상태 */
   disabled?: boolean;
   /** 커스텀 스타일 */
@@ -115,11 +117,18 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   value,
   onChange,
   options,
+  direction = "vertical",
   disabled = false,
   style,
 }) => {
+  const containerStyle = {
+    flexDirection: direction === "horizontal" ? ("row" as const) : ("column" as const),
+    gap: direction === "horizontal" ? 85 : 8,
+    ...style,
+  };
+
   return (
-    <View style={style}>
+    <View style={containerStyle}>
       {options.map((option) => (
         <Radio
           key={option.value}
