@@ -23,18 +23,33 @@ CREATE TYPE "policy_type" AS ENUM (
   'ETC'
 );
 
+CREATE TYPE "user_gender_enum" AS ENUM (
+  'MALE',
+  'FEMALE',
+  'OTHER'
+);
+
 CREATE TABLE "users" (
   "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "email" varchar UNIQUE NOT NULL,
   "password_hash" varchar,
   "provider" varchar DEFAULT 'EMAIL',
   "name" varchar NOT NULL,
+  "gender" user_gender_enum NOT NULL,
   "phone" varchar NOT NULL,
-  "wedding_date" date NOT NULL,
-  "preferred_region" varchar NOT NULL,
-  "budget_limit" int NOT NULL,
   "is_push_on" boolean DEFAULT true,
   "created_at" timestamp DEFAULT (now())
+);
+
+CREATE TABLE "users_info" (
+  "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
+  "user_id" uuid NOT NULL,
+  "is_main_plan" boolean NOT NULL DEFAULT false,
+  "wedding_date" date,
+  "preferred_region" varchar,
+  "budget_limit" int,
+  "created_at" timestamp DEFAULT (now()),
+  "updated_at" timestamp DEFAULT (now())
 );
 
 CREATE TABLE "vendor" (
@@ -88,6 +103,7 @@ CREATE TABLE "service_item" (
 CREATE TABLE "plan" (
   "id" uuid PRIMARY KEY,
   "user_id" uuid,
+  "users_info_id" uuid NOT NULL,
   "title" varchar DEFAULT '나의 웨딩',
   "total_budget" int,
   "is_ai_generated" boolean DEFAULT false,
@@ -186,13 +202,21 @@ CREATE TABLE "ai_log" (
 
 CREATE UNIQUE INDEX ON "user_policy_scrap" ("user_id", "policy_info_id");
 
+CREATE INDEX ON "users_info" ("user_id");
+
+CREATE INDEX ON "plan" ("users_info_id");
+
 ALTER TABLE "vendor_venue_detail" ADD FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id");
 
 ALTER TABLE "vendor_image" ADD FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id");
 
 ALTER TABLE "service_item" ADD FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id");
 
+ALTER TABLE "users_info" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
 ALTER TABLE "plan" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "plan" ADD FOREIGN KEY ("users_info_id") REFERENCES "users_info" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "plan_item" ADD FOREIGN KEY ("plan_id") REFERENCES "plan" ("id");
 

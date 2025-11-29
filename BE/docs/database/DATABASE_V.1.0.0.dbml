@@ -26,6 +26,12 @@ Enum policy_type {
   ETC        
 }
 
+Enum user_gender_enum {
+  MALE
+  FEMALE
+  OTHER
+}
+
 // =========================================================
 // 1. 사용자 (User)
 // =========================================================
@@ -36,15 +42,28 @@ Table users {
   provider varchar [default: 'EMAIL']
   
   name varchar [not null]
-  phone varchar [not null]
-  
-  wedding_date date [not null]
-  preferred_region varchar [not null] 
-  budget_limit int [not null] 
+  gender user_gender_enum [not null] // MALE, FEMALE, OTHER (1단계 필수 입력)
+  phone varchar [not null] // 1단계 필수 입력
   
   is_push_on boolean [default: true]
   
   created_at timestamp [default: `now()`]
+}
+
+// 사용자 상세 정보 (결혼 계획 관련)
+// 1:N 관계 - 한 사용자가 여러 개의 상세 정보를 가질 수 있음
+// is_main_plan이 true인 것이 현재 활성 플랜 (한 유저당 하나)
+Table users_info {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [ref: > users.id] // N:1 관계 (UNIQUE 제거)
+  is_main_plan boolean [not null, default: false] // 메인 플랜 여부
+  
+  wedding_date date [null] // 2단계 입력
+  preferred_region varchar [null] // 2단계 입력
+  budget_limit int [null] // 2단계 입력
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // =========================================================
@@ -114,6 +133,7 @@ Table service_item {
 Table plan {
   id uuid [pk]
   user_id uuid [ref: > users.id]
+  users_info_id uuid [ref: > users_info.id] // 사용자 상세 정보 참조
   title varchar [default: '나의 웨딩']
   total_budget int
   is_ai_generated boolean [default: false]
@@ -259,4 +279,5 @@ Table ai_log {
 // 작성일: 2025.11.26
 // 작성자: 김동언
 // 설명: PlanA 웨딩 플래닝 서비스 데이터베이스 스키마 (DBML)
+// 참조: docs/database/DATABASE.md
 // 참조: docs/database/DATABASE.md
