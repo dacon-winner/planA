@@ -137,8 +137,10 @@ export const StepItem: React.FC<StepItemProps> = ({
         )}
       </View>
 
-      {/* Connector Line (마지막 스텝 제외) */}
-      {!isLast && <View style={[styles.connectorLine, styles.connectorLineTop]} />}
+      {/* Connector Line (마지막 스텝 제외, 폼이 닫혀있을 때만 표시) */}
+      {!isLast && !isOpen && (
+        <View style={[styles.connectorLine, styles.connectorLineTop]} />
+      )}
     </View>
   );
 };
