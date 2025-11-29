@@ -33,12 +33,9 @@ export class UsersInfoService {
    * - 자동으로 플랜 생성
    * @param userId - 사용자 ID
    * @param createUsersInfoDto - 생성할 상세 정보
-   * @returns 생성된 사용자 상세 정보 + 추천 플랜
+   * @returns 생성된 플랜 (plan_items, vendor, service_item 포함)
    */
-  async create(
-    userId: string,
-    createUsersInfoDto: CreateUsersInfoDto,
-  ): Promise<{ usersInfo: UsersInfo; plan: Plan | null }> {
+  async create(userId: string, createUsersInfoDto: CreateUsersInfoDto): Promise<Plan | null> {
     this.logger.log(`사용자 상세 정보 생성 시작: userId=${userId}`);
 
     // 사용자 존재 여부 확인
@@ -103,13 +100,13 @@ export class UsersInfoService {
         this.logger.warn('추천 가능한 업체가 없어 플랜을 생성하지 않았습니다.');
       }
     } catch (error) {
-      // AI 추천 실패 시에도 users_info는 정상 반환
-      this.logger.error(`AI 추천/플랜 생성 실패: ${error.message}`, error.stack);
+      // AI 추천 실패 시에도 users_info는 정상 생성되지만 플랜은 null 반환
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`AI 추천/플랜 생성 실패: ${errorMessage}`, errorStack);
     }
 
-    return {
-      usersInfo: savedUsersInfo,
-      plan,
-    };
+    // 생성된 플랜만 반환 (plan_items, vendor, service_item 포함)
+    return plan;
   }
 }

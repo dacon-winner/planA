@@ -109,7 +109,7 @@ export class PlansService {
     // 생성된 플랜 및 아이템 조회 (관계 포함)
     const planWithItems = await this.planRepository.findOne({
       where: { id: savedPlan.id },
-      relations: ['plan_items', 'plan_items.vendor'],
+      relations: ['plan_items', 'plan_items.vendor', 'plan_items.service_item'],
     });
 
     this.logger.log(`AI 추천 플랜 생성 완료: planId=${savedPlan.id}`);
