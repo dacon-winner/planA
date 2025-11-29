@@ -120,6 +120,18 @@ export const styles = StyleSheet.create({
     paddingVertical: parseInt(spacing.md),
   },
 
+  "select-button-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  "single-button-row": {
+    flexDirection: "row",
+    gap: parseInt(spacing.sm),
+  },
+
   "demo-label": {
     fontSize: parseInt(fontSize["mobile-m"][0]),
     lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
