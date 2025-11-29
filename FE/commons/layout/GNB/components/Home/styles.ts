@@ -167,6 +167,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "flex-start",
     paddingHorizontal: 12,
+    marginTop: 32,
     zIndex: 1,
   },
 

@@ -103,119 +103,119 @@ export default function Home() {
 
         {/* 하단 카드 그리드 - full width */}
         <View style={styles["card-grid"]}>
-            {/* 카드 1 - 에이비 스튜디오 */}
-            <View style={styles["vendor-card"]}>
-              <View style={styles["card-content"]}>
-                <View style={styles["card-info"]}>
-                  <View style={styles["card-header"]}>
-                    <Text style={styles["card-title"]}>에이비 스튜디오</Text>
-                    <View style={styles["card-meta"]}>
-                      <Text style={styles["card-category-bold"]}>스튜디오</Text>
-                      <Text style={styles["card-location"]}>서울 강남구</Text>
-                    </View>
-                  </View>
-                  <View style={styles["card-status"]}>
-                    <Clock size={12} color="#524a4e" />
-                    <Text style={styles["card-status-text"]}>예약 문의 중</Text>
+          {/* 카드 1 - 에이비 스튜디오 */}
+          <View style={styles["vendor-card"]}>
+            <View style={styles["card-content"]}>
+              <View style={styles["card-info"]}>
+                <View style={styles["card-header"]}>
+                  <Text style={styles["card-title"]}>에이비 스튜디오</Text>
+                  <View style={styles["card-meta"]}>
+                    <Text style={styles["card-category-bold"]}>스튜디오</Text>
+                    <Text style={styles["card-location"]}>서울 강남구</Text>
                   </View>
                 </View>
-                <Image
-                  source={{
-                    uri: "http://localhost:3845/assets/8ebf14d458196f6acfdcfdd1afa9adc590fb20e8.png",
-                  }}
-                  style={styles["card-image"]}
-                  resizeMode="cover"
-                />
-              </View>
-            </View>
-
-            {/* 카드 2 - 브라이드 드레스 */}
-            <View style={styles["vendor-card"]}>
-              <View style={styles["card-content"]}>
-                <View style={styles["card-info"]}>
-                  <View style={styles["card-header"]}>
-                    <Text style={styles["card-title"]}>브라이드 드레스</Text>
-                    <View style={styles["card-meta"]}>
-                      <Text style={styles["card-category-bold"]}>드레스</Text>
-                      <Text style={styles["card-location"]}>서울 서초구</Text>
-                    </View>
-                  </View>
-                  <View style={styles["card-status"]}>
-                    <Clock size={12} color={colors.root.text} />
-                    <Text style={styles["card-status-text"]}>
-                      2025년 11월 27일 방문 예정
-                    </Text>
-                  </View>
+                <View style={styles["card-status"]}>
+                  <Clock size={12} color="#524a4e" />
+                  <Text style={styles["card-status-text"]}>예약 문의 중</Text>
                 </View>
-                <Image
-                  source={{
-                    uri: "http://localhost:3845/assets/e96f51116299bba1b4466fb0879e5d7378bef1c4.png",
-                  }}
-                  style={styles["card-image"]}
-                  resizeMode="cover"
-                />
               </View>
-            </View>
-
-            {/* 카드 3 - 프롬바이어스 (회색) */}
-            <View style={styles["vendor-card"]}>
-              <View style={styles["card-content"]}>
-                <View style={styles["card-info"]}>
-                  <View style={styles["card-header"]}>
-                    <Text style={styles["card-title-inactive"]}>
-                      프롬바이어스
-                    </Text>
-                    <View style={styles["card-meta"]}>
-                      <Text style={styles["card-category-inactive"]}>
-                        메이크업
-                      </Text>
-                      <Text style={styles["card-location-inactive"]}>
-                        서울 강남구
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles["card-status"]}>
-                    <Text style={styles["card-status-text-inactive"]}>
-                      업체 저장 전
-                    </Text>
-                  </View>
-                </View>
-                <Image
-                  source={{
-                    uri: "http://localhost:3845/assets/3e0d3efcb7266f84d34018e2a9bbc6e1f5cf69cc.png",
-                  }}
-                  style={styles["card-image"]}
-                  resizeMode="cover"
-                />
-              </View>
-            </View>
-
-            {/* 카드 4 - 타임스퀘어홀 */}
-            <View style={styles["vendor-card"]}>
-              <View style={styles["card-content"]}>
-                <View style={styles["card-info"]}>
-                  <View style={styles["card-header"]}>
-                    <Text style={styles["card-title"]}>타임스퀘어홀</Text>
-                    <View style={styles["card-meta"]}>
-                      <Text style={styles["card-category-bold"]}>웨딩홀</Text>
-                      <Text style={styles["card-location"]}>서울 강남구</Text>
-                    </View>
-                  </View>
-                  <View style={styles["card-status"]}>
-                    <Clock size={12} color={colors.root.text} />
-                    <Text style={styles["card-status-text"]}>계약 완료</Text>
-                  </View>
-                </View>
-                <Image
-                  source={{
-                    uri: "http://localhost:3845/assets/5119a2164e6d4fd89fa9b492312fd60515cf25eb.png",
-                  }}
-                  style={styles["card-image"]}
-                  resizeMode="cover"
-                />
-              </View>
+              <Image
+                source={{
+                  uri: "http://localhost:3845/assets/8ebf14d458196f6acfdcfdd1afa9adc590fb20e8.png",
+                }}
+                style={styles["card-image"]}
+                resizeMode="cover"
+              />
             </View>
           </View>
+
+          {/* 카드 2 - 브라이드 드레스 */}
+          <View style={styles["vendor-card"]}>
+            <View style={styles["card-content"]}>
+              <View style={styles["card-info"]}>
+                <View style={styles["card-header"]}>
+                  <Text style={styles["card-title"]}>브라이드 드레스</Text>
+                  <View style={styles["card-meta"]}>
+                    <Text style={styles["card-category-bold"]}>드레스</Text>
+                    <Text style={styles["card-location"]}>서울 서초구</Text>
+                  </View>
+                </View>
+                <View style={styles["card-status"]}>
+                  <Clock size={12} color={colors.root.text} />
+                  <Text style={styles["card-status-text"]}>
+                    2025년 11월 27일 방문 예정
+                  </Text>
+                </View>
+              </View>
+              <Image
+                source={{
+                  uri: "http://localhost:3845/assets/e96f51116299bba1b4466fb0879e5d7378bef1c4.png",
+                }}
+                style={styles["card-image"]}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+
+          {/* 카드 3 - 프롬바이어스 (회색) */}
+          <View style={styles["vendor-card"]}>
+            <View style={styles["card-content"]}>
+              <View style={styles["card-info"]}>
+                <View style={styles["card-header"]}>
+                  <Text style={styles["card-title-inactive"]}>
+                    프롬바이어스
+                  </Text>
+                  <View style={styles["card-meta"]}>
+                    <Text style={styles["card-category-inactive"]}>
+                      메이크업
+                    </Text>
+                    <Text style={styles["card-location-inactive"]}>
+                      서울 강남구
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles["card-status"]}>
+                  <Text style={styles["card-status-text-inactive"]}>
+                    업체 저장 전
+                  </Text>
+                </View>
+              </View>
+              <Image
+                source={{
+                  uri: "http://localhost:3845/assets/3e0d3efcb7266f84d34018e2a9bbc6e1f5cf69cc.png",
+                }}
+                style={styles["card-image"]}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+
+          {/* 카드 4 - 타임스퀘어홀 */}
+          <View style={styles["vendor-card"]}>
+            <View style={styles["card-content"]}>
+              <View style={styles["card-info"]}>
+                <View style={styles["card-header"]}>
+                  <Text style={styles["card-title"]}>타임스퀘어홀</Text>
+                  <View style={styles["card-meta"]}>
+                    <Text style={styles["card-category-bold"]}>웨딩홀</Text>
+                    <Text style={styles["card-location"]}>서울 강남구</Text>
+                  </View>
+                </View>
+                <View style={styles["card-status"]}>
+                  <Clock size={12} color={colors.root.text} />
+                  <Text style={styles["card-status-text"]}>계약 완료</Text>
+                </View>
+              </View>
+              <Image
+                source={{
+                  uri: "http://localhost:3845/assets/5119a2164e6d4fd89fa9b492312fd60515cf25eb.png",
+                }}
+                style={styles["card-image"]}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
