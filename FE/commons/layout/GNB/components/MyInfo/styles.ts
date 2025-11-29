@@ -129,6 +129,45 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'PretendardVariable',
   },
+
+  /* Dropdown Demo Section */
+  'dropdown-demo-item': {
+    alignItems: 'center',
+    gap: parseInt(spacing.sm),
+    minWidth: 120,
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'dropdown-demo-label': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[600],
+    textAlign: 'center',
+    fontFamily: 'PretendardVariable',
+    marginBottom: parseInt(spacing.xs),
+  },
+
+
+  'dropdown-result-section': {
+    marginTop: parseInt(spacing.md),
+    paddingTop: parseInt(spacing.md),
+    borderTopWidth: 1,
+    borderTopColor: colors.secondary[200],
+    alignItems: 'center',
+  },
+
+  'dropdown-result-text': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[700],
+    textAlign: 'center',
+    fontFamily: 'PretendardVariable',
+    marginBottom: parseInt(spacing.xs),
+  },
 });
 
 
