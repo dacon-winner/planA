@@ -14,8 +14,8 @@
  * [✓] 접근성: 시맨틱/포커스/명도 대비/탭타겟 통과
  */
 
-import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, Pressable, Animated } from "react-native";
 import { Check } from "lucide-react-native";
 import { styles } from "./styles";
 
@@ -60,6 +60,45 @@ export const StepItem: React.FC<StepItemProps> = ({
   isLast = false,
   nextStepState,
 }) => {
+  // 애니메이션 값 초기화
+  const animatedHeight = useRef(new Animated.Value(0)).current;
+  const animatedOpacity = useRef(new Animated.Value(0)).current;
+
+  /**
+   * isOpen 상태 변경 시 애니메이션 실행
+   */
+  useEffect(() => {
+    if (isOpen) {
+      // 펼치기 애니메이션
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // 접기 애니메이션
+      Animated.parallel([
+        Animated.timing(animatedHeight, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isOpen, animatedHeight, animatedOpacity]);
+
   /**
    * 아이콘 렌더링
    */
@@ -123,16 +162,23 @@ export const StepItem: React.FC<StepItemProps> = ({
           </View>
         </Pressable>
 
-        {/* Step Content (폼 영역) */}
-        {isOpen && children && (
-          <View
+        {/* Step Content (폼 영역) - 애니메이션 적용 */}
+        {children && (
+          <Animated.View
             style={[
               styles.stepContent,
-              isOpen ? styles.stepContentExpanded : styles.stepContentCollapsed,
+              {
+                maxHeight: animatedHeight.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1000], // 폼의 최대 높이
+                }),
+                opacity: animatedOpacity,
+                overflow: "hidden",
+              },
             ]}
           >
             {children}
-          </View>
+          </Animated.View>
         )}
       </View>
 
