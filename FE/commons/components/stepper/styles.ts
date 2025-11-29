@@ -206,22 +206,13 @@ export const styles = StyleSheet.create({
   /**
    * Connector Line
    * 피그마: width 2, height 40, bg #ada2a2 20% opacity
-   * position: left margin 32px (24px padding + 8px offset)
+   * position: relative, left margin 33px (24px padding + 9px center of icon)
    */
   connectorLine: {
-    position: "absolute",
-    left: 33, // 24px padding + 9px (center of 20px icon)
     width: 2,
     height: 40,
     backgroundColor: "rgba(173, 162, 162, 0.2)", // #ada2a2 20% opacity
-  },
-
-  /**
-   * Connector Line - Top position
-   * 스텝 헤더 아래에 위치
-   */
-  connectorLineTop: {
-    top: 52, // step header height
+    marginLeft: 33, // 24px padding + 9px (center of 20px icon)
   },
 
   /* ========================================
