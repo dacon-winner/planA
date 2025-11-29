@@ -13,8 +13,9 @@
 
 import { View, ScrollView, Text, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Clock } from "lucide-react-native";
+import { Clock, Calendar, MapPin, CircleDollarSign } from "lucide-react-native";
 import { styles } from "./styles";
+import { colors } from "../../../../enums/color";
 
 export default function Home() {
   return (
@@ -47,12 +48,20 @@ export default function Home() {
 
           {/* 중앙 정보 카드 */}
           <View style={styles["info-card-wrapper"]}>
+            <View style={styles["info-card-blur"]} />
             <View style={styles["info-card-content"]}>
               {/* 일정 */}
               <View style={styles["info-item"]}>
-                <View style={styles["info-icon-placeholder"]} />
-                <Text style={styles["info-label"]}>일정</Text>
-                <Text style={styles["info-value-primary"]}>
+                <Calendar size={20} color={colors.root.brand} strokeWidth={2} />
+                <Text style={styles["info-label"]} allowFontScaling={false}>
+                  일정
+                </Text>
+                <Text
+                  style={styles["info-value-primary"]}
+                  allowFontScaling={false}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
                   2026년 3월 28일
                 </Text>
               </View>
@@ -62,9 +71,13 @@ export default function Home() {
 
               {/* 지역 */}
               <View style={styles["info-item"]}>
-                <View style={styles["info-icon-placeholder"]} />
-                <Text style={styles["info-label"]}>지역</Text>
-                <Text style={styles["info-value"]}>서울 강남구</Text>
+                <MapPin size={20} color={colors.root.brand} strokeWidth={2} />
+                <Text style={styles["info-label"]} allowFontScaling={false}>
+                  지역
+                </Text>
+                <Text style={styles["info-value"]} allowFontScaling={false}>
+                  서울 강남구
+                </Text>
               </View>
 
               {/* 구분선 2 */}
@@ -72,9 +85,17 @@ export default function Home() {
 
               {/* 예산 */}
               <View style={styles["info-item"]}>
-                <View style={styles["info-icon-placeholder"]} />
-                <Text style={styles["info-label"]}>예산</Text>
-                <Text style={styles["info-value"]}>800만원</Text>
+                <CircleDollarSign
+                  size={20}
+                  color={colors.root.brand}
+                  strokeWidth={2}
+                />
+                <Text style={styles["info-label"]} allowFontScaling={false}>
+                  예산
+                </Text>
+                <Text style={styles["info-value"]} allowFontScaling={false}>
+                  800만원
+                </Text>
               </View>
             </View>
           </View>
@@ -119,7 +140,7 @@ export default function Home() {
                     </View>
                   </View>
                   <View style={styles["card-status"]}>
-                    <Clock size={12} color="#524a4e" />
+                    <Clock size={12} color={colors.root.text} />
                     <Text style={styles["card-status-text"]}>
                       2025년 11월 27일 방문 예정
                     </Text>
@@ -180,7 +201,7 @@ export default function Home() {
                     </View>
                   </View>
                   <View style={styles["card-status"]}>
-                    <Clock size={12} color="#524a4e" />
+                    <Clock size={12} color={colors.root.text} />
                     <Text style={styles["card-status-text"]}>계약 완료</Text>
                   </View>
                 </View>
