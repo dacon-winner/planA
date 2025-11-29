@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth';
 import { UsersInfoModule } from './modules/users_info';
 import { AiModule } from './modules/ai';
 import { PlansModule } from './modules/plans';
+import { VendorsModule } from './modules/vendors';
 import {
   User,
   UsersInfo,
@@ -74,6 +75,7 @@ import {
     AiModule,
     PlansModule,
     UsersInfoModule,
+    VendorsModule,
   ],
   controllers: [AppController],
   providers: [
