@@ -178,11 +178,19 @@ export const Stepper: React.FC<StepperProps> = ({
 }) => {
   // 내부 상태 관리
   const [internalCurrentStep, setInternalCurrentStep] = useState(0);
-  const [internalCompletedSteps, setInternalCompletedSteps] = useState<number[]>([]);
+  const [internalCompletedSteps, setInternalCompletedSteps] = useState<
+    number[]
+  >([]);
 
   // Controlled vs Uncontrolled 결정
-  const currentStep = controlledCurrentStep !== undefined ? controlledCurrentStep : internalCurrentStep;
-  const completedSteps = controlledCompletedSteps !== undefined ? controlledCompletedSteps : internalCompletedSteps;
+  const currentStep =
+    controlledCurrentStep !== undefined
+      ? controlledCurrentStep
+      : internalCurrentStep;
+  const completedSteps =
+    controlledCompletedSteps !== undefined
+      ? controlledCompletedSteps
+      : internalCompletedSteps;
 
   /**
    * 스텝 상태 결정
@@ -308,12 +316,16 @@ export interface StepperContextValue {
   goToStep: (stepIndex: number) => void;
 }
 
-export const StepperContext = React.createContext<StepperContextValue | null>(null);
+export const StepperContext = React.createContext<StepperContextValue | null>(
+  null
+);
 
 export const useStepperContext = () => {
   const context = React.useContext(StepperContext);
   if (!context) {
-    throw new Error("useStepperContext must be used within a Stepper component");
+    throw new Error(
+      "useStepperContext must be used within a Stepper component"
+    );
   }
   return context;
 };
@@ -323,7 +335,9 @@ export const useStepperContext = () => {
  */
 export const StepperWithContext: React.FC<StepperProps> = (props) => {
   const [currentStep, setCurrentStep] = useState(props.currentStep || 0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>(props.completedSteps || []);
+  const [completedSteps, setCompletedSteps] = useState<number[]>(
+    props.completedSteps || []
+  );
 
   const goToNextStep = () => {
     const nextStepIndex = currentStep + 1;
@@ -377,7 +391,12 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
         {...props}
         currentStep={currentStep}
         completedSteps={completedSteps}
-        onStepChange={props.onStepChange}
+        onStepChange={(stepIndex) => {
+          setCurrentStep(stepIndex);
+          if (props.onStepChange) {
+            props.onStepChange(stepIndex);
+          }
+        }}
         onStepComplete={props.onStepComplete}
       />
     </StepperContext.Provider>
@@ -385,4 +404,3 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
 };
 
 export default Stepper;
-
