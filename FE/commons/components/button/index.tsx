@@ -52,6 +52,8 @@ export const Button: React.FC<ButtonProps> = ({
   // 스타일 조합 계산
   const getButtonStyle = () => {
     if (disabled) {
+      if (size === "small") return styles.buttonDisabledSmall;
+      if (size === "large") return styles.buttonDisabledLarge;
       return styles.buttonDisabled;
     }
 

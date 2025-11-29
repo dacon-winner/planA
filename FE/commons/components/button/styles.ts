@@ -137,11 +137,41 @@ export const styles = StyleSheet.create({
    * ======================================== */
 
   /**
-   * Disabled
+   * Disabled Medium (기본)
    * 피그마: height 40, cornerRadius 8, bg #c2b8b8 (가장 유사한 토큰: #bfbfbf)
    */
   buttonDisabled: {
     height: 40,
+    backgroundColor: blackColors["black-6"], // #bfbfbf (피그마 #c2b8b8와 가장 유사)
+    borderRadius: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    gap: 4,
+  },
+
+  /**
+   * Disabled Small
+   * 피그마: height 32, cornerRadius 8, bg #c2b8b8 (가장 유사한 토큰: #bfbfbf)
+   */
+  buttonDisabledSmall: {
+    height: 32,
+    backgroundColor: blackColors["black-6"], // #bfbfbf (피그마 #c2b8b8와 가장 유사)
+    borderRadius: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    gap: 4,
+  },
+
+  /**
+   * Disabled Large
+   * 피그마: height 44, cornerRadius 8, bg #c2b8b8 (가장 유사한 토큰: #bfbfbf)
+   */
+  buttonDisabledLarge: {
+    height: 44,
     backgroundColor: blackColors["black-6"], // #bfbfbf (피그마 #c2b8b8와 가장 유사)
     borderRadius: 8,
     flexDirection: "row",
