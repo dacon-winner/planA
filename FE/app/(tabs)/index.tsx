@@ -21,9 +21,239 @@ import ContentSwitcher from "@/commons/components/content-switcher";
 import Filter from "@/commons/components/filter";
 import Toggle from "@/commons/components/toggle";
 import { RadioGroup } from "@/commons/components/radio";
-import { SelectButton, SelectButtonGroup } from "@/commons/components/select-button";
+import {
+  SelectButton,
+  SelectButtonGroup,
+} from "@/commons/components/select-button";
+import {
+  StepperWithContext,
+  useStepperContext,
+} from "@/commons/components/stepper";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
+
+// Stepper 예시를 위한 폼 데이터 타입
+interface StepperFormData {
+  region: string;
+  budget: string;
+  time: string;
+}
+
+// Stepper 예시를 위한 폼 컴포넌트들
+function RegionSelectionForm({
+  data,
+  onChange,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+}) {
+  const { autoCompleteStep } = useStepperContext();
+  const ICON_COLOR_DEFAULT = brownColors["brown-2"];
+  const ICON_COLOR_SELECTED = "#861043";
+
+  const regionOptions = [
+    {
+      value: "gangnam",
+      label: "강남구",
+      icon: (
+        <MapPin
+          size={20}
+          color={
+            data.region === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "seocho",
+      label: "서초구",
+      icon: (
+        <MapPin
+          size={20}
+          color={
+            data.region === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "songpa",
+      label: "송파구",
+      icon: (
+        <MapPin
+          size={20}
+          color={
+            data.region === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "jongno",
+      label: "종로구",
+      icon: (
+        <MapPin
+          size={20}
+          color={
+            data.region === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+  ];
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        지역을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.region}
+        onChange={(value) => {
+          onChange("region", value);
+          autoCompleteStep();
+        }}
+        options={regionOptions}
+        size="medium"
+        direction="horizontal"
+      />
+    </View>
+  );
+}
+
+function BudgetSelectionForm({
+  data,
+  onChange,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+}) {
+  const { autoCompleteStep } = useStepperContext();
+
+  const budgetOptions = [
+    { value: "1000", label: "1,000만원" },
+    { value: "3000", label: "3,000만원" },
+    { value: "5000", label: "5,000만원" },
+    { value: "10000", label: "1억원" },
+  ];
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        예산을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.budget}
+        onChange={(value) => {
+          onChange("budget", value);
+          autoCompleteStep();
+        }}
+        options={budgetOptions}
+        size="medium"
+        direction="horizontal"
+      />
+    </View>
+  );
+}
+
+function TimeSelectionForm({
+  data,
+  onChange,
+  onSubmit,
+}: {
+  data: StepperFormData;
+  onChange: (field: keyof StepperFormData, value: string) => void;
+  onSubmit: () => void;
+}) {
+  const { autoCompleteStep, autoProgressDelay } = useStepperContext();
+  const ICON_COLOR_DEFAULT = brownColors["brown-2"];
+  const ICON_COLOR_SELECTED = "#861043";
+
+  const timeOptions = [
+    {
+      value: "09:00",
+      label: "09:00",
+      icon: (
+        <Clock
+          size={16}
+          color={
+            data.time === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "11:00",
+      label: "11:00",
+      icon: (
+        <Clock
+          size={16}
+          color={
+            data.time === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "14:00",
+      label: "14:00",
+      icon: (
+        <Clock
+          size={16}
+          color={
+            data.time === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "16:00",
+      label: "16:00",
+      icon: (
+        <Clock
+          size={16}
+          color={
+            data.time === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+    {
+      value: "18:00",
+      label: "18:00",
+      icon: (
+        <Clock
+          size={16}
+          color={
+            data.time === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
+        />
+      ),
+    },
+  ];
+
+  return (
+    <View style={{ gap: 12 }}>
+      <Text style={{ fontSize: 14, fontWeight: "500", color: "#524a4e" }}>
+        시간을 선택해주세요
+      </Text>
+      <SelectButtonGroup
+        value={data.time}
+        onChange={(value) => {
+          onChange("time", value);
+          autoCompleteStep();
+          // 마지막 스텝이므로 0.5초 후 onSubmit 호출
+          setTimeout(() => {
+            onSubmit();
+          }, autoProgressDelay);
+        }}
+        options={timeOptions}
+        size="small"
+        direction="horizontal"
+      />
+    </View>
+  );
+}
 
 export default function Home() {
   // Input 상태 관리
@@ -32,6 +262,64 @@ export default function Home() {
   const [planName, setPlanName] = useState("");
   const [filledValue, setFilledValue] = useState("이름을 입력해주세요.");
   const [smallFilledValue, setSmallFilledValue] = useState("플랜 A");
+
+  // Stepper 폼 데이터 상태 관리
+  const [stepperFormData, setStepperFormData] = useState<StepperFormData>({
+    region: "",
+    budget: "",
+    time: "",
+  });
+
+  // Stepper 폼 데이터 변경 핸들러
+  const handleStepperFormChange = (
+    field: keyof StepperFormData,
+    value: string
+  ) => {
+    setStepperFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  // Stepper 폼 제출 핸들러
+  const handleStepperFormSubmit = () => {
+    console.log("Stepper Form Data:", stepperFormData);
+    console.log("선택 완료!");
+  };
+
+  // Stepper 제목 생성 함수
+  const getStepTitle = (step: "region" | "budget" | "time") => {
+    const labels = {
+      region: {
+        default: "지역 선택",
+        gangnam: "강남구",
+        seocho: "서초구",
+        songpa: "송파구",
+        jongno: "종로구",
+      },
+      budget: {
+        default: "예산 선택",
+        "1000": "1,000만원",
+        "3000": "3,000만원",
+        "5000": "5,000만원",
+        "10000": "1억원",
+      },
+      time: {
+        default: "시간 선택",
+        "09:00": "09:00",
+        "11:00": "11:00",
+        "14:00": "14:00",
+        "16:00": "16:00",
+        "18:00": "18:00",
+      },
+    };
+
+    const value = stepperFormData[step];
+    if (value && labels[step][value as keyof (typeof labels)[typeof step]]) {
+      return labels[step][value as keyof (typeof labels)[typeof step]];
+    }
+    return labels[step].default;
+  };
 
   // ContentSwitcher 상태 관리
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -69,7 +357,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "gangnam"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -79,7 +371,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "seocho"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -89,7 +385,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "songpa"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -99,7 +399,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "jongno"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -121,7 +425,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -131,7 +437,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -141,7 +449,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -151,7 +461,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -161,7 +473,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -391,10 +705,14 @@ export default function Home() {
 
         {/* SelectButton 컴포넌트 예시 */}
         <View style={styles["select-button-demo-section"]}>
-          <Text style={styles["section-title"]}>SelectButton 컴포넌트 예시</Text>
+          <Text style={styles["section-title"]}>
+            SelectButton 컴포넌트 예시
+          </Text>
 
           {/* 지역 선택 (아이콘 있음, medium) */}
-          <Text style={styles["demo-label"]}>지역 선택 (아이콘 있음, medium)</Text>
+          <Text style={styles["demo-label"]}>
+            지역 선택 (아이콘 있음, medium)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 지역: {selectedRegion}
           </Text>
@@ -407,7 +725,9 @@ export default function Home() {
           />
 
           {/* 예산 선택 (아이콘 없음, medium) */}
-          <Text style={styles["demo-label"]}>예산 선택 (아이콘 없음, medium)</Text>
+          <Text style={styles["demo-label"]}>
+            예산 선택 (아이콘 없음, medium)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 예산: {selectedBudget}만원
           </Text>
@@ -420,7 +740,9 @@ export default function Home() {
           />
 
           {/* 시간 선택 (아이콘 있음, small) */}
-          <Text style={styles["demo-label"]}>시간 선택 (아이콘 있음, small)</Text>
+          <Text style={styles["demo-label"]}>
+            시간 선택 (아이콘 있음, small)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 시간: {selectedTime}
           </Text>
@@ -449,8 +771,51 @@ export default function Home() {
             />
           </View>
         </View>
+
+        {/* Stepper 컴포넌트 예시 */}
+        <View style={styles["stepper-demo-section"]}>
+          <Text style={styles["section-title"]}>Stepper 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            순차적인 단계를 진행하는 컴포넌트입니다. 각 단계를 클릭하여 다시 열
+            수 있습니다.
+          </Text>
+
+          <StepperWithContext
+            steps={[
+              {
+                title: getStepTitle("region"),
+                content: (
+                  <RegionSelectionForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                  />
+                ),
+              },
+              {
+                title: getStepTitle("budget"),
+                content: (
+                  <BudgetSelectionForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                  />
+                ),
+              },
+              {
+                title: getStepTitle("time"),
+                content: (
+                  <TimeSelectionForm
+                    data={stepperFormData}
+                    onChange={handleStepperFormChange}
+                    onSubmit={handleStepperFormSubmit}
+                  />
+                ),
+              },
+            ]}
+            autoProgress={true}
+            autoProgressDelay={500}
+          />
+        </View>
       </View>
     </ScrollView>
   );
 }
-
