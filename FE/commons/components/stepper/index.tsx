@@ -42,6 +42,8 @@ export interface StepItemProps {
   onPress?: () => void;
   /** 마지막 스텝 여부 (연결선 표시 제어) */
   isLast?: boolean;
+  /** 다음 스텝의 상태 (연결선 표시 제어) */
+  nextStepState?: StepState;
 }
 
 /**
@@ -56,6 +58,7 @@ export const StepItem: React.FC<StepItemProps> = ({
   children,
   onPress,
   isLast = false,
+  nextStepState,
 }) => {
   /**
    * 아이콘 렌더링
@@ -137,8 +140,8 @@ export const StepItem: React.FC<StepItemProps> = ({
         )}
       </View>
 
-      {/* Connector Line (마지막 스텝 제외, default 상태일 때만 표시) */}
-      {!isLast && !isOpen && state === "default" && (
+      {/* Connector Line (다음 스텝이 default일 때만 표시) */}
+      {!isLast && !isOpen && nextStepState === "default" && (
         <View style={styles.connectorLine} />
       )}
     </View>
@@ -298,6 +301,9 @@ export const Stepper: React.FC<StepperProps> = ({
           isOpen={currentStep === index}
           onPress={() => handleStepPress(index)}
           isLast={index === steps.length - 1}
+          nextStepState={
+            index < steps.length - 1 ? getStepState(index + 1) : undefined
+          }
         >
           {step.content}
         </StepItem>
