@@ -2,7 +2,7 @@
 
 ## 개요
 
-피그마 디자인 시스템을 기반으로 한 재사용 가능한 단계별 진행 컴포넌트입니다. 
+피그마 디자인 시스템을 기반으로 한 재사용 가능한 단계별 진행 컴포넌트입니다.
 순차적인 단계 진행을 관리하며, accordion 방식으로 한 번에 하나의 단계만 열립니다.
 
 ## 버전 정보
@@ -92,7 +92,10 @@ function MyComponent() {
 ### Context API 사용 (권장)
 
 ```tsx
-import { StepperWithContext, useStepperContext } from "@/commons/components/stepper";
+import {
+  StepperWithContext,
+  useStepperContext,
+} from "@/commons/components/stepper";
 
 // 폼 컴포넌트 내부에서 스텝 제어
 function PersonalInfoForm() {
@@ -128,35 +131,35 @@ function MyComponent() {
 
 ### Stepper Props
 
-| Prop              | Type                                                | Default | Required | Description                  |
-| ----------------- | --------------------------------------------------- | ------- | -------- | ---------------------------- |
-| `steps`           | `Array<{ title: string, content?: ReactNode }>`    | -       | ✅       | 스텝 목록                    |
-| `currentStep`     | `number`                                            | `0`     | ❌       | 현재 활성 스텝 인덱스        |
-| `completedSteps`  | `number[]`                                          | `[]`    | ❌       | 완료된 스텝 인덱스 배열      |
-| `onStepChange`    | `(stepIndex: number) => void`                       | -       | ❌       | 스텝 변경 시 호출되는 콜백   |
-| `onStepComplete`  | `(stepIndex: number) => void`                       | -       | ❌       | 스텝 완료 시 호출되는 콜백   |
+| Prop             | Type                                            | Default | Required | Description                |
+| ---------------- | ----------------------------------------------- | ------- | -------- | -------------------------- |
+| `steps`          | `Array<{ title: string, content?: ReactNode }>` | -       | ✅       | 스텝 목록                  |
+| `currentStep`    | `number`                                        | `0`     | ❌       | 현재 활성 스텝 인덱스      |
+| `completedSteps` | `number[]`                                      | `[]`    | ❌       | 완료된 스텝 인덱스 배열    |
+| `onStepChange`   | `(stepIndex: number) => void`                   | -       | ❌       | 스텝 변경 시 호출되는 콜백 |
+| `onStepComplete` | `(stepIndex: number) => void`                   | -       | ❌       | 스텝 완료 시 호출되는 콜백 |
 
 ### StepItem Props
 
-| Prop       | Type           | Default | Required | Description                    |
-| ---------- | -------------- | ------- | -------- | ------------------------------ |
-| `index`    | `number`       | -       | ✅       | 스텝 인덱스 (1부터 시작)       |
-| `title`    | `string`       | -       | ✅       | 스텝 제목                      |
-| `state`    | `StepState`    | -       | ✅       | 스텝 상태                      |
-| `isOpen`   | `boolean`      | -       | ✅       | 스텝 열림 여부                 |
-| `children` | `ReactNode`    | -       | ❌       | 스텝 컨텐츠 (폼 영역)          |
-| `onPress`  | `() => void`   | -       | ❌       | 스텝 클릭 핸들러               |
-| `isLast`   | `boolean`      | `false` | ❌       | 마지막 스텝 여부 (연결선 제어) |
+| Prop       | Type         | Default | Required | Description                    |
+| ---------- | ------------ | ------- | -------- | ------------------------------ |
+| `index`    | `number`     | -       | ✅       | 스텝 인덱스 (1부터 시작)       |
+| `title`    | `string`     | -       | ✅       | 스텝 제목                      |
+| `state`    | `StepState`  | -       | ✅       | 스텝 상태                      |
+| `isOpen`   | `boolean`    | -       | ✅       | 스텝 열림 여부                 |
+| `children` | `ReactNode`  | -       | ❌       | 스텝 컨텐츠 (폼 영역)          |
+| `onPress`  | `() => void` | -       | ❌       | 스텝 클릭 핸들러               |
+| `isLast`   | `boolean`    | `false` | ❌       | 마지막 스텝 여부 (연결선 제어) |
 
 ### useStepperContext 반환값
 
-| Property           | Type                       | Description           |
-| ------------------ | -------------------------- | --------------------- |
-| `currentStep`      | `number`                   | 현재 활성 스텝 인덱스 |
-| `completedSteps`   | `number[]`                 | 완료된 스텝 배열      |
-| `goToNextStep`     | `() => void`               | 다음 스텝으로 이동    |
-| `goToPreviousStep` | `() => void`               | 이전 스텝으로 이동    |
-| `goToStep`         | `(stepIndex: number) => void` | 특정 스텝으로 이동 |
+| Property           | Type                          | Description           |
+| ------------------ | ----------------------------- | --------------------- |
+| `currentStep`      | `number`                      | 현재 활성 스텝 인덱스 |
+| `completedSteps`   | `number[]`                    | 완료된 스텝 배열      |
+| `goToNextStep`     | `() => void`                  | 다음 스텝으로 이동    |
+| `goToPreviousStep` | `() => void`                  | 이전 스텝으로 이동    |
+| `goToStep`         | `(stepIndex: number) => void` | 특정 스텝으로 이동    |
 
 ## 스텝 상태
 
@@ -201,7 +204,10 @@ function MyComponent() {
 ### 회원가입 스텝
 
 ```tsx
-import { StepperWithContext, useStepperContext } from "@/commons/components/stepper";
+import {
+  StepperWithContext,
+  useStepperContext,
+} from "@/commons/components/stepper";
 import { View, TextInput, Button } from "react-native";
 
 function Step1PersonalInfo() {
@@ -218,16 +224,8 @@ function Step1PersonalInfo() {
 
   return (
     <View>
-      <TextInput
-        placeholder="이름"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        placeholder="이메일"
-        value={email}
-        onChangeText={setEmail}
-      />
+      <TextInput placeholder="이름" value={name} onChangeText={setName} />
+      <TextInput placeholder="이메일" value={email} onChangeText={setEmail} />
       <Button title="다음" onPress={handleNext} />
     </View>
   );
@@ -295,11 +293,7 @@ function SignupPage() {
 
 ```tsx
 <Stepper
-  steps={[
-    { title: "Step 1" },
-    { title: "Step 2" },
-    { title: "Step 3" },
-  ]}
+  steps={[{ title: "Step 1" }, { title: "Step 2" }, { title: "Step 3" }]}
 />
 ```
 
@@ -308,16 +302,19 @@ function SignupPage() {
 ### 색상
 
 - **Default 상태**
+
   - Icon Background: `rgba(173, 162, 162, 0.2)` (#ada2a2 20% opacity)
   - Icon Text: `#495aff`
   - Text: `#998d8d`
 
 - **Active 상태**
+
   - Icon Border: `#e64485`
   - Icon Inner: `#e64485`
   - Text: `#e64485`
 
 - **Completed 상태**
+
   - Icon Background: `#e64485`
   - Icon Check: `#ffffff`
   - Text: `#0d0b26`
@@ -384,4 +381,3 @@ stepper/
   - Context API 지원 (StepperWithContext, useStepperContext)
   - Accordion 방식 UI
   - 완료된 스텝 재진입 가능
-

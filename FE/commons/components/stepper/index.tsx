@@ -441,7 +441,10 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
 
   const goToStep = (stepIndex: number) => {
     // -1은 모든 스텝을 닫는 특수 값
-    if (stepIndex === -1 || (stepIndex >= 0 && stepIndex < props.steps.length)) {
+    if (
+      stepIndex === -1 ||
+      (stepIndex >= 0 && stepIndex < props.steps.length)
+    ) {
       setCurrentStep(stepIndex);
       if (props.onStepChange) {
         props.onStepChange(stepIndex);
