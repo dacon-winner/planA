@@ -168,6 +168,72 @@ export const styles = StyleSheet.create({
     fontFamily: 'PretendardVariable',
     marginBottom: parseInt(spacing.xs),
   },
+
+  /* Modal 관련 스타일 */
+  'plan-info-section': {
+    marginTop: parseInt(spacing.md),
+  },
+
+  'plan-info-row': {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: parseInt(spacing.sm),
+  },
+
+  'plan-info-icon': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    marginRight: parseInt(spacing.sm),
+    width: 20,
+    textAlign: 'center',
+  },
+
+  'plan-info-icon-component': {
+    marginRight: parseInt(spacing.sm),
+    width: 20,
+    height: 16,
+    justifyContent: 'center',
+  },
+
+  'plan-info-text': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[600],
+    fontFamily: 'PretendardVariable',
+  },
+
+  'modal-node-label': {
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-xs'][1].letterSpacing) * parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    color: colors.secondary[600],
+    fontFamily: 'PretendardVariable',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+
+  /* Error Modal Styles */
+  'error-modal-content': {
+    alignItems: 'center',
+    paddingVertical: parseInt(spacing.md),
+  },
+
+  'error-icon': {
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'error-description': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[900],
+    fontFamily: 'PretendardVariable',
+    textAlign: 'center',
+    paddingHorizontal: parseInt(spacing.md),
+  },
 });
 
 

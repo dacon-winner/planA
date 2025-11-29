@@ -21,6 +21,15 @@ export const styles = StyleSheet.create({
     display: 'flex',
     alignSelf: 'center',
     justifyContent: 'center',
+    // Drop shadow (피그마: X:0, Y:0, Blur:20, Spread:-3.48, Color:#800C3A 10%)
+    shadowColor: colors.modal.shadow,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.1, // 10% opacity
+    shadowRadius: 20, // Blur: 20
+    elevation: 20, // Android shadow
   },
 
   // 제목 스타일
@@ -78,6 +87,11 @@ export const styles = StyleSheet.create({
     width: 8,
   },
 
+  // 전체 너비 버튼 (단일 버튼일 때)
+  fullWidthButton: {
+    flex: 1,
+  },
+
   /* Error Modal Styles */
   'error-modal-content': {
     alignItems: 'center',
@@ -109,6 +123,10 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
 
+  'error-description-brand': {
+    color: colors.root.brand,
+  },
+
   /* Plan Info Styles */
   'plan-info-section': {
     marginTop: 14,
@@ -134,6 +152,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
+  'error-icon-size': {
+    width: 25,
+    height: 30,
+  },
+
   'plan-info-text': {
     fontSize: 12,
     lineHeight: 12,
@@ -143,3 +166,9 @@ export const styles = StyleSheet.create({
     fontFamily: 'PretendardVariable',
   },
 });
+
+// 아이콘 색상 상수 (StyleSheet 외부에서 export)
+export const iconColors = {
+  'plan-info-icon': colors.secondary['secondary-600'], // #8E7982
+  'error-icon': colors.root.red, // #fb2c36
+} as const;

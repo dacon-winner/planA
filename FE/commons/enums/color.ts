@@ -108,6 +108,14 @@ export const blackColors = {
 } as const;
 
 /**
+ * Modal 관련 색상
+ */
+export const modalColors = {
+  backdrop: 'rgba(0, 0, 0, 0.8)', // 반투명 검은색 배경
+  shadow: '#800C3A', // 모달 그림자 색상 (피그마: Drop shadow Color)
+} as const;
+
+/**
  * 모든 색상을 통합한 객체
  * 프로젝트 전체에서 사용할 수 있는 통합 색상 토큰
  */
@@ -118,6 +126,7 @@ export const colors = {
   brown: brownColors,
   blue: blueColors,
   black: blackColors,
+  modal: modalColors,
 } as const;
 
 /**
@@ -142,6 +151,9 @@ export type BlueColorKey = keyof typeof blueColors;
 /** Black 색상 키 타입 */
 export type BlackColorKey = keyof typeof blackColors;
 
+/** Modal 색상 키 타입 */
+export type ModalColorKey = keyof typeof modalColors;
+
 /**
  * 모든 색상 값의 유니온 타입
  * 모든 색상 토큰의 실제 hex 값 타입
@@ -152,5 +164,6 @@ export type ColorValue =
   | typeof redColors[keyof typeof redColors]
   | typeof brownColors[keyof typeof brownColors]
   | typeof blueColors[keyof typeof blueColors]
-  | typeof blackColors[keyof typeof blackColors];
+  | typeof blackColors[keyof typeof blackColors]
+  | typeof modalColors[keyof typeof modalColors];
 

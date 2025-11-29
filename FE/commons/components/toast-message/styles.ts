@@ -1,9 +1,12 @@
 /**
  * Toast Message Styles
+ * 버전: v1.0.0
+ * 생성 시각: 2025-01-27
  * 토스트 메시지 컴포넌트 스타일 정의
  */
 
 import { StyleSheet } from "react-native";
+
 import { colors } from "@/commons/enums/color";
 
 /**
@@ -54,3 +57,8 @@ export const toastMessageStyles = StyleSheet.create({
     includeFontPadding: false,
   },
 });
+
+// 아이콘 색상 상수 (StyleSheet 외부에서 export)
+export const iconColors = {
+  toast: colors.black["black-1"], // #ffffff
+} as const;
