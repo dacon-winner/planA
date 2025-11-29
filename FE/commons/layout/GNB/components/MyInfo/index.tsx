@@ -19,6 +19,7 @@ import { MY_INFO_CONTENT } from '@/commons/enums/gnb';
 import { Badge, BadgePolicy } from '@/commons/components/badge';
 import { toastConfig, Toast } from '@/commons/components/toast-message';
 import { Dropdown } from '@/commons/components/dropdown';
+import { SearchBar } from '@/commons/components/search-bar';
 import { useModal } from '@/commons/providers/modal/modal.provider';
 import {
   PlanAddModal,
@@ -34,6 +35,9 @@ export default function MyInfo() {
   // Modal 관련 상태
   const [planName, setPlanName] = useState('');
   const [selectedPlanType, setSelectedPlanType] = useState('');
+
+  // SearchBar 컴포넌트 예시를 위한 상태
+  const [searchText, setSearchText] = useState('');
 
   const { openModal } = useModal();
 
@@ -94,6 +98,28 @@ export default function MyInfo() {
               <BadgePolicy variant="subsidy" />
               <Text style={styles['badge-demo-label']}>보조금</Text>
             </View>
+          </View>
+        </View>
+
+        {/* SearchBar 컴포넌트 예시 */}
+        <View style={styles['badge-demo-section']}>
+          <Text style={styles['section-title']}>SearchBar 컴포넌트 예시</Text>
+          <View style={styles['badge-demo-row']}>
+            <View style={styles['searchbar-demo-item']}>
+              <Text style={styles['searchbar-demo-label']}>검색 바</Text>
+              <SearchBar
+                placeholder="업체명 또는 서비스로 검색"
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+            </View>
+          </View>
+
+          {/* 검색어 표시 */}
+          <View style={styles['dropdown-result-section']}>
+            <Text style={styles['dropdown-result-text']}>
+              검색어: {searchText || '없음'}
+            </Text>
           </View>
         </View>
 
