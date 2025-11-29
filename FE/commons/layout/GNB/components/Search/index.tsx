@@ -10,25 +10,27 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { styles } from './styles';
 import { SEARCH_CONTENT } from '@/commons/enums/gnb';
 
 export default function Search() {
   return (
-    <View style={styles['search-container']}>
-      <View style={styles['search-header']}>
-        <Text style={styles['search-header-title']}>{SEARCH_CONTENT.HEADER_TITLE}</Text>
-      </View>
-      <ScrollView style={styles['search-content']}>
-        <View style={styles['search-section']}>
-          <Text style={styles['search-section-title']}>{SEARCH_CONTENT.SECTION_TITLE}</Text>
-          <Text style={styles['search-placeholder']}>{SEARCH_CONTENT.PLACEHOLDER}</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles['search-container']}>
+        <View style={styles['search-header']}>
+          <Text style={styles['search-header-title']}>{SEARCH_CONTENT.HEADER_TITLE}</Text>
         </View>
-      </ScrollView>
-      <StatusBar style="auto" />
-    </View>
+        <ScrollView style={styles['search-content']}>
+          <View style={styles['search-section']}>
+            <Text style={styles['search-section-title']}>{SEARCH_CONTENT.SECTION_TITLE}</Text>
+            <Text style={styles['search-placeholder']}>{SEARCH_CONTENT.PLACEHOLDER}</Text>
+          </View>
+        </ScrollView>
+        <StatusBar style="auto" />
+      </View>
+    </SafeAreaView>
   );
 }
 

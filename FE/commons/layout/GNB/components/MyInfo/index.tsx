@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import ToastLib from 'react-native-toast-message';
 import { styles } from './styles';
@@ -50,11 +50,12 @@ export default function MyInfo() {
   ];
 
   return (
-    <View style={styles['myinfo-container']}>
-      <View style={styles['myinfo-header']}>
-        <Text style={styles['myinfo-header-title']}>{MY_INFO_CONTENT.HEADER_TITLE}</Text>
-      </View>
-      <ScrollView style={styles['myinfo-content']}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={styles['myinfo-container']}>
+        <View style={styles['myinfo-header']}>
+          <Text style={styles['myinfo-header-title']}>{MY_INFO_CONTENT.HEADER_TITLE}</Text>
+        </View>
+        <ScrollView style={styles['myinfo-content']}>
         <View style={styles['myinfo-section']}>
           <Text style={styles['myinfo-section-title']}>{MY_INFO_CONTENT.SECTION_TITLE}</Text>
           <Text style={styles['myinfo-placeholder']}>{MY_INFO_CONTENT.PLACEHOLDER}</Text>
@@ -303,6 +304,7 @@ export default function MyInfo() {
       <ToastLib config={toastConfig} position="bottom" />
       <StatusBar style="auto" />
     </View>
+    </SafeAreaView>
   );
 }
 
