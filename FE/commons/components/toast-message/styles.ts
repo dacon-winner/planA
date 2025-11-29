@@ -13,6 +13,7 @@ export const toastMessageStyles = StyleSheet.create({
   /**
    * 컨테이너 스타일
    * 아이콘과 텍스트를 중앙에 배치하고 8px 간격 유지
+   * Drop shadow: X:0, Y:0, Blur:20, Spread:-3.48, Color:red-10 (20% opacity)
    */
   container: {
     backgroundColor: colors.root.brand,
@@ -25,6 +26,16 @@ export const toastMessageStyles = StyleSheet.create({
     justifyContent: "center",
     // 아이콘과 텍스트 사이 간격 8px
     gap: 8,
+    // iOS Shadow
+    shadowColor: colors.red["red-10"], // #73293f (가장 어두운 빨간색, #800C3A와 유사)
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.2, // 20% opacity
+    shadowRadius: 20, // Blur: 20
+    // Android Shadow (elevation은 blur와 spread를 정확히 표현하기 어려우므로 근사값 사용)
+    elevation: 8,
   },
 
   /**
