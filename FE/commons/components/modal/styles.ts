@@ -129,8 +129,8 @@ export const styles = StyleSheet.create({
 
   'plan-info-icon-component': {
     marginRight: parseInt(spacing.sm),
-    width: 20,
-    height: 16,
+    width: 14,
+    height: 14,
     justifyContent: 'center',
   },
 
@@ -139,7 +139,7 @@ export const styles = StyleSheet.create({
     lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
     letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
     fontWeight: fontSize['mobile-s'][1].fontWeight,
-    color: colors.secondary['secondary-600'],
+    color: colors.brown['brown-6'],
     fontFamily: 'PretendardVariable',
   },
 });
