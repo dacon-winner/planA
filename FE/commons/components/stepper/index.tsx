@@ -401,7 +401,23 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
   const autoCompleteStep = () => {
     if (autoProgress) {
       setTimeout(() => {
-        goToNextStep();
+        const nextStepIndex = currentStep + 1;
+        
+        // 마지막 스텝이 아닌 경우: 다음 스텝으로 이동
+        if (nextStepIndex < props.steps.length) {
+          goToNextStep();
+        } else {
+          // 마지막 스텝인 경우: 현재 스텝을 완료하고 닫기
+          setCompletedSteps((prev) => {
+            if (!prev.includes(currentStep)) {
+              return [...prev, currentStep];
+            }
+            return prev;
+          });
+          if (props.onStepComplete) {
+            props.onStepComplete(currentStep);
+          }
+        }
       }, autoProgressDelay);
     }
   };
