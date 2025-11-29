@@ -63,6 +63,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     marginBottom: 8,
+    justifyContent: "space-between",
   },
 
   weekdayCell: {
@@ -70,7 +71,6 @@ export const styles = StyleSheet.create({
     height: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 4.5,
   },
 
   weekdayTextSunday: {
@@ -125,9 +125,10 @@ export const styles = StyleSheet.create({
 
   // Week Row
   weekRow: {
-    width: "100%",
+    width: 248,
     flexDirection: "row",
     marginBottom: 8,
+    justifyContent: "space-between",
   },
 
   // Day Cell - Base
@@ -136,7 +137,6 @@ export const styles = StyleSheet.create({
     height: 29,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 4.5,
   },
 
   // Day Cell - Default State
@@ -207,6 +207,5 @@ export const styles = StyleSheet.create({
   emptyCell: {
     width: 29,
     height: 29,
-    marginHorizontal: 4.5,
   },
 });
