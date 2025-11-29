@@ -93,12 +93,13 @@ export const styles = StyleSheet.create({
   /**
    * Step Success Icon (Completed)
    * 피그마: width 20, height 20, borderRadius 10, bg #e64485
+   * 토큰: root.brand (#ff5c8d) - 가장 유사
    */
   stepSuccessIcon: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "#e64485", // 피그마 정확한 값
+    backgroundColor: colors.root.brand, // #ff5c8d
     justifyContent: "center",
     alignItems: "center",
   },
@@ -106,13 +107,14 @@ export const styles = StyleSheet.create({
   /**
    * Step Shape Icon (Active)
    * 피그마: width 20, height 20, borderRadius 10, border #e64485
+   * 토큰: root.brand (#ff5c8d) - 가장 유사
    */
   stepShapeIcon: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#e64485", // 피그마 정확한 값
+    borderColor: colors.root.brand, // #ff5c8d
     backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
@@ -121,23 +123,25 @@ export const styles = StyleSheet.create({
   /**
    * Step Shape Inner Rectangle
    * 피그마: width 10, height 10, borderRadius 5, bg #e64485
+   * 토큰: root.brand (#ff5c8d) - 가장 유사
    */
   stepShapeInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#e64485", // 피그마 정확한 값
+    backgroundColor: colors.root.brand, // #ff5c8d
   },
 
   /**
    * Step Number Icon (Default)
    * 피그마: width 20, height 20, borderRadius 10, bg #ada2a2 20% opacity
+   * 토큰: foundationBrown.3 (#b5b1b3) - 유사한 값에 20% opacity
    */
   stepNumberIcon: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "rgba(173, 162, 162, 0.2)", // #ada2a2 20% opacity
+    backgroundColor: `${colors.foundationBrown[3]}33`, // #b5b1b3 + 20% opacity (33 in hex)
     justifyContent: "center",
     alignItems: "center",
   },
@@ -149,54 +153,43 @@ export const styles = StyleSheet.create({
   /**
    * Step Text - Completed
    * 피그마: fontSize 14, fontWeight 500, color #0d0b26
+   * 토큰: foundationBlue.10 (#0e1219) - 가장 유사한 어두운 색
    */
   stepTextCompleted: {
     fontSize: parseInt(fontSize["mobile-s-medium"][0]), // 14px
     lineHeight: parseInt(fontSize["mobile-s-medium"][1].lineHeight), // 20px
     letterSpacing: parseFloat(fontSize["mobile-s-medium"][1].letterSpacing), // 0em
     fontWeight: fontSize["mobile-s-medium"][1].fontWeight, // 500
-    color: "#0d0b26", // 피그마 정확한 값
+    color: colors.foundationBlue[10], // #0e1219
     fontFamily: "Pretendard Variable",
   },
 
   /**
    * Step Text - Active
    * 피그마: fontSize 14, fontWeight 500, color #e64485
+   * 토큰: root.brand (#ff5c8d) - 가장 유사
    */
   stepTextActive: {
     fontSize: parseInt(fontSize["mobile-s-medium"][0]), // 14px
     lineHeight: parseInt(fontSize["mobile-s-medium"][1].lineHeight), // 20px
     letterSpacing: parseFloat(fontSize["mobile-s-medium"][1].letterSpacing), // 0em
     fontWeight: fontSize["mobile-s-medium"][1].fontWeight, // 500
-    color: "#e64485", // 피그마 정확한 값
+    color: colors.root.brand, // #ff5c8d
     fontFamily: "Pretendard Variable",
   },
 
   /**
    * Step Text - Default
    * 피그마: fontSize 14, fontWeight 500, color #998d8d
+   * 토큰: foundationBrown.4 (#928d8f) - 가장 유사
    */
   stepTextDefault: {
     fontSize: parseInt(fontSize["mobile-s-medium"][0]), // 14px
     lineHeight: parseInt(fontSize["mobile-s-medium"][1].lineHeight), // 20px
     letterSpacing: parseFloat(fontSize["mobile-s-medium"][1].letterSpacing), // 0em
     fontWeight: fontSize["mobile-s-medium"][1].fontWeight, // 500
-    color: "#998d8d", // 피그마 정확한 값
+    color: colors.foundationBrown[4], // #928d8f
     fontFamily: "Pretendard Variable",
-  },
-
-  /**
-   * Step Number Text
-   * 피그마: fontSize 9, fontWeight 500, color #495aff
-   */
-  stepNumberText: {
-    fontSize: 9,
-    lineHeight: 11,
-    letterSpacing: 0,
-    fontWeight: "500",
-    color: "#495aff", // 피그마 정확한 값
-    fontFamily: "Pretendard Variable",
-    textAlign: "center",
   },
 
   /* ========================================
@@ -206,12 +199,13 @@ export const styles = StyleSheet.create({
   /**
    * Connector Line
    * 피그마: width 2, height 40, bg #ada2a2 20% opacity
+   * 토큰: foundationBrown.3 (#b5b1b3) - 유사한 값에 20% opacity
    * position: relative, left margin 33px (24px padding + 9px center of icon)
    */
   connectorLine: {
     width: 2,
     height: 40,
-    backgroundColor: "rgba(173, 162, 162, 0.2)", // #ada2a2 20% opacity
+    backgroundColor: `${colors.foundationBrown[3]}33`, // #b5b1b3 + 20% opacity (33 in hex)
     marginLeft: 33, // 24px padding + 9px (center of 20px icon)
   },
 
@@ -261,4 +255,3 @@ export const styles = StyleSheet.create({
 });
 
 export default styles;
-
