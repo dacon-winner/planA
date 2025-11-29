@@ -36,7 +36,12 @@ function MyComponent() {
       state={selected ? "selected" : "default"}
       label="강남구"
       size="medium"
-      icon={<MapPin size={20} color={selected ? "#861043" : brownColors["brown-2"]} />}
+      icon={
+        <MapPin
+          size={20}
+          color={selected ? "#861043" : brownColors["brown-2"]}
+        />
+      }
       onSelect={() => setSelected(!selected)}
     />
   );
@@ -133,7 +138,9 @@ const [selected, setSelected] = React.useState(true);
   state={selected ? "selected" : "default"}
   label="09:00"
   size="small"
-  icon={<Clock size={16} color={selected ? "#861043" : brownColors["brown-2"]} />}
+  icon={
+    <Clock size={16} color={selected ? "#861043" : brownColors["brown-2"]} />
+  }
   onSelect={() => setSelected(!selected)}
 />;
 ```
