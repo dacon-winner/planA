@@ -155,7 +155,7 @@ export const styles = StyleSheet.create({
     width: 0,
     height: 78,
     borderRightWidth: 1,
-    borderRightColor: colors.foundationBlack[5],
+    borderRightColor: colors.foundationBlack[1], // white
   },
 
   /* 하단 카드 그리드 */
