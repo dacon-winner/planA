@@ -63,7 +63,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "center",
     marginBottom: 8,
-    justifyContent: "space-between",
   },
 
   weekdayCell: {
@@ -71,6 +70,15 @@ export const styles = StyleSheet.create({
     height: 20,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: 7.5,
+  },
+
+  weekdayCellFirst: {
+    width: 29,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 0,
   },
 
   weekdayTextSunday: {
@@ -128,7 +136,6 @@ export const styles = StyleSheet.create({
     width: 248,
     flexDirection: "row",
     marginBottom: 8,
-    justifyContent: "space-between",
   },
 
   // Day Cell - Base
@@ -137,6 +144,15 @@ export const styles = StyleSheet.create({
     height: 29,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: 7.5,
+  },
+
+  dayCellBaseFirst: {
+    width: 29,
+    height: 29,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 0,
   },
 
   // Day Cell - Default State

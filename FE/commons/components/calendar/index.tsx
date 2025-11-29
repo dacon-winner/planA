@@ -48,6 +48,7 @@ export interface DayCellProps {
   dateData: DateData;
   isSelected: boolean;
   onPress: (date: Date) => void;
+  isFirstInRow?: boolean;
 }
 
 /**
@@ -58,20 +59,23 @@ export const DayCell: React.FC<DayCellProps> = ({
   dateData,
   isSelected,
   onPress,
+  isFirstInRow = false,
 }) => {
   // 선택된 경우 selected 스타일 우선 적용
   const effectiveState: DayCellState = isSelected ? "selected" : dateData.state;
 
   const getCellStyle = () => {
+    const baseStyle = isFirstInRow ? styles.dayCellBaseFirst : styles.dayCellBase;
+    
     switch (effectiveState) {
       case "selected":
-        return [styles.dayCellBase, styles.dayCellSelected];
+        return [baseStyle, styles.dayCellSelected];
       case "today":
-        return [styles.dayCellBase, styles.dayCellToday];
+        return [baseStyle, styles.dayCellToday];
       case "disabled":
-        return [styles.dayCellBase, styles.dayCellDisabled];
+        return [baseStyle, styles.dayCellDisabled];
       default:
-        return [styles.dayCellBase, styles.dayCellDefault];
+        return [baseStyle, styles.dayCellDefault];
     }
   };
 
@@ -124,6 +128,7 @@ export interface MonthSectionProps {
   selectedDate: Date | null;
   onDateSelect: (date: Date) => void;
   width: number;
+  subtitle: string;
 }
 
 /**
@@ -137,6 +142,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
   selectedDate,
   onDateSelect,
   width,
+  subtitle,
 }) => {
   /**
    * 해당 월의 날짜 데이터 생성
@@ -241,15 +247,69 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
 
   const weeks = generateMonthData();
 
+  /**
+   * 월 타이틀 포맷
+   */
+  const formatMonthTitle = (): string => {
+    return `${year}년 ${month + 1}월`;
+  };
+
   return (
     <View style={[styles.monthSection, { width }]}>
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        {/* Month Title */}
+        <View style={styles.monthTitleContainer}>
+          <Text style={styles.monthTitle}>{formatMonthTitle()}</Text>
+        </View>
+
+        {/* Subtitle */}
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>{subtitle}</Text>
+        </View>
+      </View>
+
+      {/* Weekday Header */}
+      <View style={styles.weekdayHeaderContainer}>
+        <View style={styles.weekdayCellFirst}>
+          <Text style={styles.weekdayTextSunday}>일</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextWeekday}>월</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextWeekday}>화</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextWeekday}>수</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextWeekday}>목</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextWeekday}>금</Text>
+        </View>
+        <View style={styles.weekdayCell}>
+          <Text style={styles.weekdayTextSaturday}>토</Text>
+        </View>
+      </View>
+
+      {/* Calendar Grid */}
       <View style={styles.monthGrid}>
         {weeks.map((week, weekIndex) => (
           <View key={weekIndex} style={styles.weekRow}>
             {week.map((dateData, dayIndex) => {
               // 빈 셀 처리
               if (dateData.day === 0) {
-                return <View key={dayIndex} style={styles.emptyCell} />;
+                return (
+                  <View
+                    key={dayIndex}
+                    style={[
+                      styles.emptyCell,
+                      dayIndex === 0 ? { marginLeft: 0 } : { marginLeft: 7.5 },
+                    ]}
+                  />
+                );
               }
 
               return (
@@ -258,6 +318,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
                   dateData={dateData}
                   isSelected={isSameDate(selectedDate, dateData.date)}
                   onPress={onDateSelect}
+                  isFirstInRow={dayIndex === 0}
                 />
               );
             })}
@@ -292,7 +353,7 @@ export const Calendar: React.FC<CalendarProps> = ({
 }) => {
   const today = new Date();
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   // 한 달 캘린더의 너비 (248px 달력 + 32px 좌우 패딩)
   const MONTH_WIDTH = 280;
 
@@ -340,8 +401,6 @@ export const Calendar: React.FC<CalendarProps> = ({
     }
   };
 
-  const currentMonth = months[currentVisibleMonthIndex];
-
   /**
    * 날짜 선택 핸들러
    */
@@ -357,55 +416,8 @@ export const Calendar: React.FC<CalendarProps> = ({
     }
   };
 
-  /**
-   * 월 타이틀 포맷
-   */
-  const formatMonthTitle = (year: number, month: number): string => {
-    return `${year}년 ${month + 1}월`;
-  };
-
   return (
     <View style={styles.calendarContainer}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        {/* Month Title */}
-        <View style={styles.monthTitleContainer}>
-          <Text style={styles.monthTitle}>
-            {formatMonthTitle(currentMonth.year, currentMonth.month)}
-          </Text>
-        </View>
-
-        {/* Subtitle */}
-        <View style={styles.subtitleContainer}>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-        </View>
-      </View>
-
-      {/* Weekday Header */}
-      <View style={styles.weekdayHeaderContainer}>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextSunday}>일</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextWeekday}>월</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextWeekday}>화</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextWeekday}>수</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextWeekday}>목</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextWeekday}>금</Text>
-        </View>
-        <View style={styles.weekdayCell}>
-          <Text style={styles.weekdayTextSaturday}>토</Text>
-        </View>
-      </View>
-
       {/* Scrollable Month Sections */}
       <ScrollView
         ref={scrollViewRef}
@@ -431,6 +443,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
             width={MONTH_WIDTH}
+            subtitle={subtitle}
           />
         ))}
       </ScrollView>
