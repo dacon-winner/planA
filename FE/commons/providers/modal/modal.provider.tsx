@@ -12,9 +12,7 @@
 
 import { Modal, View, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import { ReactNode, createContext, useContext, useState, useCallback } from "react";
-
-const tailwindConfig = require("@/tailwind.config.js");
-const colors = tailwindConfig.theme.extend.colors;
+import { colors } from "@/commons/enums/color";
 
 interface ModalContextType {
   openModal: (content: ReactNode) => void;
@@ -65,7 +63,7 @@ export function ModalProvider({ children }: ModalProviderProps) {
       >
         <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <View style={styles.backdrop}>
-            <TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => {}}>
               <View style={styles.modalContainer}>
                 {content}
               </View>
@@ -80,8 +78,7 @@ export function ModalProvider({ children }: ModalProviderProps) {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: colors.secondary[900],
-    opacity: 0.5,
+    backgroundColor: colors.modal.backdrop, // 반투명 검은색 배경 (밑에 내용이 비치지 않게)
     justifyContent: "center",
     alignItems: "center",
   },

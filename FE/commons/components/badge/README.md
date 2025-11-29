@@ -268,3 +268,4 @@ export const styles = StyleSheet.create({
 ## 참고 자료
 - [Figma 디자인](https://www.figma.com/design/d6pu0ncj)
 - [lucide-react-native](https://lucide.dev/)
+
