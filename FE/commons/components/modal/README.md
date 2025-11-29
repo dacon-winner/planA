@@ -12,7 +12,7 @@
 | **위치** | `commons/components/modal/` |
 | **작성일** | 2025-11-29 |
 | **작성자** | - |
-| **버전** | 1.0.0 |
+| **버전** | 1.1.0 |
 | **상태** | ✅ 완료 |
 
 ---
@@ -118,6 +118,11 @@ interface ModalProps {
 colors.black['black-1']  // 모달 배경색 (#ffffff)
 colors.blue['blue-6']     // 제목 색상 (#1f2937)
 colors.blue['blue-5']     // 설명 색상 (#6b7280)
+colors.modal.shadow       // 모달 그림자 색상 (#800C3A)
+colors.secondary['secondary-600'] // 아이콘 색상 (#8E7982)
+colors.root.red           // 에러 아이콘 색상 (#fb2c36)
+colors.root.brand         // 브랜드 텍스트 색상 (#ff5c8d)
+colors.brown['brown-6']   // 일정 정보 텍스트 색상 (#524a4e)
 ```
 
 #### Typography
@@ -146,8 +151,19 @@ paddingHorizontal: 30px
 
 // 내부 간격
 marginBottom: 8px  // 제목-설명 간격
-marginBottom: 24px // 설명-컨텐츠, 컨텐츠-버튼 간격
+marginBottom: 16px // 설명 컨테이너 하단 간격
+marginBottom: 20px // 컨텐츠-버튼 간격
 gap: 8px           // 버튼 간 간격
+```
+
+#### Shadow
+```typescript
+// Drop shadow (피그마: X:0, Y:0, Blur:20, Spread:-3.48, Color:#800C3A 10%)
+shadowColor: colors.modal.shadow  // #800C3A
+shadowOffset: { width: 0, height: 0 }
+shadowOpacity: 0.1  // 10% opacity
+shadowRadius: 20     // Blur: 20
+elevation: 20        // Android shadow
 ```
 
 ### 스타일 클래스
@@ -177,7 +193,14 @@ export const styles = StyleSheet.create({
   'leftButton': { /* 왼쪽 버튼 스타일 */ },
   'rightButton': { /* 오른쪽 버튼 스타일 */ },
   'buttonGap': { /* 버튼 간격 스타일 */ },
+  'fullWidthButton': { /* 단일 버튼일 때 전체 너비 스타일 */ },
 });
+
+// 아이콘 색상 상수 (StyleSheet 외부에서 export)
+export const iconColors = {
+  'plan-info-icon': colors.secondary['secondary-600'], // #8E7982
+  'error-icon': colors.root.red, // #fb2c36
+} as const;
 ```
 
 ---
@@ -301,8 +324,89 @@ describe('Modal', () => {
 
 ### 내부 의존성
 - `@/commons/components/button` - Button 컴포넌트
+- `@/commons/components/input` - Input 컴포넌트 (특화 모달에서 사용)
+- `@/commons/components/dropdown` - Dropdown 컴포넌트 (특화 모달에서 사용)
 - `@/commons/enums/color` - 색상 토큰
 - `@/commons/enums/typography` - 타이포그래피 토큰 (직접 값 사용)
+- `@/commons/providers/modal/modal.provider` - ModalProvider (모달 상태 관리)
+- `lucide-react-native` - 아이콘 컴포넌트 (특화 모달에서 사용)
+
+---
+
+## 특화 모달 컴포넌트
+
+기본 Modal 컴포넌트를 기반으로 한 특화 모달 컴포넌트들이 제공됩니다.
+
+### EditModal
+- **위치**: `commons/components/modal/EditModal/`
+- **피그마 노드ID**: 4188:8192
+- **용도**: 정보 수정 확인 모달
+- **특징**: 일정 정보(날짜, 장소, 예산) 표시 및 유지/수정 선택
+
+### ErrorModal
+- **위치**: `commons/components/modal/ErrorModal/`
+- **피그마 노드ID**: 4188:8190
+- **용도**: 에러 메시지 표시 모달
+- **특징**: ShieldAlert 아이콘 및 브랜드 컬러 강조 텍스트
+
+### NewPlanModal
+- **위치**: `commons/components/modal/NewPlanModal/`
+- **피그마 노드ID**: 4188:8191
+- **용도**: 새 플랜 생성 모달
+- **특징**: 플랜 이름 입력 및 생성 방법 선택
+
+### PlanAddModal
+- **위치**: `commons/components/modal/PlanAddModal/`
+- **피그마 노드ID**: 4188:8189
+- **용도**: 플랜에 서비스 추가 모달
+- **특징**: 플랜 선택 드롭다운 및 일정 정보 표시
+
+### 사용 예시
+```typescript
+import { EditModal, ErrorModal, NewPlanModal, PlanAddModal } from '@/commons/components/modal';
+
+// EditModal 사용
+<EditModal
+  scheduleInfo={{
+    date: '2026년 3월 28일 토요일',
+    location: '서울특별시 강남구',
+    budget: '5,000만원',
+  }}
+  onKeep={() => console.log('유지됨')}
+  onEdit={() => console.log('수정됨')}
+/>
+
+// ErrorModal 사용
+<ErrorModal
+  planAName="플랜 A"
+  studioName="에이비 스튜디오"
+  onConfirm={() => console.log('확인됨')}
+  onCancel={() => console.log('취소됨')}
+/>
+
+// NewPlanModal 사용
+<NewPlanModal
+  initialPlanName="플랜 A"
+  onManualAdd={() => console.log('직접 추가')}
+  onAIGenerate={(planName) => console.log('AI 생성', planName)}
+/>
+
+// PlanAddModal 사용
+<PlanAddModal
+  serviceName="엘레강스 포토"
+  planOptions={[
+    { value: 'plan1', label: '플랜 A' },
+    { value: 'plan2', label: '플랜 B' },
+  ]}
+  scheduleInfo={{
+    date: '2026년 3월 28일 토요일',
+    location: '서울특별시 강남구',
+    budget: '5,000만원',
+  }}
+  onConfirm={() => console.log('저장됨')}
+  onCancel={() => console.log('취소됨')}
+/>
+```
 
 ---
 
@@ -311,6 +415,7 @@ describe('Modal', () => {
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
 | 1.0.0 | 2025-11-29 | 초기 버전 | - |
+| 1.1.0 | 2025-11-29 | 피그마 Drop shadow 효과 추가, 하드코딩 색상값 제거, 특화 모달 컴포넌트 추가 | - |
 
 ---
 
