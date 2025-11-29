@@ -13,6 +13,7 @@ import { UsersInfoModule } from './modules/users_info';
 import { AiModule } from './modules/ai';
 import { PlansModule } from './modules/plans';
 import { VendorsModule } from './modules/vendors';
+import { ReservationsModule } from './modules/reservations';
 import {
   User,
   UsersInfo,
@@ -76,6 +77,7 @@ import {
     PlansModule,
     UsersInfoModule,
     VendorsModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [
