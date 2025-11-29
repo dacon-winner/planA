@@ -20,6 +20,7 @@ import { Badge, BadgePolicy } from '@/commons/components/badge';
 import { toastConfig, Toast } from '@/commons/components/toast-message';
 import { Dropdown } from '@/commons/components/dropdown';
 import { SearchBar } from '@/commons/components/search-bar';
+import { Marker } from '@/commons/components/marker';
 import { useModal } from '@/commons/providers/modal/modal.provider';
 import {
   PlanAddModal,
@@ -97,6 +98,29 @@ export default function MyInfo() {
             <View style={styles['badge-demo-item']}>
               <BadgePolicy variant="subsidy" />
               <Text style={styles['badge-demo-label']}>보조금</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Marker 컴포넌트 예시 */}
+        <View style={styles['badge-demo-section']}>
+          <Text style={styles['section-title']}>Marker 컴포넌트 예시</Text>
+          <View style={styles['badge-demo-row']}>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="shirt" />
+              <Text style={styles['badge-demo-label']}>Shirt</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="camera" />
+              <Text style={styles['badge-demo-label']}>Camera</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="palette" />
+              <Text style={styles['badge-demo-label']}>Palette</Text>
+            </View>
+            <View style={styles['badge-demo-item']}>
+              <Marker variant="hotel" />
+              <Text style={styles['badge-demo-label']}>Hotel</Text>
             </View>
           </View>
         </View>
