@@ -162,8 +162,10 @@ export const styles = StyleSheet.create({
   "card-grid": {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    columnGap: 12,
+    rowGap: 12,
     justifyContent: "flex-start",
+    alignContent: "flex-start",
     zIndex: 1,
   },
 
@@ -180,6 +182,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 5,
     overflow: "hidden",
+    flexShrink: 0,
   },
 
   "card-content": {
