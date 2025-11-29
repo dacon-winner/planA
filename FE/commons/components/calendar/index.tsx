@@ -303,6 +303,7 @@ export const Calendar: React.FC<CalendarProps> = ({
         snapToInterval={360} // 한 달의 너비 (여백 포함)
         snapToAlignment="start"
         contentContainerStyle={styles.scrollContent}
+        nestedScrollEnabled={true}
       >
         {months.map((monthData, index) => (
           <MonthSection
