@@ -83,4 +83,42 @@
 
 핵심요구사항) 시각적 디자인 및 레이아웃을 다음과 같이 구현할 것.
         - `styles.ts`에 스타일을 정의하되, 두 컴포넌트용 스타일을 명확히 구분할 것.
-        - `color.ts`와 `typography.ts`에 정의된 상수를 우선적으로 사용하고, 없는 경우에만 위 Hex 코드를 사용할 것.
+        - `color.ts`와 `typography.ts`에 정의된 상수를 최우선으로 사용하고, 없는 경우에만 위 Hex 코드를 사용할 것.
+        - 인라인 스타일은 절대 사용하지 말고, 모든 스타일은 `styles.ts`에 정의할 것.
+        - 하드코딩된 색상값(hex/rgb/hsl)은 절대 사용하지 말고, 반드시 `color.ts`의 토큰을 사용할 것.
+
+핵심요구사항) 모달 그림자 효과를 다음과 같이 구현할 것.
+        - 피그마 Drop shadow 설정을 정확히 반영할 것.
+        - Position: X:0, Y:0
+        - Blur: 20
+        - Spread: -3.48
+        - Color: #800C3A (10% opacity)
+        - `colors.modal.shadow` 토큰을 사용할 것 (없으면 `color.ts`에 추가).
+        - iOS: shadowColor, shadowOffset, shadowOpacity, shadowRadius 사용
+        - Android: elevation 사용
+
+핵심요구사항) 특화 모달 컴포넌트를 다음과 같이 구현할 것.
+        1. EditModal (노드ID: 4188:8192)
+           - 정보 수정 확인 모달
+           - 일정 정보 표시 (날짜, 장소, 예산)
+           - Calendar, MapPin, Wallet 아이콘 사용
+           - 아이콘 색상: `colors.secondary['secondary-600']` 토큰 사용
+           - 유지하기/수정하기 버튼 제공
+        2. ErrorModal (노드ID: 4188:8190)
+           - 에러 메시지 표시 모달
+           - ShieldAlert 아이콘 사용 (색상: `colors.root.red`)
+           - 브랜드 컬러 강조 텍스트 (`colors.root.brand`)
+           - 취소/확인 버튼 제공
+        3. NewPlanModal (노드ID: 4188:8191)
+           - 새 플랜 생성 모달
+           - Input 컴포넌트로 플랜 이름 입력
+           - 직접 업체 추가/AI 플랜 생성 버튼 제공
+           - 입력값 검증으로 버튼 활성화 제어
+        4. PlanAddModal (노드ID: 4188:8189)
+           - 플랜에 서비스 추가 모달
+           - Dropdown 컴포넌트로 플랜 선택
+           - 일정 정보 표시 (날짜, 장소, 예산)
+           - 취소/저장하기 버튼 제공
+        - 각 특화 모달은 기본 Modal 컴포넌트를 사용하여 구현할 것.
+        - 아이콘 색상은 `iconColors` 객체로 분리하여 관리할 것 (StyleSheet 외부).
+        - 모든 특화 모달은 `useModal` hook을 사용하여 자동 모달 열기 패턴을 사용할 것.
