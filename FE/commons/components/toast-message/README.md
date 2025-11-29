@@ -341,7 +341,7 @@ describe('ToastMessage', () => {
 
 | 버전 | 날짜 | 변경 내용 | 작성자 |
 |------|------|-----------|--------|
-| 1.1.0 | 2025-12-XX | BaseToast 제거, 순수 View 사용으로 변경<br>- 아이콘과 텍스트 간격을 gap: 8로 정확히 조정<br>- Box shadow 추가 (iOS/Android 지원)<br>- 색상 토큰 사용 (colors.red['red-10'])<br>- Toast.success(), Toast.error() 헬퍼 함수 추가<br>- TOAST_DEFAULT_CONFIG 상수 추가 | - |
+| 1.1.0 | 2025-11-29 | BaseToast 제거, 순수 View 사용으로 변경<br>- 아이콘과 텍스트 간격을 gap: 8로 정확히 조정<br>- Box shadow 추가 (iOS/Android 지원)<br>- 색상 토큰 사용 (colors.red['red-10'])<br>- Toast.success(), Toast.error() 헬퍼 함수 추가<br>- TOAST_DEFAULT_CONFIG 상수 추가 | - |
 | 1.0.0 | 2025-11-29 | 초기 버전 | - |
 
 ---
