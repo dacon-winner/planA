@@ -1,0 +1,62 @@
+# Card Component Prompt
+
+## Component Overview
+정책 정보를 표시하는 카드 컴포넌트입니다. 뱃지, 제목, 설명, 혜택 박스, 상세 정보, 신청 버튼을 포함합니다.
+
+## Figma Reference
+- Node ID: 4174:1462
+- URL: https://www.figma.com/design/ts4rknjsqv0LEfLMbSlL5E/plan-A---FE?node-id=4174-1462&m=dev
+
+## Used Common Components
+- BadgePolicy: 정책 카테고리 뱃지
+- Button: 신청하기 버튼
+- CircleCheck (lucide-react-native): 혜택 아이콘
+
+## Implementation Rules
+1. StyleSheet 사용 (styles.ts에 분리)
+2. 모든 색상은 commons/enums/color.ts 토큰 사용
+3. Flexbox만 사용 (position: absolute 금지)
+4. 공통 컴포넌트 활용 (BadgePolicy, Button)
+5. 이모지 아이콘은 props로 전달
+
+## Structure
+1. 뱃지 섹션 (BadgePolicy 컴포넌트 사용)
+2. 제목
+3. 설명
+4. 혜택 박스 (분홍색 배경, CircleCheck 아이콘)
+5. 상세 정보 (이모지 + 텍스트, 최대 3줄)
+6. 구분선
+7. 전체 설명
+8. 신청하기 버튼 (Button 컴포넌트 사용)
+
+## Key Styles
+- Container: 345px width, white bg, 1px border, 14px radius
+- Padding: 20px
+- Gap: 12px between sections
+- Benefits box: #fdeff4 bg, 12px padding, 10px radius
+- Detail rows: 8px gap, 18px height
+
+## Accessibility
+- Card container: Pressable with accessibilityRole="button" if onPress exists
+- Button: Built-in accessibility from Button component
+
+## Example Usage
+```tsx
+<Card
+  categories={["loan", "always"]}
+  title="신혼부부 전세자금 대출"
+  description="무주택 신혼부부를 위한 저금리 전세자금 대출"
+  benefits={{
+    text: "연 1.2~2.1% 저금리 대출",
+    amount: "최대 20,000만원"
+  }}
+  details={[
+    { icon: "📋", text: "주택도시기금" },
+    { icon: "ℹ️", text: "혼인신고 후 7년 이내, 부부합산 소득 7천만원 이하" },
+    { icon: "📅", text: "신청기한: 상시" }
+  ]}
+  fullDescription="무주택 세대주인 신혼부부(혼인신고일로부터 7년 이내)를 대상으로 연 1.2~2.1%의 저금리로 최대 2억원까지 전세자금을 대출해드립니다."
+  onApply={() => console.log("Apply")}
+/>
+```
+
