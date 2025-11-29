@@ -19,6 +19,7 @@ import { CircleCheck } from "lucide-react-native";
 import { BadgePolicy } from "../badge";
 import { Button } from "../button";
 import { styles } from "./styles";
+import { colors } from "../../enums/color";
 
 /**
  * Card Props 타입 정의
@@ -96,7 +97,7 @@ export const Card: React.FC<CardProps> = ({
       <View style={styles.benefitsBox}>
         {/* 지원 혜택 헤더 */}
         <View style={styles.benefitsHeader}>
-          <CircleCheck size={16} color="rgba(82, 74, 78, 0.6)" />
+          <CircleCheck size={16} color={colors.root.brand} />
           <Text style={styles.benefitsHeaderText}>지원 혜택</Text>
         </View>
 
@@ -133,9 +134,11 @@ export const Card: React.FC<CardProps> = ({
       </View>
 
       {/* 신청하기 버튼 */}
-      <Button variant="filled" size="medium" onPress={onApply}>
-        신청하기
-      </Button>
+      <View style={styles.buttonContainer}>
+        <Button variant="filled" size="medium" onPress={onApply}>
+          신청하기
+        </Button>
+      </View>
     </CardContainer>
   );
 };

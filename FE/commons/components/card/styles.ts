@@ -107,19 +107,19 @@ export const styles = StyleSheet.create({
     height: 95,
     width: "100%",
     flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
   },
 
   /**
    * 지원 혜택 헤더
-   * 피그마: gap 10, height 18
+   * 피그마: gap 10, height 18, 왼쪽 정렬
    */
   benefitsHeader: {
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     height: 18,
     width: "100%",
   },
@@ -285,6 +285,14 @@ export const styles = StyleSheet.create({
     letterSpacing: -0.1504,
     color: "rgba(82, 74, 78, 0.7)",
     fontWeight: "400",
+  },
+
+  /**
+   * 버튼 컨테이너
+   * 버튼이 카드 내부 전체 너비를 차지하도록 설정
+   */
+  buttonContainer: {
+    width: "100%",
   },
 });
 
