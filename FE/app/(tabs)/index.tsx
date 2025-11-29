@@ -29,6 +29,7 @@ import {
   StepperWithContext,
   useStepperContext,
 } from "@/commons/components/stepper";
+import Calendar from "@/commons/components/calendar";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
 
@@ -269,6 +270,9 @@ export default function Home() {
     budget: "",
     time: "",
   });
+
+  // Calendar 상태 관리
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // Stepper 폼 데이터 변경 핸들러
   const handleStepperFormChange = (
@@ -813,6 +817,24 @@ export default function Home() {
             ]}
             autoProgress={true}
             autoProgressDelay={500}
+          />
+        </View>
+
+        {/* Calendar 컴포넌트 예시 */}
+        <View style={styles["calendar-demo-section"]}>
+          <Text style={styles["section-title"]}>Calendar 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            선택된 날짜:{" "}
+            {selectedDate
+              ? `${selectedDate.getFullYear()}년 ${
+                  selectedDate.getMonth() + 1
+                }월 ${selectedDate.getDate()}일`
+              : "없음"}
+          </Text>
+
+          <Calendar
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
           />
         </View>
       </View>
