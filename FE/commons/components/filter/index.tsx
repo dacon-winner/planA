@@ -1,15 +1,29 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { styles } from './styles';
+/**
+ * Filter Component
+ * 다중 선택이 가능한 필터 컴포넌트
+ */
 
-export type FilterVariant = 'active' | 'inActive';
+import React, { useState, useCallback } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { styles } from "./styles";
 
+/**
+ * Filter 컴포넌트 variant 타입
+ */
+export type FilterVariant = "active" | "inActive";
+
+/**
+ * Filter 아이템 인터페이스
+ */
 export interface FilterItem {
   id: string;
   label: string;
   isSelected: boolean;
 }
 
+/**
+ * Filter 컴포넌트 Props
+ */
 export interface FilterProps {
   /** 필터 아이템들의 초기 상태 */
   initialItems?: FilterItem[];
