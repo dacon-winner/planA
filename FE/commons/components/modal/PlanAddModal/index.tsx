@@ -10,6 +10,7 @@ import { Calendar, MapPin, Wallet } from 'lucide-react-native';
 import { Modal } from '../index';
 import { Dropdown } from '@/commons/components/dropdown';
 import { styles, iconColors } from '../styles';
+import { useModal } from '@/commons/providers/modal/modal.provider';
 
 export interface PlanAddModalProps {
   /** 서비스 이름 (예: 엘레강스 포토) */
@@ -44,11 +45,22 @@ export const PlanAddModal: React.FC<PlanAddModalProps> = ({
   onCancel,
   scheduleInfo,
 }) => {
+  const { closeModal } = useModal();
   const [internalSelectedPlan, setInternalSelectedPlan] = useState(selectedPlan);
 
   const handlePlanChange = (value: string) => {
     setInternalSelectedPlan(value);
     onPlanChange?.(value);
+  };
+
+  const handleCancel = () => {
+    onCancel?.();
+    closeModal();
+  };
+
+  const handleConfirm = () => {
+    onConfirm?.();
+    closeModal();
   };
 
   return (
@@ -58,11 +70,11 @@ export const PlanAddModal: React.FC<PlanAddModalProps> = ({
       buttons={{
         left: {
           label: '취소',
-          onPress: onCancel || (() => {}),
+          onPress: handleCancel,
         },
         right: {
           label: '저장하기',
-          onPress: onConfirm || (() => {}),
+          onPress: handleConfirm,
           disabled: !internalSelectedPlan,
         },
       }}
