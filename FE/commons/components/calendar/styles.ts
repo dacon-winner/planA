@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
   // Month Section
   monthSection: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
 
   monthGrid: {
