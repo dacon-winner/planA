@@ -34,11 +34,11 @@ export const styles = StyleSheet.create({
 
   // 제목 스타일
   title: {
-    fontFamily: 'Pretendard Variable',
-    fontWeight: '600' as const,
-    fontSize: 15.64357852935791,
-    lineHeight: 15.64357852935791,
-    letterSpacing: -0.38192328810691833,
+    fontFamily: 'Pretendard',
+    fontSize: parseInt(fontSize['mobile-m-bold'][0]),
+    lineHeight: parseInt(fontSize['mobile-m-bold'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-m-bold'][1].letterSpacing) * parseInt(fontSize['mobile-m-bold'][0]),
+    fontWeight: fontSize['mobile-m-bold'][1].fontWeight,
     color: colors.blue['blue-6'], // #1f2937
     textAlign: 'center' as const,
     marginBottom: 8,
@@ -51,12 +51,12 @@ export const styles = StyleSheet.create({
 
   // 설명 스타일
   description: {
-    fontFamily: 'Pretendard Variable',
-    fontWeight: '400' as const,
-    fontSize: 12.167227745056152,
-    lineHeight: 17.38175392150879,
-    letterSpacing: -0.1307026445865631,
-    color: colors.blue['blue-5'], // #6b7280
+    fontFamily: 'Pretendard',
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-xs'][1].letterSpacing) * parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    color: colors.brown['brown-6'], // #524a4e
     textAlign: 'center' as const,
     marginBottom: 4, // 줄 간격
   },
@@ -111,10 +111,10 @@ export const styles = StyleSheet.create({
   },
 
   'error-description': {
-    fontSize: parseInt(fontSize['mobile-s'][0]),
-    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
-    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
-    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    fontSize: parseInt(fontSize['mobile-s-semibold'][0]),
+    lineHeight: parseInt(fontSize['mobile-s-semibold'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s-semibold'][1].letterSpacing) * parseInt(fontSize['mobile-s-semibold'][0]),
+    fontWeight: fontSize['mobile-s-semibold'][1].fontWeight,
     color: colors.secondary['secondary-900'],
     fontFamily: 'Pretendard',
     textAlign: 'center',
@@ -158,10 +158,10 @@ export const styles = StyleSheet.create({
   },
 
   'plan-info-text': {
-    fontSize: 12,
-    lineHeight: 12,
-    letterSpacing: -0.12,
-    fontWeight: '400',
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-xs'][1].letterSpacing) * parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
     color: colors.brown['brown-6'],
     fontFamily: 'Pretendard',
   },
@@ -169,6 +169,6 @@ export const styles = StyleSheet.create({
 
 // 아이콘 색상 상수 (StyleSheet 외부에서 export)
 export const iconColors = {
-  'plan-info-icon': colors.secondary['secondary-600'], // #8E7982
+  'plan-info-icon': colors.brown['brown-6'], // #8E7982
   'error-icon': colors.root.red, // #fb2c36
 } as const;
