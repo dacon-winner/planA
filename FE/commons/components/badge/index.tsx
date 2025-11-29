@@ -1,11 +1,23 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { Sparkles, ChessQueen } from 'lucide-react-native';
-import { styles } from './styles';
+/**
+ * Badge Component
+ * 아이콘과 텍스트를 포함한 뱃지 컴포넌트
+ */
 
-export type BadgeVariant = 'summary' | 'ai' | 'plan';
+import React from "react";
+import { View, Text } from "react-native";
+import { Sparkles, ChessQueen } from "lucide-react-native";
+import { styles } from "./styles";
 
+/**
+ * Badge 컴포넌트 variant 타입
+ */
+export type BadgeVariant = "summary" | "ai" | "plan";
+
+/**
+ * Badge 컴포넌트 Props
+ */
 export interface BadgeProps {
+  /** 뱃지 스타일 변형 */
   variant: BadgeVariant;
 }
 
