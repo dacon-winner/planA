@@ -20,6 +20,7 @@ import Input from "@/commons/components/input";
 import ContentSwitcher from "@/commons/components/content-switcher";
 import Filter from "@/commons/components/filter";
 import Toggle from "@/commons/components/toggle";
+import { Radio, RadioGroup } from "@/commons/components/radio";
 import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
@@ -44,6 +45,10 @@ export default function Home() {
   );
   const [darkModeToggle, setDarkModeToggle] = useState<"on" | "off">("on");
   const [autoSaveToggle, setAutoSaveToggle] = useState<"on" | "off">("off");
+
+  // Radio 상태 관리
+  const [gender, setGender] = useState("male");
+  const [plan, setPlan] = useState("basic");
 
   return (
     <ScrollView
@@ -212,6 +217,55 @@ export default function Home() {
             알림: {notificationToggle === "on" ? "켜짐" : "꺼짐"} | 다크 모드:{" "}
             {darkModeToggle === "on" ? "켜짐" : "꺼짐"} | 자동 저장:{" "}
             {autoSaveToggle === "on" ? "켜짐" : "꺼짐"}
+          </Text>
+        </View>
+
+        {/* Radio 컴포넌트 예시 */}
+        <View style={styles["radio-demo-section"]}>
+          <Text style={styles["section-title"]}>Radio 컴포넌트 예시</Text>
+
+          {/* RadioGroup - 성별 선택 */}
+          <Text style={styles["demo-label"]}>성별 선택</Text>
+          <RadioGroup
+            value={gender}
+            onChange={setGender}
+            options={[
+              { value: "male", label: "남성" },
+              { value: "female", label: "여성" },
+            ]}
+          />
+
+          {/* RadioGroup - 플랜 선택 */}
+          <Text style={styles["demo-label"]}>플랜 선택</Text>
+          <RadioGroup
+            value={plan}
+            onChange={setPlan}
+            options={[
+              { value: "basic", label: "베이직" },
+              { value: "premium", label: "프리미엄" },
+              { value: "enterprise", label: "엔터프라이즈" },
+            ]}
+          />
+
+          {/* Disabled 상태 예시 */}
+          <Text style={styles["demo-label"]}>비활성화 상태</Text>
+          <RadioGroup
+            value="option1"
+            onChange={() => {}}
+            options={[
+              { value: "option1", label: "옵션 1" },
+              { value: "option2", label: "옵션 2" },
+            ]}
+            disabled={true}
+          />
+
+          <Text style={styles["demo-description"]}>
+            선택된 성별: {gender === "male" ? "남성" : "여성"} | 선택된 플랜:{" "}
+            {plan === "basic"
+              ? "베이직"
+              : plan === "premium"
+              ? "프리미엄"
+              : "엔터프라이즈"}
           </Text>
         </View>
       </View>
