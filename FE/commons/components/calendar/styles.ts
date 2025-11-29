@@ -81,13 +81,13 @@ export const styles = StyleSheet.create({
   /**
    * Month Subtitle
    * 피그마: fontSize 14, fontWeight 400, color #998d8d
-   * 토큰: mobile-s-normal
+   * 토큰: mobile-s (normal은 기본값이라 접미사 없음)
    */
   monthSubtitle: {
-    fontSize: parseInt(fontSize["mobile-s-normal"][0]), // 14px
-    lineHeight: parseInt(fontSize["mobile-s-normal"][1].lineHeight), // 20px
-    letterSpacing: parseFloat(fontSize["mobile-s-normal"][1].letterSpacing), // 0em
-    fontWeight: fontSize["mobile-s-normal"][1].fontWeight, // 400
+    fontSize: parseInt(fontSize["mobile-s"][0]), // 14px
+    lineHeight: parseInt(fontSize["mobile-s"][1].lineHeight), // 20px
+    letterSpacing: parseFloat(fontSize["mobile-s"][1].letterSpacing), // 0em
+    fontWeight: fontSize["mobile-s"][1].fontWeight, // 400
     color: colors.foundationBrown[4], // #928d8f
     fontFamily: "Pretendard Variable",
     marginBottom: 16,
@@ -251,13 +251,13 @@ export const styles = StyleSheet.create({
   /**
    * DayCell Text - Default
    * 피그마: fontSize 14, fontWeight 400, color #0d0b26
-   * 토큰: mobile-s-normal
+   * 토큰: mobile-s (normal은 기본값이라 접미사 없음)
    */
   dayCellTextDefault: {
-    fontSize: parseInt(fontSize["mobile-s-normal"][0]), // 14px
-    lineHeight: parseInt(fontSize["mobile-s-normal"][1].lineHeight), // 20px
-    letterSpacing: parseFloat(fontSize["mobile-s-normal"][1].letterSpacing), // 0em
-    fontWeight: fontSize["mobile-s-normal"][1].fontWeight, // 400
+    fontSize: parseInt(fontSize["mobile-s"][0]), // 14px
+    lineHeight: parseInt(fontSize["mobile-s"][1].lineHeight), // 20px
+    letterSpacing: parseFloat(fontSize["mobile-s"][1].letterSpacing), // 0em
+    fontWeight: fontSize["mobile-s"][1].fontWeight, // 400
     color: colors.foundationBlue[10], // #0e1219
     fontFamily: "Pretendard Variable",
   },
@@ -265,13 +265,13 @@ export const styles = StyleSheet.create({
   /**
    * DayCell Text - Weekend
    * 피그마: fontSize 14, fontWeight 400, color #fb2c36
-   * 토큰: mobile-s-normal + root.red
+   * 토큰: mobile-s + root.red
    */
   dayCellTextWeekend: {
-    fontSize: parseInt(fontSize["mobile-s-normal"][0]), // 14px
-    lineHeight: parseInt(fontSize["mobile-s-normal"][1].lineHeight), // 20px
-    letterSpacing: parseFloat(fontSize["mobile-s-normal"][1].letterSpacing), // 0em
-    fontWeight: fontSize["mobile-s-normal"][1].fontWeight, // 400
+    fontSize: parseInt(fontSize["mobile-s"][0]), // 14px
+    lineHeight: parseInt(fontSize["mobile-s"][1].lineHeight), // 20px
+    letterSpacing: parseFloat(fontSize["mobile-s"][1].letterSpacing), // 0em
+    fontWeight: fontSize["mobile-s"][1].fontWeight, // 400
     color: colors.root.red, // #fb2c36
     fontFamily: "Pretendard Variable",
   },
@@ -307,17 +307,16 @@ export const styles = StyleSheet.create({
   /**
    * DayCell Text - Disabled
    * 피그마: fontSize 14, fontWeight 400, color #998d8d (opacity 0.3 applied to container)
-   * 토큰: mobile-s-normal
+   * 토큰: mobile-s (normal은 기본값이라 접미사 없음)
    */
   dayCellTextDisabled: {
-    fontSize: parseInt(fontSize["mobile-s-normal"][0]), // 14px
-    lineHeight: parseInt(fontSize["mobile-s-normal"][1].lineHeight), // 20px
-    letterSpacing: parseFloat(fontSize["mobile-s-normal"][1].letterSpacing), // 0em
-    fontWeight: fontSize["mobile-s-normal"][1].fontWeight, // 400
+    fontSize: parseInt(fontSize["mobile-s"][0]), // 14px
+    lineHeight: parseInt(fontSize["mobile-s"][1].lineHeight), // 20px
+    letterSpacing: parseFloat(fontSize["mobile-s"][1].letterSpacing), // 0em
+    fontWeight: fontSize["mobile-s"][1].fontWeight, // 400
     color: colors.foundationBrown[4], // #928d8f
     fontFamily: "Pretendard Variable",
   },
 });
 
 export default styles;
-
