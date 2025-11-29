@@ -79,12 +79,8 @@ export const StepItem: React.FC<StepItemProps> = ({
         </View>
       );
     } else {
-      // Default 상태: 숫자 아이콘
-      return (
-        <View style={styles.stepNumberIcon}>
-          <Text style={styles.stepNumberText}>{index}</Text>
-        </View>
-      );
+      // Default 상태: 색상만 표시 (숫자 없음)
+      return <View style={styles.stepNumberIcon} />;
     }
   };
 
