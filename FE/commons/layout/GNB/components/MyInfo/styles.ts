@@ -69,6 +69,45 @@ export const styles = StyleSheet.create({
     padding: 40,
     fontFamily: 'PretendardVariable',
   },
+
+  /* Badge Demo Section */
+  'badge-demo-section': {
+    marginBottom: parseInt(spacing.lg),
+    paddingHorizontal: parseInt(spacing.md),
+  },
+
+  'section-title': {
+    fontSize: parseInt(fontSize['mobile-l-bold'][0]),
+    lineHeight: parseInt(fontSize['mobile-l-bold'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-l-bold'][1].letterSpacing) * parseInt(fontSize['mobile-l-bold'][0]),
+    fontWeight: fontSize['mobile-l-bold'][1].fontWeight,
+    color: colors.secondary[900],
+    marginBottom: parseInt(spacing.md),
+    fontFamily: 'PretendardVariable',
+  },
+
+  'badge-demo-row': {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: parseInt(spacing.md),
+    alignItems: 'center',
+  },
+
+  'badge-demo-item': {
+    alignItems: 'center',
+    gap: parseInt(spacing.sm),
+    minWidth: 80,
+  },
+
+  'badge-demo-label': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[600],
+    textAlign: 'center',
+    fontFamily: 'PretendardVariable',
+  },
 });
 
 

@@ -1,0 +1,59 @@
+아래의 조건을 모두 적용하여, 아래의 요구사항을 모두 구현할 것.
+구현 결과를 체크리스트로 반환할 것.
+
+==============================================
+
+조건-커서룰) 아래의 커서룰을 적용하여 작업하고, 이 작업이 끝나면 해당 rules 적용 결과를 체크리스트로 반환할 것.
+            - @01-common.mdc
+            - @02-wireframe.mdc
+            - @03-ui.mdc
+
+==============================================
+
+조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: d6pu0ncj)
+조건-피그마) 참고할 공통컴포넌트 노드ID: 4183:8018(아이콘 포함)
+조건-피그마) 참고할 공통컴포넌트 노드ID: 4174:1442(아이콘 미포함)
+
+조건-파일경로) 구현될 TSX 파일경로: planA/FE/commons/components/badge/index.tsx
+조건-파일경로) 구현될 CSS 파일경로: planA/FE/commons/components/badge/styles.ts
+조건-파일경로) 작성될 README.md 파일경로: planA/FE/commons/components/badge/README.md
+
+조건-공통룰) `color.ts`와 `typographt.ts`에 등록된 상수를 최우선으로 사용할 것.(enums/하위파일)
+조건-공통룰) 이미 설치되어있는 'lucide-react-native'라이브러리를 사용할 것.
+
+==============================================
+
+핵심요구사항) MCP를 연동하여 피그마의 디자인을 그대로 소스코드로 구현할 것.
+
+핵심요구사항) 핵심요구사항을 모두 구현한 후, planA/FE/doc/v.1.0.0/component-template.md 에 맞춰서 README.md파일을 작성할 것.
+      - README.md에 `Badge`와 `BadgePolicy` 두 컴포넌트의 사용법을 각각 구분하여 작성할 것.
+
+
+핵심요구사항) Badge(컴포넌트1)는 다음과 같이 정의될 것.
+      1. Props
+        - `variant`: `'summary' | 'ai' | 'plan'`
+      2. 구현 로직
+        - `children`을 받지 않으며, `variant`에 따라 텍스트와 아이콘이 자동 결정할 것.
+        - Figma(4183:8018)의 아이콘 형태를 보고 `lucide-react-native`에서 가장 유사한 아이콘을 매핑할 것.
+      3. 데이터 매핑
+        - `summary`: 텍스트 "요약", 배경 `#FFF1F2`, 글자 `brand`
+        - `ai`: 텍스트 "AI", 배경 `brand`, 글자 `#fff`
+        - `plan`: 텍스트 "대표 플랜", 배경 `#8E7982`, 글자 `#fff`
+
+핵심요구사항) BadgePolicy(컴포넌트2)는 다음과 같이 정의될 것.
+      1. Props
+        - `variant`: `'loan' | 'always' | 'period' | 'subsidy'`
+      2.  구현 로직
+        - `children` 및 아이콘을 전혀 사용하지 않음 (Text Only).
+        - 오직 텍스트와 스타일만 렌더링.
+      3.  데이터 매핑
+        - `loan`: 텍스트 "대출", 배경 `#FDEFF4`(Opacity 80%), 글자 `brand`
+        - `always`: 텍스트 "상시", 배경 `transparent`, 글자 `brand`, Stroke `brand` (1px)
+        - `period`: 텍스트 "기간제", 배경 `transparent`, 글자 `brand`, Stroke `brand` (1px)
+        - `subsidy`: 텍스트 "보조금", 배경 `brand`, 글자 `#fff`
+
+핵심요구사항) 시각적 디자인 및 레이아웃을 다음과 같이 구현할 것.
+        - `styles.ts`에 스타일을 정의하되, 두 컴포넌트용 스타일을 명확히 구분할 것.
+        - `color.ts`와 `typography.ts`에 정의된 상수를 우선적으로 사용하고, 없는 경우에만 위 Hex 코드를 사용할 것.
+
+
