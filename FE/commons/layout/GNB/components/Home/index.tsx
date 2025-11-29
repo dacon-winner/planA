@@ -19,6 +19,7 @@ import Button from "@/commons/components/button";
 import Input from "@/commons/components/input";
 import ContentSwitcher from "@/commons/components/content-switcher";
 import Filter from "@/commons/components/filter";
+import Toggle from "@/commons/components/toggle";
 import { AlarmClock } from "lucide-react-native";
 
 export default function Home() {
@@ -33,7 +34,16 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(0);
 
   // Filter 상태 관리
-  const [selectedFilters, setSelectedFilters] = useState<{id: string, label: string, isSelected: boolean}[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<
+    { id: string; label: string; isSelected: boolean }[]
+  >([]);
+
+  // Toggle 상태 관리
+  const [notificationToggle, setNotificationToggle] = useState<"on" | "off">(
+    "off"
+  );
+  const [darkModeToggle, setDarkModeToggle] = useState<"on" | "off">("on");
+  const [autoSaveToggle, setAutoSaveToggle] = useState<"on" | "off">("off");
 
   return (
     <ScrollView
@@ -137,9 +147,12 @@ export default function Home() {
 
         {/* ContentSwitcher 컴포넌트 예시 */}
         <View style={styles["content-switcher-demo-section"]}>
-          <Text style={styles["section-title"]}>ContentSwitcher 컴포넌트 예시</Text>
+          <Text style={styles["section-title"]}>
+            ContentSwitcher 컴포넌트 예시
+          </Text>
           <Text style={styles["demo-description"]}>
-            선택된 카테고리: {["스튜디오", "드레스", "메이크업", "웨딩홀"][selectedCategory]}
+            선택된 카테고리:{" "}
+            {["스튜디오", "드레스", "메이크업", "웨딩홀"][selectedCategory]}
           </Text>
 
           {/* 기본 ContentSwitcher */}
@@ -153,14 +166,53 @@ export default function Home() {
         <View style={styles["filter-demo-section"]}>
           <Text style={styles["section-title"]}>Filter 컴포넌트 예시</Text>
           <Text style={styles["demo-description"]}>
-            선택된 필터: {selectedFilters.filter(item => item.isSelected).map(item => item.label).join(', ') || '없음'}
+            선택된 필터:{" "}
+            {selectedFilters
+              .filter((item) => item.isSelected)
+              .map((item) => item.label)
+              .join(", ") || "없음"}
           </Text>
 
           {/* 기본 Filter */}
-          <Filter
-            onSelectionChange={setSelectedFilters}
-            variant="inActive"
-          />
+          <Filter onSelectionChange={setSelectedFilters} variant="inActive" />
+        </View>
+
+        {/* Toggle 컴포넌트 예시 */}
+        <View style={styles["toggle-demo-section"]}>
+          <Text style={styles["section-title"]}>Toggle 컴포넌트 예시</Text>
+
+          {/* 알림 설정 Toggle - OFF 상태 */}
+          <View style={styles["toggle-item"]}>
+            <Text style={styles["toggle-label"]}>알림 받기</Text>
+            <Toggle
+              state={notificationToggle}
+              onToggle={setNotificationToggle}
+            />
+          </View>
+
+          {/* 다크 모드 Toggle - ON 상태 */}
+          <View style={styles["toggle-item"]}>
+            <Text style={styles["toggle-label"]}>다크 모드</Text>
+            <Toggle state={darkModeToggle} onToggle={setDarkModeToggle} />
+          </View>
+
+          {/* 자동 저장 Toggle - OFF 상태 */}
+          <View style={styles["toggle-item"]}>
+            <Text style={styles["toggle-label"]}>자동 저장</Text>
+            <Toggle state={autoSaveToggle} onToggle={setAutoSaveToggle} />
+          </View>
+
+          {/* Disabled 상태 예시 */}
+          <View style={styles["toggle-item"]}>
+            <Text style={styles["toggle-label"]}>활성화 안 됨</Text>
+            <Toggle state="on" disabled={true} />
+          </View>
+
+          <Text style={styles["demo-description"]}>
+            알림: {notificationToggle === "on" ? "켜짐" : "꺼짐"} | 다크 모드:{" "}
+            {darkModeToggle === "on" ? "켜짐" : "꺼짐"} | 자동 저장:{" "}
+            {autoSaveToggle === "on" ? "켜짐" : "꺼짐"}
+          </Text>
         </View>
       </View>
     </ScrollView>
