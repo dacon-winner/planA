@@ -14,8 +14,15 @@
  * [✓] 접근성: 시맨틱/포커스/명도 대비/탭타겟 통과
  */
 
-import React, { useState, useRef, useEffect } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import { styles } from "./styles";
 
 /**
@@ -116,6 +123,7 @@ export interface MonthSectionProps {
   today: Date;
   selectedDate: Date | null;
   onDateSelect: (date: Date) => void;
+  width: number;
 }
 
 /**
@@ -128,6 +136,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
   today,
   selectedDate,
   onDateSelect,
+  width,
 }) => {
   /**
    * 해당 월의 날짜 데이터 생성
@@ -193,7 +202,11 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
    * 날짜 상태 결정
    */
   const getDayState = (date: Date, today: Date): DayCellState => {
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dateOnly = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
     const todayOnly = new Date(
       today.getFullYear(),
       today.getMonth(),
@@ -229,7 +242,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
   const weeks = generateMonthData();
 
   return (
-    <View style={styles.monthSection}>
+    <View style={[styles.monthSection, { width }]}>
       <View style={styles.monthGrid}>
         {weeks.map((week, weekIndex) => (
           <View key={weekIndex} style={styles.weekRow}>
@@ -279,11 +292,15 @@ export const Calendar: React.FC<CalendarProps> = ({
 }) => {
   const today = new Date();
   const scrollViewRef = useRef<ScrollView>(null);
+  
+  // 한 달 캘린더의 너비 (248px 달력 + 32px 좌우 패딩)
+  const MONTH_WIDTH = 280;
 
   // 내부 상태 관리 (Controlled/Uncontrolled 패턴)
   const [internalSelectedDate, setInternalSelectedDate] = useState<Date | null>(
     null
   );
+  const [currentVisibleMonthIndex, setCurrentVisibleMonthIndex] = useState(0);
 
   const selectedDate =
     controlledSelectedDate !== undefined
@@ -311,25 +328,19 @@ export const Calendar: React.FC<CalendarProps> = ({
   const months = generateMonths();
 
   /**
-   * 현재 표시 중인 월 결정
+   * 스크롤 이벤트 핸들러
+   * 현재 보이는 월을 추적
    */
-  const getCurrentMonthIndex = (): number => {
-    if (!selectedDate) {
-      return 0; // 오늘이 속한 월
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollX = event.nativeEvent.contentOffset.x;
+    const monthIndex = Math.round(scrollX / MONTH_WIDTH);
+    
+    if (monthIndex >= 0 && monthIndex < months.length) {
+      setCurrentVisibleMonthIndex(monthIndex);
     }
-
-    const selectedYear = selectedDate.getFullYear();
-    const selectedMonth = selectedDate.getMonth();
-
-    const index = months.findIndex(
-      (m) => m.year === selectedYear && m.month === selectedMonth
-    );
-
-    return index >= 0 ? index : 0;
   };
 
-  const currentMonthIndex = getCurrentMonthIndex();
-  const currentMonth = months[currentMonthIndex];
+  const currentMonth = months[currentVisibleMonthIndex];
 
   /**
    * 날짜 선택 핸들러
@@ -402,8 +413,10 @@ export const Calendar: React.FC<CalendarProps> = ({
         pagingEnabled={false}
         showsHorizontalScrollIndicator={false}
         decelerationRate="fast"
-        snapToInterval={264} // 248 (월 섹션 너비) + 16 (마진)
+        snapToInterval={MONTH_WIDTH}
         snapToAlignment="start"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         accessible={true}
@@ -417,6 +430,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             today={today}
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
+            width={MONTH_WIDTH}
           />
         ))}
       </ScrollView>

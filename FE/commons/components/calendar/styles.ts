@@ -109,17 +109,17 @@ export const styles = StyleSheet.create({
   },
 
   scrollViewContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 0,
   },
 
   // Month Section
   monthSection: {
-    width: 248,
-    marginRight: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   monthGrid: {
-    width: "100%",
+    width: 248,
   },
 
   // Week Row
