@@ -260,6 +260,7 @@ export const Stepper: React.FC<StepperProps> = ({
    * 스텝 클릭 핸들러
    * - default 상태인 스텝은 클릭 불가
    * - completed 또는 active 상태인 스텝은 클릭 시 열림
+   * - 현재 열린 스텝을 다시 클릭하면 닫힘 (토글)
    */
   const handleStepPress = (stepIndex: number) => {
     const stepState = getStepState(stepIndex);
@@ -269,8 +270,15 @@ export const Stepper: React.FC<StepperProps> = ({
       return;
     }
 
-    // 현재 열린 스텝을 다시 클릭하면 아무 동작 안 함
+    // 현재 열린 스텝을 다시 클릭하면 닫기 (토글)
     if (currentStep === stepIndex) {
+      if (controlledCurrentStep === undefined) {
+        setInternalCurrentStep(-1); // 모든 폼 닫기
+      }
+
+      if (onStepChange) {
+        onStepChange(-1);
+      }
       return;
     }
 
@@ -432,7 +440,8 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
   };
 
   const goToStep = (stepIndex: number) => {
-    if (stepIndex >= 0 && stepIndex < props.steps.length) {
+    // -1은 모든 스텝을 닫는 특수 값
+    if (stepIndex === -1 || (stepIndex >= 0 && stepIndex < props.steps.length)) {
       setCurrentStep(stepIndex);
       if (props.onStepChange) {
         props.onStepChange(stepIndex);
