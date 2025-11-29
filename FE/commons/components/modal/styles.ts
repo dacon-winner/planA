@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     lineHeight: parseInt(fontSize['mobile-s-semibold'][1].lineHeight),
     letterSpacing: parseFloat(fontSize['mobile-s-semibold'][1].letterSpacing) * parseInt(fontSize['mobile-s-semibold'][0]),
     fontWeight: fontSize['mobile-s-semibold'][1].fontWeight,
-    color: colors.secondary['secondary-900'],
+    color: colors.blue['blue-4'], // #727881 (피그마 #6b7280와 가장 유사)
     fontFamily: 'Pretendard',
     textAlign: 'center',
     paddingHorizontal: parseInt(spacing.md),
