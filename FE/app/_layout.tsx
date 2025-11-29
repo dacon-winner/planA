@@ -25,7 +25,7 @@ export default function RootLayout() {
     <AuthProvider>
       <ReactQueryProvider>
         <ModalProvider>
-          <Stack />
+          <Stack screenOptions={{ headerShown: false }} />
         </ModalProvider>
       </ReactQueryProvider>
     </AuthProvider>
