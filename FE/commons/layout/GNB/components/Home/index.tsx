@@ -224,8 +224,8 @@ export default function Home() {
         <View style={styles["radio-demo-section"]}>
           <Text style={styles["section-title"]}>Radio 컴포넌트 예시</Text>
 
-          {/* RadioGroup - 성별 선택 */}
-          <Text style={styles["demo-label"]}>성별 선택</Text>
+          {/* RadioGroup - 성별 선택 (가로 정렬) */}
+          <Text style={styles["demo-label"]}>성별 선택 (가로 정렬)</Text>
           <RadioGroup
             value={gender}
             onChange={setGender}
@@ -233,10 +233,11 @@ export default function Home() {
               { value: "male", label: "남성" },
               { value: "female", label: "여성" },
             ]}
+            direction="horizontal"
           />
 
-          {/* RadioGroup - 플랜 선택 */}
-          <Text style={styles["demo-label"]}>플랜 선택</Text>
+          {/* RadioGroup - 플랜 선택 (세로 정렬) */}
+          <Text style={styles["demo-label"]}>플랜 선택 (세로 정렬)</Text>
           <RadioGroup
             value={plan}
             onChange={setPlan}
@@ -245,10 +246,11 @@ export default function Home() {
               { value: "premium", label: "프리미엄" },
               { value: "enterprise", label: "엔터프라이즈" },
             ]}
+            direction="vertical"
           />
 
-          {/* Disabled 상태 예시 */}
-          <Text style={styles["demo-label"]}>비활성화 상태</Text>
+          {/* Disabled 상태 예시 (가로 정렬) */}
+          <Text style={styles["demo-label"]}>비활성화 상태 (가로)</Text>
           <RadioGroup
             value="option1"
             onChange={() => {}}
@@ -256,6 +258,7 @@ export default function Home() {
               { value: "option1", label: "옵션 1" },
               { value: "option2", label: "옵션 2" },
             ]}
+            direction="horizontal"
             disabled={true}
           />
 
