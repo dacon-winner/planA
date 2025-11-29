@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
 
   /* Plan Info Styles */
   'plan-info-section': {
-    marginTop: parseInt(spacing.md),
+    marginTop: 14,
   },
 
   'plan-info-row': {
