@@ -21,8 +21,14 @@ import ContentSwitcher from "@/commons/components/content-switcher";
 import Filter from "@/commons/components/filter";
 import Toggle from "@/commons/components/toggle";
 import { RadioGroup } from "@/commons/components/radio";
-import { SelectButton, SelectButtonGroup } from "@/commons/components/select-button";
-import { StepperWithContext, useStepperContext } from "@/commons/components/stepper";
+import {
+  SelectButton,
+  SelectButtonGroup,
+} from "@/commons/components/select-button";
+import {
+  StepperWithContext,
+  useStepperContext,
+} from "@/commons/components/stepper";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
 
@@ -52,7 +58,9 @@ function RegionSelectionForm({
       icon: (
         <MapPin
           size={20}
-          color={data.region === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.region === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -62,7 +70,9 @@ function RegionSelectionForm({
       icon: (
         <MapPin
           size={20}
-          color={data.region === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.region === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -72,7 +82,9 @@ function RegionSelectionForm({
       icon: (
         <MapPin
           size={20}
-          color={data.region === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.region === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -82,7 +94,9 @@ function RegionSelectionForm({
       icon: (
         <MapPin
           size={20}
-          color={data.region === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.region === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -161,7 +175,9 @@ function TimeSelectionForm({
       icon: (
         <Clock
           size={16}
-          color={data.time === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.time === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -171,7 +187,9 @@ function TimeSelectionForm({
       icon: (
         <Clock
           size={16}
-          color={data.time === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.time === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -181,7 +199,9 @@ function TimeSelectionForm({
       icon: (
         <Clock
           size={16}
-          color={data.time === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.time === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -191,7 +211,9 @@ function TimeSelectionForm({
       icon: (
         <Clock
           size={16}
-          color={data.time === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.time === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -201,7 +223,9 @@ function TimeSelectionForm({
       icon: (
         <Clock
           size={16}
-          color={data.time === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            data.time === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -257,9 +281,41 @@ export default function Home() {
   // Stepper 폼 제출 핸들러
   const handleStepperFormSubmit = () => {
     console.log("Stepper Form Data:", stepperFormData);
-    alert(
-      `선택 완료!\n지역: ${stepperFormData.region}\n예산: ${stepperFormData.budget}만원\n시간: ${stepperFormData.time}`
-    );
+    console.log("선택 완료!");
+  };
+
+  // Stepper 제목 생성 함수
+  const getStepTitle = (step: "region" | "budget" | "time") => {
+    const labels = {
+      region: {
+        default: "지역 선택",
+        gangnam: "강남구",
+        seocho: "서초구",
+        songpa: "송파구",
+        jongno: "종로구",
+      },
+      budget: {
+        default: "예산 선택",
+        "1000": "1,000만원",
+        "3000": "3,000만원",
+        "5000": "5,000만원",
+        "10000": "1억원",
+      },
+      time: {
+        default: "시간 선택",
+        "09:00": "09:00",
+        "11:00": "11:00",
+        "14:00": "14:00",
+        "16:00": "16:00",
+        "18:00": "18:00",
+      },
+    };
+
+    const value = stepperFormData[step];
+    if (value && labels[step][value as keyof typeof labels[typeof step]]) {
+      return labels[step][value as keyof typeof labels[typeof step]];
+    }
+    return labels[step].default;
   };
 
   // ContentSwitcher 상태 관리
@@ -298,7 +354,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "gangnam"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -308,7 +368,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "seocho"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -318,7 +382,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "songpa"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -328,7 +396,11 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedRegion === "jongno"
+              ? ICON_COLOR_SELECTED
+              : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -350,7 +422,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -360,7 +434,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -370,7 +446,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -380,7 +458,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -390,7 +470,9 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
+          color={
+            selectedTime === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT
+          }
         />
       ),
     },
@@ -620,10 +702,14 @@ export default function Home() {
 
         {/* SelectButton 컴포넌트 예시 */}
         <View style={styles["select-button-demo-section"]}>
-          <Text style={styles["section-title"]}>SelectButton 컴포넌트 예시</Text>
+          <Text style={styles["section-title"]}>
+            SelectButton 컴포넌트 예시
+          </Text>
 
           {/* 지역 선택 (아이콘 있음, medium) */}
-          <Text style={styles["demo-label"]}>지역 선택 (아이콘 있음, medium)</Text>
+          <Text style={styles["demo-label"]}>
+            지역 선택 (아이콘 있음, medium)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 지역: {selectedRegion}
           </Text>
@@ -636,7 +722,9 @@ export default function Home() {
           />
 
           {/* 예산 선택 (아이콘 없음, medium) */}
-          <Text style={styles["demo-label"]}>예산 선택 (아이콘 없음, medium)</Text>
+          <Text style={styles["demo-label"]}>
+            예산 선택 (아이콘 없음, medium)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 예산: {selectedBudget}만원
           </Text>
@@ -649,7 +737,9 @@ export default function Home() {
           />
 
           {/* 시간 선택 (아이콘 있음, small) */}
-          <Text style={styles["demo-label"]}>시간 선택 (아이콘 있음, small)</Text>
+          <Text style={styles["demo-label"]}>
+            시간 선택 (아이콘 있음, small)
+          </Text>
           <Text style={styles["demo-description"]}>
             선택된 시간: {selectedTime}
           </Text>
@@ -683,14 +773,14 @@ export default function Home() {
         <View style={styles["stepper-demo-section"]}>
           <Text style={styles["section-title"]}>Stepper 컴포넌트 예시</Text>
           <Text style={styles["demo-description"]}>
-            순차적인 단계를 진행하는 컴포넌트입니다. 각 단계를 클릭하여 다시 열 수
-            있습니다.
+            순차적인 단계를 진행하는 컴포넌트입니다. 각 단계를 클릭하여 다시 열
+            수 있습니다.
           </Text>
 
           <StepperWithContext
             steps={[
               {
-                title: "지역 선택",
+                title: getStepTitle("region"),
                 content: (
                   <RegionSelectionForm
                     data={stepperFormData}
@@ -699,7 +789,7 @@ export default function Home() {
                 ),
               },
               {
-                title: "예산 선택",
+                title: getStepTitle("budget"),
                 content: (
                   <BudgetSelectionForm
                     data={stepperFormData}
@@ -708,7 +798,7 @@ export default function Home() {
                 ),
               },
               {
-                title: "시간 선택",
+                title: getStepTitle("time"),
                 content: (
                   <TimeSelectionForm
                     data={stepperFormData}
@@ -726,4 +816,3 @@ export default function Home() {
     </ScrollView>
   );
 }
-
