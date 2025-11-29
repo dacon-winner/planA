@@ -16,14 +16,14 @@ export const styles = StyleSheet.create({
 
   // Header Section
   headerContainer: {
-    width: "100%",
-    paddingHorizontal: 16,
+    width: 248,
     paddingVertical: 12,
     gap: 4,
+    alignSelf: "center",
   },
 
   monthTitleContainer: {
-    width: "100%",
+    width: 248,
     height: 24,
     justifyContent: "center",
     alignItems: "center",
@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
   },
 
   subtitleContainer: {
-    width: "100%",
+    width: 248,
     height: 20,
     justifyContent: "center",
     alignItems: "center",
@@ -58,10 +58,10 @@ export const styles = StyleSheet.create({
 
   // Weekday Header
   weekdayHeaderContainer: {
-    width: "100%",
+    width: 248,
     height: 20,
     flexDirection: "row",
-    paddingHorizontal: 16,
+    alignSelf: "center",
     marginBottom: 8,
   },
 
@@ -106,6 +106,7 @@ export const styles = StyleSheet.create({
   // Scroll View
   scrollView: {
     width: "100%",
+    alignSelf: "center",
   },
 
   scrollViewContent: {
