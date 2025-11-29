@@ -26,6 +26,7 @@
 ```tsx
 import { SelectButton } from "@/commons/components/select-button";
 import { MapPin } from "lucide-react-native";
+import { brownColors } from "@/commons/enums/color";
 
 function MyComponent() {
   const [selected, setSelected] = React.useState(false);
@@ -35,7 +36,7 @@ function MyComponent() {
       state={selected ? "selected" : "default"}
       label="강남구"
       size="medium"
-      icon={<MapPin size={20} color={selected ? "#861043" : "#364153"} />}
+      icon={<MapPin size={20} color={selected ? "#861043" : brownColors["brown-2"]} />}
       onSelect={() => setSelected(!selected)}
     />
   );
@@ -124,13 +125,16 @@ function MyComponent() {
 
 ```tsx
 import { Clock } from "lucide-react-native";
+import { brownColors } from "@/commons/enums/color";
+
+const [selected, setSelected] = React.useState(true);
 
 <SelectButton
-  state="selected"
+  state={selected ? "selected" : "default"}
   label="09:00"
   size="small"
-  icon={<Clock size={16} color="#861043" />}
-  onSelect={() => console.log("selected")}
+  icon={<Clock size={16} color={selected ? "#861043" : brownColors["brown-2"]} />}
+  onSelect={() => setSelected(!selected)}
 />;
 ```
 
@@ -184,11 +188,13 @@ const budgets = [
 
   - Border: `#e5e7eb` (root.navigation)
   - Text: `#364153`
+  - Icon: `#d5d4d5` (brownColors['brown-2'])
   - Background: `transparent`
 
 - **Selected 상태**
   - Border: `#e60076`
   - Text: `#861043`
+  - Icon: `#861043`
   - Background: `#fdf2f8`
 
 ### 크기
@@ -223,6 +229,8 @@ select-button/
 
 1. SelectButtonGroup 사용 시 각 옵션의 `value`는 고유해야 합니다
 2. 아이콘 색상은 상태에 따라 직접 조정해야 합니다
+   - Default 상태: `brownColors['brown-2']` (#d5d4d5)
+   - Selected 상태: `#861043`
 3. 그룹 사용 시 하나의 값만 선택됩니다 (단일 선택)
 4. `direction="horizontal"` 사용 시 flexWrap이 적용되어 자동 줄바꿈됩니다
 

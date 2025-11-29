@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SelectButton, SelectButtonGroup } from "@/commons/components/select-button";
 import { MapPin, Clock } from "lucide-react-native";
+import { brownColors } from "@/commons/enums/color";
 
 /**
  * Home Screen - SelectButton 예시
@@ -16,6 +17,10 @@ export default function Home() {
   // 시간 선택 상태
   const [selectedTime, setSelectedTime] = React.useState("14:00");
 
+  // 아이콘 색상 상수
+  const ICON_COLOR_DEFAULT = brownColors["brown-2"]; // #d5d4d5 (피그마 default 아이콘 색상)
+  const ICON_COLOR_SELECTED = "#861043"; // 피그마 selected 아이콘 색상
+
   // 지역 옵션 (아이콘 있음, medium)
   const regionOptions = [
     {
@@ -24,7 +29,7 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "gangnam" ? "#861043" : "#364153"}
+          color={selectedRegion === "gangnam" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -34,7 +39,7 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "seocho" ? "#861043" : "#364153"}
+          color={selectedRegion === "seocho" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -44,7 +49,7 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "songpa" ? "#861043" : "#364153"}
+          color={selectedRegion === "songpa" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -54,7 +59,7 @@ export default function Home() {
       icon: (
         <MapPin
           size={20}
-          color={selectedRegion === "jongno" ? "#861043" : "#364153"}
+          color={selectedRegion === "jongno" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -76,7 +81,7 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "09:00" ? "#861043" : "#364153"}
+          color={selectedTime === "09:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -86,7 +91,7 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "11:00" ? "#861043" : "#364153"}
+          color={selectedTime === "11:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -96,7 +101,7 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "14:00" ? "#861043" : "#364153"}
+          color={selectedTime === "14:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -106,7 +111,7 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "16:00" ? "#861043" : "#364153"}
+          color={selectedTime === "16:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
@@ -116,7 +121,7 @@ export default function Home() {
       icon: (
         <Clock
           size={16}
-          color={selectedTime === "18:00" ? "#861043" : "#364153"}
+          color={selectedTime === "18:00" ? ICON_COLOR_SELECTED : ICON_COLOR_DEFAULT}
         />
       ),
     },
