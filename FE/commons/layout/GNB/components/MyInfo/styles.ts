@@ -130,6 +130,25 @@ export const styles = StyleSheet.create({
     fontFamily: 'PretendardVariable',
   },
 
+  /* SearchBar Demo Section */
+  'searchbar-demo-item': {
+    alignItems: 'center',
+    gap: parseInt(spacing.sm),
+    width: '100%',
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'searchbar-demo-label': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.secondary[600],
+    textAlign: 'center',
+    fontFamily: 'PretendardVariable',
+    marginBottom: parseInt(spacing.xs),
+  },
+
   /* Dropdown Demo Section */
   'dropdown-demo-item': {
     alignItems: 'center',
