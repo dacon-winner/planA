@@ -29,6 +29,7 @@ import {
   StepperWithContext,
   useStepperContext,
 } from "@/commons/components/stepper";
+import { Calendar } from "@/commons/components/calendar";
 import { AlarmClock, MapPin, Clock } from "lucide-react-native";
 import { brownColors } from "@/commons/enums/color";
 
@@ -339,6 +340,9 @@ export default function Home() {
   // Radio 상태 관리
   const [gender, setGender] = useState("male");
   const [plan, setPlan] = useState("basic");
+
+  // Calendar 상태 관리
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // SelectButton 상태 관리
   const [selectedRegion, setSelectedRegion] = useState("gangnam");
@@ -816,6 +820,26 @@ export default function Home() {
           />
         </View>
 
+        {/* Calendar 컴포넌트 예시 */}
+        <View style={styles["calendar-demo-section"]}>
+          <Text style={styles["section-title"]}>Calendar 컴포넌트 예시</Text>
+          <Text style={styles["demo-description"]}>
+            가로 스크롤 방식의 월별 캘린더입니다. 오늘 이후 날짜만 선택할 수
+            있습니다.
+          </Text>
+          {selectedDate && (
+            <Text style={styles["demo-description"]}>
+              선택된 날짜: {selectedDate.getFullYear()}년{" "}
+              {selectedDate.getMonth() + 1}월 {selectedDate.getDate()}일
+            </Text>
+          )}
+
+          <Calendar
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+            subtitle="원하는 날짜를 선택해주세요"
+          />
+        </View>
       </View>
     </ScrollView>
   );
