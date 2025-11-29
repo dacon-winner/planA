@@ -113,14 +113,14 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          "PretendardVariable",
+          "Pretendard",
           "SF Pro",
           "Apple SD Gothic Neo",
           "Noto Sans KR",
           "sans-serif",
         ],
-        display: ["PretendardVariable", "SF Pro Display", "sans-serif"],
-        body: ["PretendardVariable", "SF Pro Text", "sans-serif"],
+        display: ["Pretendard", "SF Pro Display", "sans-serif"],
+        body: ["Pretendard", "SF Pro Text", "sans-serif"],
       },
       fontSize: {
         // 피그마 파운데이션 노드ID: 4193:4398

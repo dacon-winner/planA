@@ -50,12 +50,13 @@ export default function MyInfo() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles['myinfo-container']}>
-        <View style={styles['myinfo-header']}>
-          <Text style={styles['myinfo-header-title']}>{MY_INFO_CONTENT.HEADER_TITLE}</Text>
-        </View>
-        <ScrollView style={styles['myinfo-content']}>
+    <View style={styles['myinfo-wrapper']}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles['myinfo-container']}>
+          <View style={styles['myinfo-header']}>
+            <Text style={styles['myinfo-header-title']}>{MY_INFO_CONTENT.HEADER_TITLE}</Text>
+          </View>
+          <ScrollView style={styles['myinfo-content']}>
         <View style={styles['myinfo-section']}>
           <Text style={styles['myinfo-section-title']}>{MY_INFO_CONTENT.SECTION_TITLE}</Text>
           <Text style={styles['myinfo-placeholder']}>{MY_INFO_CONTENT.PLACEHOLDER}</Text>
@@ -304,7 +305,8 @@ export default function MyInfo() {
       <ToastLib config={toastConfig} position="bottom" />
       <StatusBar style="auto" />
     </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 

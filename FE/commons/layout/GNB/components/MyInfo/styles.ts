@@ -18,6 +18,11 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 
 /* Layout */
 export const styles = StyleSheet.create({
+  'myinfo-wrapper': {
+    flex: 1,
+    backgroundColor: colors.primary[400],
+  },
+
   'myinfo-container': {
     flex: 1,
     backgroundColor: colors.secondary[50],
@@ -41,7 +46,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-3xl-bold'][1].letterSpacing) * parseInt(fontSize['mobile-3xl-bold'][0]),
     fontWeight: fontSize['mobile-3xl-bold'][1].fontWeight,
     color: colors.secondary[50],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   'myinfo-section': {
@@ -55,7 +60,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-xl-bold'][1].fontWeight,
     color: colors.secondary[900],
     marginBottom: parseInt(spacing.sm) * 1.5,
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   /* Utilities */
@@ -67,7 +72,7 @@ export const styles = StyleSheet.create({
     color: colors.secondary[600],
     textAlign: 'center',
     padding: 40,
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   /* Badge Demo Section */
@@ -83,7 +88,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-l-bold'][1].fontWeight,
     color: colors.secondary[900],
     marginBottom: parseInt(spacing.md),
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   'badge-demo-row': {
@@ -106,7 +111,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[600],
     textAlign: 'center',
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   /* Toast Demo Section */
@@ -127,7 +132,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-s-bold'][1].fontWeight,
     color: colors.secondary[50],
     textAlign: 'center',
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   /* SearchBar Demo Section */
@@ -145,7 +150,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[600],
     textAlign: 'center',
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     marginBottom: parseInt(spacing.xs),
   },
 
@@ -164,7 +169,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[600],
     textAlign: 'center',
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     marginBottom: parseInt(spacing.xs),
   },
 
@@ -184,7 +189,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[700],
     textAlign: 'center',
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     marginBottom: parseInt(spacing.xs),
   },
 
@@ -219,7 +224,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[600],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
   },
 
   'modal-node-label': {
@@ -228,7 +233,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-xs'][1].letterSpacing) * parseInt(fontSize['mobile-xs'][0]),
     fontWeight: fontSize['mobile-xs'][1].fontWeight,
     color: colors.secondary[600],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     textAlign: 'center',
     marginTop: 2,
   },
@@ -249,7 +254,7 @@ export const styles = StyleSheet.create({
     letterSpacing: parseFloat(fontSize['mobile-s'][1].letterSpacing) * parseInt(fontSize['mobile-s'][0]),
     fontWeight: fontSize['mobile-s'][1].fontWeight,
     color: colors.secondary[900],
-    fontFamily: 'PretendardVariable',
+    fontFamily: 'Pretendard',
     textAlign: 'center',
     paddingHorizontal: parseInt(spacing.md),
   },
