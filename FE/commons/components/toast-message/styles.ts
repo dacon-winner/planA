@@ -20,6 +20,7 @@ export const toastMessageStyles = StyleSheet.create({
    */
   wrapper: {
     padding: 20, // 그림자 blur(20)만큼의 여백 확보
+    overflow: "visible", // 그림자가 영역 밖으로 나가도 잘리지 않도록 설정
   },
 
   /**
@@ -42,12 +43,12 @@ export const toastMessageStyles = StyleSheet.create({
     shadowColor: colors.red["red-10"], // #73293f (가장 어두운 빨간색, #800C3A와 유사)
     shadowOffset: {
       width: 0,
-      height: 0,
+      height: 4, // 그림자가 아래쪽으로 살짝 내려오게 하여 가시성 향상
     },
-    shadowOpacity: 0.2, // 20% opacity
+    shadowOpacity: 0.3, // 30% opacity (0.2 → 0.3으로 증가하여 더 진하게)
     shadowRadius: 20, // Blur: 20
     // Android Shadow (elevation은 blur와 spread를 정확히 표현하기 어려우므로 근사값 사용)
-    elevation: 8,
+    elevation: 10, // 8 → 10으로 증가하여 Android에서 그림자 가시성 향상
   },
 
   /**
