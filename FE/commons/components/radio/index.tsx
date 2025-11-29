@@ -122,7 +122,8 @@ export const RadioGroup: React.FC<RadioGroupProps> = ({
   style,
 }) => {
   const containerStyle = {
-    flexDirection: direction === "horizontal" ? ("row" as const) : ("column" as const),
+    flexDirection:
+      direction === "horizontal" ? ("row" as const) : ("column" as const),
     gap: direction === "horizontal" ? 85 : 8,
     ...style,
   };
