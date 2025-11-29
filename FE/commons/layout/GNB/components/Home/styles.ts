@@ -132,6 +132,13 @@ export const styles = StyleSheet.create({
     gap: parseInt(spacing.sm),
   },
 
+  "stepper-demo-section": {
+    width: "100%",
+    maxWidth: 400,
+    gap: parseInt(spacing.md),
+    paddingVertical: parseInt(spacing.md),
+  },
+
   "demo-label": {
     fontSize: parseInt(fontSize["mobile-m"][0]),
     lineHeight: parseInt(fontSize["mobile-m"][1].lineHeight),
