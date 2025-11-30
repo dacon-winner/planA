@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     position: 'relative',
     paddingHorizontal: 0,
     paddingTop: STATUSBAR_HEIGHT + 60,
-    paddingBottom: parseInt(spacing.sm),
+    paddingBottom: parseInt(spacing.lg),
   },
 
   'header-section': {
