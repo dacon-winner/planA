@@ -15,7 +15,12 @@
  */
 
 import { StyleSheet } from "react-native";
-import { rootColors, blueColors, brownColors, blackColors } from "../../enums/color";
+import {
+  rootColors,
+  blueColors,
+  brownColors,
+  blackColors,
+} from "../../enums/color";
 
 /**
  * Input Styles
@@ -243,5 +248,3 @@ export const styles = StyleSheet.create({
 });
 
 export default styles;
-
-
