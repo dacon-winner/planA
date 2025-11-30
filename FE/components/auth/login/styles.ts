@@ -34,20 +34,22 @@ export const styles = StyleSheet.create({
 
   /**
    * 배경 이미지
+   * 콘텐츠를 화면 중앙에 배치
    */
   backgroundImage: {
     flex: 1,
     width: "100%",
     minHeight: height,
-    justifyContent: "flex-start",
+    justifyContent: "center",
+    paddingVertical: 40,
   },
 
   /**
    * 타이틀 컨테이너
    * Figma: top 143px, left 24px, width는 내용 기준 (자동)
+   * 중앙 정렬로 인해 marginTop 없음
    */
   titleContainer: {
-    marginTop: 143,
     marginHorizontal: 24,
     alignSelf: "stretch",
   },
