@@ -35,7 +35,6 @@ export const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: "transparent",
     width: "100%",
-    minHeight: 852,
   },
 
   /**
@@ -55,7 +54,7 @@ export const styles = StyleSheet.create({
    */
   contentWrapper: {
     flex: 1,
-    marginTop: 59,
+    marginTop: 0,
     width: "100%",
   },
 
@@ -63,13 +62,13 @@ export const styles = StyleSheet.create({
    * Inner Container
    * 내부 컨텐츠 컨테이너
    * 피그마: Frame 130 (x=0, y=59, width=394, height=641)
-   * paddingBottom: 버튼 높이(44) + bottom(28) + 여유(24) = 96px
+   * paddingBottom: 버튼 높이(44) + bottom(40) + 여유(40) = 124px (헤더 추가로 인한 조정)
    */
   innerContainer: {
     width: "100%",
     backgroundColor: "transparent",
-    paddingTop: 59,
-    paddingBottom: 96,
+    paddingTop: 24,
+    paddingBottom: 124,
     gap: 18,
   },
 
@@ -314,15 +313,26 @@ export const styles = StyleSheet.create({
    * Analyze Button Wrapper
    * 분석하기 버튼 래퍼
    * 피그마 노드ID: 4058:12390
-   * 화면 하단에서 28px 떨어진 위치에 고정
+   * 화면 하단에서 28px 떨어진 위치에 고정 (SafeAreaView로 하단 안전 영역 자동 고려)
+   * paddingHorizontal 24px로 버튼 전체 너비 제어
    */
   analyzeButtonWrapper: {
     position: "absolute",
-    bottom: 28,
-    left: 0,
-    right: 0,
+    bottom: 0,
+    left: 24,
+    right: 24,
+    paddingBottom: 28,
+    zIndex: 100,
+    backgroundColor: "transparent",
+    alignSelf: "stretch",
+  },
+
+  /**
+   * Analyze Button Container
+   * 버튼을 감싸는 컨테이너 (전체 너비 확보)
+   */
+  analyzeButtonContainer: {
     width: "100%",
-    paddingHorizontal: 24,
   },
 });
 

@@ -33,7 +33,17 @@ export default function RootLayout() {
     <AuthProvider>
       <ReactQueryProvider>
         <ModalProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="form/index"
+              options={{
+                headerShown: true,
+                title: "",
+                headerBackTitle: "뒤로",
+                headerShadowVisible: false,
+              }}
+            />
+          </Stack>
         </ModalProvider>
       </ReactQueryProvider>
     </AuthProvider>

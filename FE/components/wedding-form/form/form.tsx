@@ -13,7 +13,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
 import {
   StepperWithContext,
@@ -456,11 +456,13 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
       {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
       {isFormComplete && (
-        <View style={styles.analyzeButtonWrapper}>
-          <Button variant="filled" size="large" onPress={handleAnalyze}>
-            분석하기
-          </Button>
-        </View>
+        <SafeAreaView style={styles.analyzeButtonWrapper}>
+          <View style={styles.analyzeButtonContainer}>
+            <Button variant="filled" size="large" onPress={handleAnalyze}>
+              분석하기
+            </Button>
+          </View>
+        </SafeAreaView>
       )}
     </View>
   );
