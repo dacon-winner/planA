@@ -15,7 +15,6 @@ import { View, Text, ScrollView, SafeAreaView, Image, Pressable, Dimensions } fr
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams } from 'expo-router';
 import { Calendar, MapPin, Wallet, Phone, Clock, CircleDollarSign, ClockCheck } from 'lucide-react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { ContentSwitcher } from '@/commons/components/content-switcher';
 import { Button } from '@/commons/components/button';
 import { styles } from './styles';
@@ -410,25 +409,7 @@ export default function PlanDetail() {
         </BottomSheetView>
        
       </BottomSheet>
-      {/* GNB 탭 (ScrollView 안쪽 복제) */}
-      <View style={styles['gnb-tab-bar']}>
-        <Pressable style={styles['gnb-tab-item']}>
-          <Ionicons name="home-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
-          <Text style={styles['gnb-tab-label']}>홈</Text>
-        </Pressable>
-        <Pressable style={styles['gnb-tab-item']}>
-          <Ionicons name="search-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
-          <Text style={styles['gnb-tab-label']}>검색</Text>
-        </Pressable>
-        <Pressable style={styles['gnb-tab-item']}>
-          <Ionicons name="calendar-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
-          <Text style={styles['gnb-tab-label']}>일정</Text>
-        </Pressable>
-        <Pressable style={styles['gnb-tab-item']}>
-          <Ionicons name="person-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
-          <Text style={styles['gnb-tab-label']}>내정보</Text>
-        </Pressable>
-      </View>
     </View>
   );
 }
+
