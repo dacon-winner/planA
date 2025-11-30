@@ -12,6 +12,7 @@
  */
 
 import { StyleSheet, Dimensions } from "react-native";
+import { rootColors, brownColors, blackColors } from "@/commons/enums/color";
 
 const { height } = Dimensions.get("window");
 
@@ -21,7 +22,7 @@ export const styles = StyleSheet.create({
    */
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: blackColors["black-1"], // #ffffff
   },
 
   /**
@@ -62,7 +63,7 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 44,
     letterSpacing: -0.4,
-    color: "#5C5050", // gray/1 from Figma design
+    color: brownColors["brown-6"], // #524a4e (Figma gray/1 #5C5050와 가장 유사)
   },
 
   /**
@@ -75,7 +76,7 @@ export const styles = StyleSheet.create({
     fontWeight: "500",
     lineHeight: 28,
     letterSpacing: -0.24,
-    color: "#5C5050", // gray/1 from Figma design
+    color: brownColors["brown-6"], // #524a4e (Figma gray/1 #5C5050와 가장 유사)
   },
 
   /**
@@ -94,9 +95,9 @@ export const styles = StyleSheet.create({
   blurContainer: {
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ffffff",
+    borderColor: blackColors["black-1"], // #ffffff
     overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    backgroundColor: "rgba(255, 255, 255, 0.85)", // Glassmorphism 효과를 위한 투명도 포함
   },
 
   /**
@@ -144,7 +145,7 @@ export const styles = StyleSheet.create({
     fontWeight: "400",
     lineHeight: 20,
     letterSpacing: -0.1504,
-    color: "#524A4E", // root.text from Figma design
+    color: rootColors.text, // #524a4e
   },
 
   /**
@@ -156,7 +157,6 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 20,
     letterSpacing: -0.1504,
-    color: "#524A4E", // root.text from Figma design
+    color: rootColors.text, // #524a4e
   },
 });
-
