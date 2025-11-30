@@ -22,6 +22,13 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 const STATUSBAR_HEIGHT =
   Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
 
+// 동적 스타일 함수
+export const getDetailContentScrollStyle = (screenHeight: number) => ({
+  flex: 1,
+  paddingHorizontal: parseInt(spacing.lg),
+  height: screenHeight * 0.6,
+});
+
 export const styles = StyleSheet.create({
   'plan-detail-wrapper': {
     flex: 1,
