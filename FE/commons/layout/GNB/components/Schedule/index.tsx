@@ -108,12 +108,10 @@ export default function Schedule() {
                 date={plan.date}
                 location={plan.location}
                 budget={plan.budget}
-<<<<<<< HEAD
                 onSetRepresentative={() =>
                   handleSetRepresentative(plan.planName)
                 }
                 onViewDetails={() => handleViewDetails(plan.id)}
->>>>>>> 36af660c9ad0969818cfa274046e5d61497ee653
               />
             ))}
             <AddNewPlanCard onPress={handleAddNewPlan} />
