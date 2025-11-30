@@ -12,6 +12,11 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Global API Prefix 설정
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['/health', '/'], // health check는 prefix 제외
+  });
+
   // Global Validation Pipe 설정
   app.useGlobalPipes(
     new ValidationPipe({
@@ -36,4 +41,5 @@ async function bootstrap() {
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger documentation: http://localhost:${port}/api-docs`);
 }
-bootstrap();
+
+void bootstrap();

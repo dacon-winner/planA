@@ -18,6 +18,11 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 
 /* Layout */
 export const styles = StyleSheet.create({
+  'search-wrapper': {
+    flex: 1,
+    backgroundColor: colors.primary[400],
+  },
+
   'search-container': {
     flex: 1,
     backgroundColor: colors.secondary[50],

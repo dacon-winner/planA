@@ -34,10 +34,10 @@ export const TAB_LABELS = {
 } as const;
 
 export const TAB_ICON_NAMES = {
-  HOME: 'home',
-  SEARCH: 'search',
-  SCHEDULE: 'calendar',
-  MY_INFO: 'person',
+  HOME: 'Home',
+  SEARCH: 'Search',
+  SCHEDULE: 'CalendarDays',
+  MY_INFO: 'User',
 } as const;
 
 

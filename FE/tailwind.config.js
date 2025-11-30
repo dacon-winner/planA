@@ -45,6 +45,75 @@ module.exports = {
         warning: "#f59e0b",
         error: "#ef4444",
         info: "#3b82f6",
+        // 피그마 파운데이션 노드ID: 4193:3751
+        // Root 레벨 색상
+        root: {
+          brand: "#ff5c8d",
+          text: "#524a4e",
+          navigation: "#e5e7eb",
+          vector98: "#1f2024",
+          blue: "#2b7fff",
+          red: "#fb2c36",
+        },
+        // Foundation/Red 색상 팔레트
+        foundationRed: {
+          1: "#ffeff4",
+          2: "#ffd8e4",
+          3: "#ffb9ce",
+          4: "#ff98b7",
+          5: "#ff79a2",
+          6: "#ff5c8d",
+          7: "#d94e78",
+          8: "#b54164",
+          9: "#913450",
+          10: "#73293f",
+        },
+        // Foundation/Brown 색상 팔레트
+        foundationBrown: {
+          1: "#eeeded",
+          2: "#d5d4d5",
+          3: "#b5b1b3",
+          4: "#928d8f",
+          5: "#716b6e",
+          6: "#524a4e",
+          7: "#463f42",
+          8: "#3a3537",
+          9: "#2f2a2c",
+          10: "#252123",
+        },
+        // Foundation/Blue 색상 팔레트
+        foundationBlue: {
+          1: "#e9eaeb",
+          2: "#c9cccf",
+          3: "#9fa3a9",
+          4: "#727881",
+          5: "#47505b",
+          6: "#1f2937",
+          7: "#1a232f",
+          8: "#161d27",
+          9: "#12171f",
+          10: "#0e1219",
+        },
+        // Foundation/Black 색상 팔레트
+        foundationBlack: {
+          1: "#ffffff",
+          2: "#fcfcfc",
+          3: "#f5f5f5",
+          4: "#f0f0f0",
+          5: "#d9d9d9",
+          6: "#bfbfbf",
+          7: "#8c8c8c",
+          8: "#595959",
+          9: "#454545",
+          10: "#262626",
+          11: "#1f1f1f",
+          12: "#141414",
+          13: "#000000",
+        },
+        // 구분선 색상
+        divider: {
+          default: "#ADA2A233", // rgba(173, 162, 162, 0.2)
+        },
       },
       fontFamily: {
         sans: [
@@ -58,6 +127,7 @@ module.exports = {
         body: ["Pretendard", "SF Pro Text", "sans-serif"],
       },
       fontSize: {
+        // 피그마 파운데이션 노드ID: 4193:4398
         // Mobile Typography (13px ~ 24px)
         // T-Shirt Sizes: 3XL, 2XL, XL, L, M, S, XS
 
@@ -236,6 +306,7 @@ module.exports = {
           { lineHeight: "18px", letterSpacing: "0em", fontWeight: "800" },
         ],
 
+        // 피그마 파운데이션 노드ID: 4193:4398
         // PC Typography (16px ~ 64px)
         // T-Shirt Sizes: 4XL, 3XL, 2XL, XL, L, M, S, XS
 
