@@ -263,6 +263,7 @@ export const styles = StyleSheet.create({
   },
 
   'bottom-sheet-background': {
+    // backgroundColor: 'blue',
     backgroundColor: colors.black['black-1'], // var(--white, #FFF)
     borderTopLeftRadius: 32, // border-radius: 32px 32px 0 0
     borderTopRightRadius: 32,
@@ -282,11 +283,41 @@ export const styles = StyleSheet.create({
 
   'bottom-sheet-content': {
     flex: 1,
+    // backgroundColor: 'red'
   },
 
   'detail-content-scroll': {
     flex: 1,
     paddingHorizontal: parseInt(spacing.lg),
+  },
+
+  /* GNB 탭 바 (ScrollView 안쪽 복제) */
+  'gnb-tab-bar': {
+    height: 56,
+    backgroundColor: colors.secondary['secondary-50'],
+    borderTopWidth: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginTop: parseInt(spacing.md),
+    marginBottom: 0,
+  },
+
+  'gnb-tab-item': {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: parseInt(spacing.xs),
+    minHeight: 44, // 접근성 (터치 타겟 최소 44px)
+    flexDirection: 'column',
+  },
+
+  'gnb-tab-label': {
+    fontSize: parseInt(fontSize["mobile-xs"][0]),
+    fontWeight: fontSize["mobile-xs"][1].fontWeight,
+    fontFamily: "Pretendard",
+    color: "rgba(82, 74, 78, 0.5)", // inactive 색상
+    marginTop: parseInt(spacing.xs),
   },
 
   /* Detail Section (Bottom Sheet) */
@@ -308,7 +339,7 @@ export const styles = StyleSheet.create({
   'detail-section-header': {
     alignItems: 'center',
     marginBottom: parseInt(spacing.md),
-    paddingTop: parseInt(spacing.md), // 상단 padding 추가
+    paddingTop: parseInt(spacing.md), // ★ 공간 절약을 위해 sm에서 xs로 축소
     paddingHorizontal: parseInt(spacing.lg), // 좌우 padding 추가
     paddingBottom: parseInt(spacing.xs),
   },
@@ -485,7 +516,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     marginTop: parseInt(spacing.md), // 가격 정보와 버튼 사이 간격과 동일
     gap: parseInt(spacing.sm),
-    paddingBottom: 300, // 하단 여백 - 스크롤 영역에 확실히 포함되도록 충분히 크게
+    paddingBottom: 20, // 하단 여백 - 스크롤 영역에 확실히 포함되도록 충분히 크게
   },
 
   'ai-recommendations-title': {
