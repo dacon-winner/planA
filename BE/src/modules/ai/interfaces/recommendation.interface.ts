@@ -15,6 +15,28 @@ export interface RecommendationRequest {
 }
 
 /**
+ * OpenAI API 응답 형식
+ */
+export interface AiRecommendationResponse {
+  studio?: {
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null;
+  dress?: {
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null;
+  makeup?: {
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null;
+  overall_reason?: string;
+}
+
+/**
  * 단일 업체 추천 결과
  */
 export interface VendorRecommendation {
@@ -45,4 +67,3 @@ export interface VendorCombinationRecommendation {
   /** 전체 추천 이유 */
   overall_reason?: string;
 }
-

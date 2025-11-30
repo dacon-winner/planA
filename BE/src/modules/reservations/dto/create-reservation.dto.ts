@@ -1,39 +1,38 @@
-import { IsString, IsUUID, IsDateString, IsOptional, IsInt, Min, Matches } from 'class-validator';
+import { IsUUID, IsString, IsNotEmpty, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * 예약 생성 DTO
+ * @description 플랜 내에서 예약을 생성할 때 사용하는 DTO
  */
 export class CreateReservationDto {
+  @ApiProperty({
+    description: '업체 ID',
+    example: '550e8400-e29b-41d4-a716-446655440001',
+  })
   @IsUUID()
+  @IsNotEmpty()
   vendor_id: string;
 
-  @IsOptional()
-  @IsUUID()
-  plan_id?: string;
-
-  @IsDateString()
-  reservation_date: string; // YYYY-MM-DD 형식
-
-  @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-    message: 'reservation_time must be in HH:mm format',
+  @ApiProperty({
+    description: '예약 날짜 (yy-mm-dd 형식)',
+    example: '25-12-25',
   })
-  reservation_time: string; // HH:mm 형식 (예: 09:00, 14:00)
-
-  @IsOptional()
   @IsString()
-  visitor_name?: string;
+  @IsNotEmpty()
+  @Matches(/^\d{2}-\d{2}-\d{2}$/, {
+    message: 'reservation_date는 yy-mm-dd 형식이어야 합니다.',
+  })
+  reservation_date: string;
 
-  @IsOptional()
+  @ApiProperty({
+    description: '예약 시간 (hh:mm 형식)',
+    example: '14:00',
+  })
   @IsString()
-  visitor_phone?: string;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  visitor_count?: number;
-
-  @IsOptional()
-  @IsString()
-  memo?: string;
+  @IsNotEmpty()
+  @Matches(/^\d{2}:\d{2}$/, {
+    message: 'reservation_time은 hh:mm 형식이어야 합니다.',
+  })
+  reservation_time: string;
 }
-

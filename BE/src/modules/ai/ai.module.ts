@@ -16,4 +16,3 @@ import { AiLog } from '../../entities/ai-log.entity';
   exports: [AiService],
 })
 export class AiModule {}
-

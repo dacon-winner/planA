@@ -8,7 +8,7 @@ import { AiLog } from '../../entities/ai-log.entity';
 import {
   RecommendationRequest,
   VendorCombinationRecommendation,
-  VendorRecommendation,
+  AiRecommendationResponse,
 } from './interfaces';
 
 /**
@@ -63,7 +63,9 @@ export class AiService {
       this.logger.log(`스드메 추천 완료: userId=${userId}`);
       return recommendation;
     } catch (error) {
-      this.logger.error(`스드메 추천 실패: ${error.message}`, error.stack);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`스드메 추천 실패: ${errorMessage}`, errorStack);
       // 에러 발생 시 빈 추천 반환
       return {
         studio: null,
@@ -171,7 +173,7 @@ export class AiService {
 
       const responseTime = Date.now() - startTime;
       const responseContent = completion.choices[0].message.content || '{}';
-      const recommendation = JSON.parse(responseContent);
+      const recommendation = JSON.parse(responseContent) as AiRecommendationResponse;
 
       // AI 로그 저장
       await this.saveAiLog({
@@ -189,7 +191,8 @@ export class AiService {
       // 응답 파싱 및 검증
       return this.parseRecommendation(recommendation, candidates);
     } catch (error) {
-      this.logger.error(`OpenAI API 호출 실패: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      this.logger.error(`OpenAI API 호출 실패: ${errorMessage}`);
       throw error;
     }
   }
@@ -274,7 +277,7 @@ export class AiService {
    * AI 응답 파싱 및 검증
    */
   private parseRecommendation(
-    response: any,
+    response: AiRecommendationResponse,
     candidates: Record<string, AiResource[]>,
   ): VendorCombinationRecommendation {
     const result: VendorCombinationRecommendation = {
@@ -287,22 +290,24 @@ export class AiService {
 
     // 각 카테고리별로 추천 결과 검증
     for (const category of ['studio', 'dress', 'makeup'] as const) {
-      if (response[category] && response[category].vendor_id) {
+      const categoryResponse = response[category];
+
+      if (categoryResponse && categoryResponse.vendor_id) {
         // vendor_id가 실제 후보 목록에 있는지 확인
         const candidate = candidates[category].find(
-          (c) => c.vendor_id === response[category].vendor_id,
+          (c) => c.vendor_id === categoryResponse.vendor_id,
         );
 
         if (candidate) {
           result[category] = {
             vendor_id: candidate.vendor_id,
             category: category.toUpperCase(),
-            name: response[category].name || candidate.name,
-            selection_reason: response[category].selection_reason || '추천 업체입니다.',
+            name: categoryResponse.name || candidate.name,
+            selection_reason: categoryResponse.selection_reason || '추천 업체입니다.',
           };
         } else {
           this.logger.warn(
-            `AI가 추천한 ${category} 업체(${response[category].vendor_id})가 후보 목록에 없습니다.`,
+            `AI가 추천한 ${category} 업체(${categoryResponse.vendor_id})가 후보 목록에 없습니다.`,
           );
         }
       }
@@ -317,7 +322,7 @@ export class AiService {
   private async saveAiLog(logData: {
     user_id: string;
     request_prompt: string;
-    response_result: any;
+    response_result: AiRecommendationResponse;
     model_name: string;
     input_tokens: number;
     output_tokens: number;
@@ -327,8 +332,8 @@ export class AiService {
       const log = this.aiLogRepository.create(logData);
       await this.aiLogRepository.save(log);
     } catch (error) {
-      this.logger.error(`AI 로그 저장 실패: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      this.logger.error(`AI 로그 저장 실패: ${errorMessage}`);
     }
   }
 }
-
