@@ -14,7 +14,10 @@
 
 import React, { useState } from "react";
 import { View, Text, ScrollView } from "react-native";
-import { StepperWithContext } from "@/commons/components/stepper";
+import {
+  StepperWithContext,
+  useStepperContext,
+} from "@/commons/components/stepper";
 import { Calendar } from "@/commons/components/calendar";
 import { GradientBackground } from "@/commons/components/gradient-background";
 import { styles } from "./styles";
@@ -42,6 +45,60 @@ export interface WeddingFormData {
 }
 
 /**
+ * Step 1: 결혼 예정일 입력 컴포넌트
+ */
+interface DateStepProps {
+  selectedDate: Date | null;
+  onDateSelect: (date: Date) => void;
+}
+
+const DateStep: React.FC<DateStepProps> = ({ selectedDate, onDateSelect }) => {
+  const { goToNextStep } = useStepperContext();
+
+  const handleDateSelect = (date: Date) => {
+    onDateSelect(date);
+    // 날짜 선택 후 자동으로 다음 단계로 이동
+    setTimeout(() => {
+      goToNextStep();
+    }, 300);
+  };
+
+  return (
+    <View style={styles.calendarWrapper}>
+      <View style={styles.calendarCard}>
+        <Calendar
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+          subtitle="날짜를 선택하세요"
+        />
+      </View>
+    </View>
+  );
+};
+
+/**
+ * Step 2: 희망 지역 입력 컴포넌트 (미구현)
+ */
+const RegionStep: React.FC = () => {
+  return (
+    <View>
+      <Text>희망 지역 입력 (미구현)</Text>
+    </View>
+  );
+};
+
+/**
+ * Step 3: 예상 예산 입력 컴포넌트 (미구현)
+ */
+const BudgetStep: React.FC = () => {
+  return (
+    <View>
+      <Text>예상 예산 입력 (미구현)</Text>
+    </View>
+  );
+};
+
+/**
  * WeddingForm Component
  * 결혼 준비를 위한 다단계 폼
  * - Step 1: 결혼 예정일 입력
@@ -60,6 +117,19 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   });
 
   /**
+   * 날짜를 "YYYY년 M월 D일" 형식으로 포맷
+   */
+  const formatDate = (date: Date | null): string => {
+    if (!date) return "결혼 예정일 입력";
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    return `${year}년 ${month}월 ${day}일`;
+  };
+
+  /**
    * 날짜 선택 핸들러
    */
   const handleDateSelect = (date: Date) => {
@@ -73,51 +143,10 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
     }
   };
 
-  /**
-   * Step 1: 결혼 예정일 입력 컨텐츠
-   */
-  const renderDateStep = () => {
-    return (
-      <View style={styles.calendarWrapper}>
-        <View style={styles.calendarCard}>
-          <View style={styles.calendarInnerContainer}>
-            <Calendar
-              selectedDate={formData.weddingDate}
-              onDateSelect={handleDateSelect}
-              subtitle="날짜를 선택하세요"
-            />
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  /**
-   * Step 2: 희망 지역 입력 컨텐츠 (미구현)
-   */
-  const renderRegionStep = () => {
-    return (
-      <View>
-        <Text>희망 지역 입력 (미구현)</Text>
-      </View>
-    );
-  };
-
-  /**
-   * Step 3: 예상 예산 입력 컨텐츠 (미구현)
-   */
-  const renderBudgetStep = () => {
-    return (
-      <View>
-        <Text>예상 예산 입력 (미구현)</Text>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
       {/* Background */}
-      <GradientBackground top={190} zIndex={-1} />
+      <GradientBackground top={0} zIndex={-1} />
 
       {/* Content */}
       <ScrollView
@@ -129,7 +158,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
           {/* Header */}
           <View style={styles.headerContainer}>
             <Text style={styles.titleText}>
-              PlanA와 함께 결혼 준비를 시작해보세요.
+              PlanA와 함께{"\n"}결혼 준비를 시작해보세요.
             </Text>
           </View>
 
@@ -139,16 +168,21 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
               <StepperWithContext
                 steps={[
                   {
-                    title: "결혼 예정일 입력",
-                    content: renderDateStep(),
+                    title: formatDate(formData.weddingDate),
+                    content: (
+                      <DateStep
+                        selectedDate={formData.weddingDate}
+                        onDateSelect={handleDateSelect}
+                      />
+                    ),
                   },
                   {
                     title: "희망 지역 입력",
-                    content: renderRegionStep(),
+                    content: <RegionStep />,
                   },
                   {
                     title: "예상 예산 입력",
-                    content: renderBudgetStep(),
+                    content: <BudgetStep />,
                   },
                 ]}
                 currentStep={0}
@@ -158,6 +192,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
                 }}
                 onStepComplete={(stepIndex) => {
                   console.log("Step completed:", stepIndex);
+                  console.log("Form data:", formData);
                 }}
               />
             </View>
@@ -169,4 +204,3 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 };
 
 export default WeddingForm;
-
