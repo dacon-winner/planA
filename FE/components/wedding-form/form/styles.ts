@@ -31,6 +31,7 @@ export const styles = StyleSheet.create({
    */
   container: {
     flex: 1,
+    backgroundColor: "transparent",
     width: "100%",
     minHeight: 852,
   },
@@ -63,6 +64,7 @@ export const styles = StyleSheet.create({
    */
   innerContainer: {
     width: "100%",
+    backgroundColor: "transparent",
     paddingTop: 59,
     paddingBottom: 20,
     gap: 18,
@@ -122,6 +124,7 @@ export const styles = StyleSheet.create({
    */
   stepperWrapper: {
     width: "100%",
+    backgroundColor: "transparent",
     paddingHorizontal: 0,
   },
 
@@ -167,6 +170,79 @@ export const styles = StyleSheet.create({
     elevation: 3,
     // React Native에서는 mix-blend-mode 미지원으로 opacity만 적용
     opacity: 0.95,
+    overflow: "visible",
+  },
+
+  /* ========================================
+   * REGION STEP STYLES
+   * ======================================== */
+
+  /**
+   * Region Wrapper
+   * 지역 선택 영역 래퍼
+   */
+  regionWrapper: {
+    width: "100%",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    overflow: "visible",
+  },
+
+  /**
+   * Region Card
+   * 지역 선택 카드 배경
+   * 피그마: width 345px, height 416px
+   * 스크롤 영역: left 25px, top 24px, width 295px
+   * borderRadius 12px, border white, opacity 0.85
+   */
+  regionCard: {
+    width: "100%",
+    maxWidth: 345, // Figma design width - shows 2 columns per page
+    height: "auto", // 버튼이 잘리지 않도록 높이 증가
+    backgroundColor: colors.foundationBlack[1], // white
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.foundationBlack[1],
+    paddingLeft: 25,
+    paddingRight: 0,
+    paddingTop: 22,
+    paddingBottom: 22, // 하단 여유 공간
+    shadowColor: colors.foundationRed[10],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    opacity: 0.85,
+    overflow: "hidden",
+  },
+
+  /**
+   * Region Page
+   * 각 페이지 (2열 x 4행 = 8개 버튼)
+   * 카드 콘텐츠 영역 너비에 맞춰 설정 (345 - 25 = 320px)
+   */
+  regionPage: {
+    width: 320, // 카드 콘텐츠 영역 width (maxWidth 345 - paddingLeft 25)
+    paddingRight: 25, // 오른쪽 여백 (버튼과 카드 경계 사이)
+    marginRight: 0, // 페이지 간 간격 없음 (페이징을 위해)
+  },
+
+  /**
+   * Region Grid Container
+   * 지역 선택 그리드 레이아웃
+   * 피그마: 2열 4행, gap 12px
+   */
+  regionGridContainer: {
+    flexDirection: "column",
+    gap: 12,
+  },
+
+  regionRow: {
+    flexDirection: "row",
+    gap: 12,
   },
 });
 
