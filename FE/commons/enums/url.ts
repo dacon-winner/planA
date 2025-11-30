@@ -27,7 +27,7 @@ export const URL_PATHS = {
   /** 로그인 */
   AUTH_LOGIN: "/auth/login",
   /** 회원가입 */
-  AUTH_SIGNUP: "/auth/signup",
+  AUTH_SIGNUP: "/auth/sign-up",
   /** 폼 페이지 */
   FORM: "/form",
   /** 폼 로딩 페이지 */
