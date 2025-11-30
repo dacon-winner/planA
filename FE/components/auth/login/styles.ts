@@ -45,12 +45,13 @@ export const styles = StyleSheet.create({
 
   /**
    * 타이틀 컨테이너
+   * Figma: top 143px, left 24px, px 16px, width 345px
    */
   titleContainer: {
     marginTop: 143,
-    paddingHorizontal: 40,
-    width: "100%",
-    maxWidth: 345,
+    marginLeft: 24,
+    paddingHorizontal: 16,
+    width: 345,
   },
 
   /**
@@ -81,9 +82,13 @@ export const styles = StyleSheet.create({
 
   /**
    * 카드 래퍼
+   * Figma: top 250px (타이틀 끝 215px 기준 35px 간격)
+   * 타이틀: 143 + (44 + 28) = 215px
+   * 카드 top: 250px
+   * 간격: 250 - 215 = 35px
    */
   cardWrapper: {
-    marginTop: 60,
+    marginTop: 35,
     width: "100%",
     maxWidth: 353,
     paddingHorizontal: 20,

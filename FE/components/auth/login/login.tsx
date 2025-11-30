@@ -37,7 +37,7 @@ import { styles } from "./styles";
  */
 export const Login: React.FC = () => {
   const router = useRouter();
-  
+
   // 폼 상태 관리
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -113,11 +113,7 @@ export const Login: React.FC = () => {
                 {/* 버튼 영역 */}
                 <View style={styles.buttonSection}>
                   {/* 로그인 버튼 */}
-                  <Button
-                    variant="filled"
-                    size="small"
-                    onPress={handleLogin}
-                  >
+                  <Button variant="filled" size="medium" onPress={handleLogin}>
                     로그인
                   </Button>
 
@@ -145,4 +141,3 @@ export const Login: React.FC = () => {
 };
 
 export default Login;
-
