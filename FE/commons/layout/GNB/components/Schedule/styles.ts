@@ -36,13 +36,11 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
 
-  'header-gradient': {
+  /* 배경 그라데이션 */
+  'background-gradient': {
     position: 'absolute',
-    top: -42,
-    left: 29,
-    width: 309,
-    height: 315.536,
-    resizeMode: 'cover',
+    top: 0,
+    left: 0,
     zIndex: 0,
   },
 
@@ -64,8 +62,8 @@ export const styles = StyleSheet.create({
   },
 
   'schedule-content-container': {
-    padding: parseInt(spacing.lg),
-    paddingTop: parseInt(spacing.xl),
+    paddingHorizontal: parseInt(spacing.lg),
+    paddingTop: parseInt(spacing.md),
   },
 
   /* Components */

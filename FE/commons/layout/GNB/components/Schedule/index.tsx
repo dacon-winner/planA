@@ -74,7 +74,7 @@ export default function Schedule() {
       {/* 배경 그라데이션 */}
       <Image
         source={require('@/assets/Gradient.png')}
-        style={styles['header-gradient']}
+        style={styles['background-gradient']}
       />
 
       <SafeAreaView style={styles['safe-area']}>
