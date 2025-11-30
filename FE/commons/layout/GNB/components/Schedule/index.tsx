@@ -12,15 +12,15 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView, SafeAreaView, Image } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
-import { styles } from './styles';
-import { PlannerCard } from '../MyInfo/components/planner-card';
-import { AddNewPlanCard } from '../MyInfo/components/add-new-plan-card';
-import { useModal } from '@/commons/providers/modal/modal.provider';
-import { NewPlanModalContent } from '@/commons/components/modal/NewPlanModal';
-import { getPlanDetailUrl } from '@/commons/enums/url';
+import { View, Text, ScrollView, SafeAreaView, Image } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useRouter } from "expo-router";
+import { styles } from "./styles";
+import { PlannerCard } from "../MyInfo/components/planner-card";
+import { AddNewPlanCard } from "../MyInfo/components/add-new-plan-card";
+import { useModal } from "@/commons/providers/modal/modal.provider";
+import { NewPlanModalContent } from "@/commons/components/modal/NewPlanModal";
+import { getPlanDetailUrl } from "@/commons/enums/url";
 
 export default function Schedule() {
   const { openModal } = useModal();
@@ -29,22 +29,22 @@ export default function Schedule() {
   // TODO: 실제 데이터로 교체 필요
   const plans = [
     {
-      id: '1',
-      planName: '플랜 A',
+      id: "1",
+      planName: "플랜 A",
       isAi: true,
       isRepresentative: true,
-      date: '2026년 3월 28일 토요일',
-      location: '서울특별시 강남구',
-      budget: '5,000만원',
+      date: "2026년 3월 28일 토요일",
+      location: "서울특별시 강남구",
+      budget: "5,000만원",
     },
     {
-      id: '2',
-      planName: '플랜 B',
+      id: "2",
+      planName: "플랜 B",
       isAi: false,
       isRepresentative: false,
-      date: '2026년 6월 19일 토요일',
-      location: '서울특별시 용산구',
-      budget: '7,500만원',
+      date: "2026년 6월 19일 토요일",
+      location: "서울특별시 용산구",
+      budget: "7,500만원",
     },
   ];
 
@@ -63,41 +63,41 @@ export default function Schedule() {
     openModal(
       <NewPlanModalContent
         onManualAdd={() => {
-          console.log('직접 업체 추가');
+          console.log("직접 업체 추가");
         }}
         onAIGenerate={(planName: string) => {
-          console.log('AI 플랜 생성:', planName);
+          console.log("AI 플랜 생성:", planName);
         }}
       />
     );
   };
 
   return (
-    <View style={styles['schedule-wrapper']}>
+    <View style={styles["schedule-wrapper"]}>
       <StatusBar style="dark" translucent backgroundColor="transparent" />
-      
+
       {/* 배경 그라데이션 */}
       <Image
-        source={require('@/assets/Gradient.png')}
-        style={styles['background-gradient']}
+        source={require("@/assets/Gradient.png")}
+        style={styles["background-gradient"]}
       />
 
-      <SafeAreaView style={styles['safe-area']}>
-        <View style={styles['schedule-container']}>
+      <SafeAreaView style={styles["safe-area"]}>
+        <View style={styles["schedule-container"]}>
           {/* Header with Gradient */}
-          <View style={styles['schedule-header']}>
-            <View style={styles['header-content']}>
-              <Text style={styles['schedule-header-title']}>
+          <View style={styles["schedule-header"]}>
+            <View style={styles["header-content"]}>
+              <Text style={styles["schedule-header-title"]}>
                 나의 플랜 관리
               </Text>
-              <Text style={styles['schedule-header-subtitle']}>D-0일</Text>
+              <Text style={styles["schedule-header-subtitle"]}>D-0일</Text>
             </View>
           </View>
 
           {/* Content: Plan Cards */}
           <ScrollView
-            style={styles['schedule-content']}
-            contentContainerStyle={styles['schedule-content-container']}
+            style={styles["schedule-content"]}
+            contentContainerStyle={styles["schedule-content-container"]}
           >
             {plans.map((plan, index) => (
               <PlannerCard
@@ -108,8 +108,12 @@ export default function Schedule() {
                 date={plan.date}
                 location={plan.location}
                 budget={plan.budget}
-                onSetRepresentative={() => handleSetRepresentative(plan.planName)}
+<<<<<<< HEAD
+                onSetRepresentative={() =>
+                  handleSetRepresentative(plan.planName)
+                }
                 onViewDetails={() => handleViewDetails(plan.id)}
+>>>>>>> 36af660c9ad0969818cfa274046e5d61497ee653
               />
             ))}
             <AddNewPlanCard onPress={handleAddNewPlan} />
@@ -119,7 +123,3 @@ export default function Schedule() {
     </View>
   );
 }
-
-
-
-
