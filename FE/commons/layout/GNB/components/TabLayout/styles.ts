@@ -24,7 +24,7 @@ export const tabLayoutStyles = {
     tabBarStyle: {
       backgroundColor: colors.secondary[50],
       borderTopWidth: 0,
-      height: 56,
+      height: 65,
     },
     tabBarLabelStyle: {
       fontSize: parseInt(fontSize["mobile-xs"][0]),

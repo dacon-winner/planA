@@ -293,35 +293,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: parseInt(spacing.lg),
   },
 
-  /* GNB 탭 바 (ScrollView 안쪽 복제) */
-  'gnb-tab-bar': {
-    height: 56,
-    backgroundColor: colors.secondary['secondary-50'],
-    borderTopWidth: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    marginTop: parseInt(spacing.md),
-    marginBottom: 0,
-  },
-
-  'gnb-tab-item': {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: parseInt(spacing.xs),
-    minHeight: 44, // 접근성 (터치 타겟 최소 44px)
-    flexDirection: 'column',
-  },
-
-  'gnb-tab-label': {
-    fontSize: parseInt(fontSize["mobile-xs"][0]),
-    fontWeight: fontSize["mobile-xs"][1].fontWeight,
-    fontFamily: "Pretendard",
-    color: "rgba(82, 74, 78, 0.5)", // inactive 색상
-    marginTop: parseInt(spacing.xs),
-  },
-
   /* Detail Section (Bottom Sheet) */
   'detail-section': {
     backgroundColor: colors.black['black-1'],
@@ -545,3 +516,4 @@ export const styles = StyleSheet.create({
     borderRadius: 0,
   },
 });
+

@@ -57,7 +57,14 @@ export default function TabLayout() {
             <Ionicons name={TAB_ICON_NAMES.MY_INFO} size={size} color={color} />
           ),
         }}
-      /> 
+      />
+      {/* 플랜 상세 페이지 - 탭 바에는 표시하지 않음 */}
+      <Tabs.Screen
+        name="plans/[id]/index"
+        options={{
+          href: null, // 탭 바에서 숨김
+        }}
+      />
     </Tabs>
   );
 }
