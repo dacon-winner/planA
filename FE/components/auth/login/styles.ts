@@ -40,18 +40,16 @@ export const styles = StyleSheet.create({
     width: "100%",
     minHeight: height,
     justifyContent: "flex-start",
-    alignItems: "center",
   },
 
   /**
    * 타이틀 컨테이너
-   * Figma: top 143px, left 24px, px 16px, width 345px
+   * Figma: top 143px, left 24px, width는 내용 기준 (자동)
    */
   titleContainer: {
     marginTop: 143,
-    marginLeft: 24,
-    paddingHorizontal: 16,
-    width: 345,
+    marginHorizontal: 24,
+    alignSelf: "stretch",
   },
 
   /**
@@ -82,16 +80,15 @@ export const styles = StyleSheet.create({
 
   /**
    * 카드 래퍼
-   * Figma: top 250px (타이틀 끝 215px 기준 35px 간격)
+   * Figma: left 20px, top 250px, width 353px, height 329px
    * 타이틀: 143 + (44 + 28) = 215px
    * 카드 top: 250px
    * 간격: 250 - 215 = 35px
    */
   cardWrapper: {
     marginTop: 35,
-    width: "100%",
-    maxWidth: 353,
-    paddingHorizontal: 20,
+    marginHorizontal: 20,
+    alignSelf: "stretch",
   },
 
   /**
@@ -107,10 +104,15 @@ export const styles = StyleSheet.create({
 
   /**
    * 카드 내용
+   * Figma: left 27px, top 20px, width 296px
+   * 카드 width 353px - 내용 width 296px = 57px
+   * left 27px이므로 right는 30px
    */
   cardContent: {
-    padding: 20,
-    paddingHorizontal: 27,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingLeft: 27,
+    paddingRight: 30,
     gap: 40,
   },
 
