@@ -13,7 +13,14 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, ScrollView, Image, SafeAreaView, Animated } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  SafeAreaView,
+  Animated,
+} from "react-native";
 import { useRouter } from "expo-router";
 import {
   StepperWithContext,
@@ -365,13 +372,17 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
   /**
    * 폼 완료 시 분석하기 버튼 페이드인 애니메이션
+   * 타이밍: 예산 선택 후 300ms 디바운싱 + 300ms 스텝퍼 닫힘 애니메이션 = 600ms
+   * 버튼 애니메이션: 300ms delay (스텝퍼 닫힘 시작 시점) + 300ms duration
    */
   useEffect(() => {
     if (isFormComplete) {
-      // 0.3초 동안 opacity 0 -> 1 애니메이션
+      // 300ms delay 후 0.3초 동안 opacity 0 -> 1 애니메이션
+      // (스텝퍼가 닫히기 시작할 때 버튼이 나타나기 시작)
       Animated.timing(buttonOpacity, {
         toValue: 1,
         duration: 300,
+        delay: 300,
         useNativeDriver: true,
       }).start();
     } else {
@@ -477,10 +488,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
       {isFormComplete && (
         <Animated.View
-          style={[
-            styles.analyzeButtonWrapper,
-            { opacity: buttonOpacity },
-          ]}
+          style={[styles.analyzeButtonWrapper, { opacity: buttonOpacity }]}
         >
           <SafeAreaView>
             <View style={styles.analyzeButtonContainer}>
