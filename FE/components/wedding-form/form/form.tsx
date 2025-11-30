@@ -12,8 +12,8 @@
  * [✓] 피그마 구조 대비 누락 섹션 없음
  */
 
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Image, SafeAreaView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, ScrollView, Image, SafeAreaView, Animated } from "react-native";
 import { useRouter } from "expo-router";
 import {
   StepperWithContext,
@@ -268,6 +268,9 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
+  // 분석하기 버튼 애니메이션
+  const buttonOpacity = useRef(new Animated.Value(0)).current;
+
   /**
    * formData 변경 시 완료 상태 자동 업데이트
    * budget이 null이 아니면 모든 단계가 완료된 것으로 간주
@@ -359,6 +362,23 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
     formData.weddingDate !== null &&
     formData.region !== null &&
     formData.budget !== null;
+
+  /**
+   * 폼 완료 시 분석하기 버튼 페이드인 애니메이션
+   */
+  useEffect(() => {
+    if (isFormComplete) {
+      // 0.3초 동안 opacity 0 -> 1 애니메이션
+      Animated.timing(buttonOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // 폼이 완료되지 않았으면 버튼 숨김
+      buttonOpacity.setValue(0);
+    }
+  }, [isFormComplete, buttonOpacity]);
 
   /**
    * 분석하기 버튼 클릭 핸들러
@@ -456,13 +476,20 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
       {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
       {isFormComplete && (
-        <SafeAreaView style={styles.analyzeButtonWrapper}>
-          <View style={styles.analyzeButtonContainer}>
-            <Button variant="filled" size="large" onPress={handleAnalyze}>
-              분석하기
-            </Button>
-          </View>
-        </SafeAreaView>
+        <Animated.View
+          style={[
+            styles.analyzeButtonWrapper,
+            { opacity: buttonOpacity },
+          ]}
+        >
+          <SafeAreaView>
+            <View style={styles.analyzeButtonContainer}>
+              <Button variant="filled" size="large" onPress={handleAnalyze}>
+                분석하기
+              </Button>
+            </View>
+          </SafeAreaView>
+        </Animated.View>
       )}
     </View>
   );
