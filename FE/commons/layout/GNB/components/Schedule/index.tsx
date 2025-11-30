@@ -17,8 +17,12 @@ import { StatusBar } from 'expo-status-bar';
 import { styles } from './styles';
 import { PlannerCard } from '../MyInfo/components/planner-card';
 import { AddNewPlanCard } from '../MyInfo/components/add-new-plan-card';
+import { useModal } from '@/commons/providers/modal/modal.provider';
+import { NewPlanModalContent } from '@/commons/components/modal/NewPlanModal';
 
 export default function Schedule() {
+  const { openModal } = useModal();
+
   // TODO: 실제 데이터로 교체 필요
   const plans = [
     {
@@ -50,21 +54,33 @@ export default function Schedule() {
   };
 
   const handleAddNewPlan = () => {
-    // TODO: 새 플랜 추가 로직 구현
-    console.log('새 플랜 추가');
+    // NewPlanModal 열기
+    openModal(
+      <NewPlanModalContent
+        onManualAdd={() => {
+          console.log('직접 업체 추가');
+        }}
+        onAIGenerate={(planName: string) => {
+          console.log('AI 플랜 생성:', planName);
+        }}
+      />
+    );
   };
 
   return (
     <View style={styles['schedule-wrapper']}>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      
+      {/* 배경 그라데이션 */}
+      <Image
+        source={require('@/assets/Gradient.png')}
+        style={styles['header-gradient']}
+      />
+
       <SafeAreaView style={styles['safe-area']}>
-        <StatusBar style="auto" />
         <View style={styles['schedule-container']}>
           {/* Header with Gradient */}
           <View style={styles['schedule-header']}>
-            <Image
-              source={require('@/assets/Gradient.png')}
-              style={styles['header-gradient']}
-            />
             <View style={styles['header-content']}>
               <Text style={styles['schedule-header-title']}>
                 나의 플랜 관리
