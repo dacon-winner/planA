@@ -19,6 +19,8 @@ import {
   useStepperContext,
 } from "@/commons/components/stepper";
 import { Calendar } from "@/commons/components/calendar";
+import { SelectButton } from "@/commons/components/select-button";
+import { MapPin } from "lucide-react-native";
 import { styles } from "./styles";
 
 /**
@@ -76,12 +78,115 @@ const DateStep: React.FC<DateStepProps> = ({ selectedDate, onDateSelect }) => {
 };
 
 /**
- * Step 2: 희망 지역 입력 컴포넌트 (미구현)
+ * Step 2: 희망 지역 입력 컴포넌트
  */
-const RegionStep: React.FC = () => {
+interface RegionStepProps {
+  selectedRegion: string | null;
+  onRegionSelect: (region: string) => void;
+}
+
+const RegionStep: React.FC<RegionStepProps> = ({
+  selectedRegion,
+  onRegionSelect,
+}) => {
+  const { goToNextStep } = useStepperContext();
+
+  // 서울시 25개 구 목록
+  const regions = [
+    "강남구",
+    "서초구",
+    "마포구",
+    "서대문구",
+    "노원구",
+    "은평구",
+    "양천구",
+    "송파구",
+    "강동구",
+    "종로구",
+    "동대문구",
+    "영등포구",
+    "동작구",
+    "광진구",
+    "성동구",
+    "중랑구",
+    "성북구",
+    "관악구",
+    "금천구",
+    "중구",
+    "용산구",
+    "강북구",
+    "도봉구",
+    "구로구",
+    "강서구",
+  ];
+
+  const handleRegionSelect = (region: string) => {
+    onRegionSelect(region);
+    // 지역 선택 후 자동으로 다음 단계로 이동
+    setTimeout(() => {
+      goToNextStep();
+    }, 300);
+  };
+
+  // 각 페이지에 2열 x 4행 = 8개씩 버튼 배치 (달력처럼 페이지 단위로 스냅)
+  const pages: string[][] = [];
+  for (let i = 0; i < regions.length; i += 8) {
+    pages.push(regions.slice(i, i + 8));
+  }
+
   return (
-    <View>
-      <Text>희망 지역 입력 (미구현)</Text>
+    <View style={styles.regionWrapper}>
+      <View style={styles.regionCard}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToAlignment="start"
+          bounces={false}
+        >
+          {pages.map((pageRegions, pageIndex) => (
+            <View key={pageIndex} style={styles.regionPage}>
+              <View style={styles.regionGridContainer}>
+                {Array.from({ length: 4 }).map((_, rowIndex) => {
+                  const startIdx = rowIndex * 2;
+                  const rowRegions = pageRegions.slice(startIdx, startIdx + 2);
+
+                  if (rowRegions.length === 0) return null;
+
+                  return (
+                    <View key={rowIndex} style={styles.regionRow}>
+                      {rowRegions.map((region) => (
+                        <SelectButton
+                          key={region}
+                          value={region}
+                          label={region}
+                          size="medium"
+                          state={
+                            selectedRegion === region ? "selected" : "default"
+                          }
+                          icon={
+                            <MapPin
+                              size={20}
+                              color={
+                                selectedRegion === region
+                                  ? "#861043"
+                                  : "#d5d4d5"
+                              }
+                            />
+                          }
+                          onSelect={() => handleRegionSelect(region)}
+                        />
+                      ))}
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
     </View>
   );
 };
@@ -178,8 +283,15 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
                     ),
                   },
                   {
-                    title: "희망 지역 입력",
-                    content: <RegionStep />,
+                    title: formData.region || "희망 지역 입력",
+                    content: (
+                      <RegionStep
+                        selectedRegion={formData.region}
+                        onRegionSelect={(region) =>
+                          setFormData((prev) => ({ ...prev, region }))
+                        }
+                      />
+                    ),
                   },
                   {
                     title: "예상 예산 입력",
