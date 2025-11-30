@@ -10,12 +10,15 @@
  * - [x] 반응형/접근성 고려
  */
 
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform, StatusBar } from 'react-native';
 import { colors } from '@/commons/enums/color';
 
 const tailwindConfig = require('@/tailwind.config.js');
 const spacing = tailwindConfig.theme.extend.spacing;
 const fontSize = tailwindConfig.theme.extend.fontSize;
+
+const STATUSBAR_HEIGHT =
+  Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 0;
 
 /* Layout */
 export const styles = StyleSheet.create({
@@ -24,36 +27,16 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.black['black-1'],
   },
 
-  'schedule-container': {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-
   'schedule-header': {
-    height: 102,
-    overflow: 'hidden',
     position: 'relative',
-    backgroundColor: 'transparent',
+    paddingHorizontal: 0,
+    paddingTop: STATUSBAR_HEIGHT + 60,
+    paddingBottom: parseInt(spacing.sm),
   },
 
-  /* 배경 그라데이션 */
-  'background-gradient': {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    zIndex: 0,
-  },
-
-  'header-content': {
-    paddingHorizontal: parseInt(spacing.lg),
-    paddingTop: parseInt(spacing.lg),
-    paddingBottom: parseInt(spacing.lg),
-    flexDirection: 'column',
-    gap: parseInt(spacing.sm),
-    position: 'relative',
+  'header-section': {
+    gap: 4,
     zIndex: 1,
-    justifyContent: 'center',
-    flex: 1,
   },
 
   'schedule-content': {
@@ -62,8 +45,9 @@ export const styles = StyleSheet.create({
   },
 
   'schedule-content-container': {
-    paddingHorizontal: parseInt(spacing.lg),
-    paddingTop: parseInt(spacing.md),
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 0,
   },
 
   /* Components */
@@ -87,10 +71,6 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-m'][1].fontWeight,
     color: colors.brown['brown-6'],
     fontFamily: 'Pretendard',
-  },
-
-  'safe-area': {
-    flex: 1,
   },
 });
 

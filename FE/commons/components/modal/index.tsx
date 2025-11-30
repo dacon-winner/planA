@@ -23,7 +23,7 @@ import { styles } from './styles';
 
 export { PlanAddModal } from './PlanAddModal';
 export { ErrorModal } from './ErrorModal';
-export { NewPlanModal } from './NewPlanModal';
+export { NewPlanModal, NewPlanModalContent } from './NewPlanModal';
 export { EditModal } from './EditModal';
 
 /**
