@@ -1,15 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  IsDateString,
-  IsInt,
-  Min,
-  Matches,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsEnum } from 'class-validator';
 
+/**
+ * 회원가입 DTO (1단계)
+ * - 기본 정보만 입력받음
+ * - users_info 테이블 관련 정보는 별도 API에서 처리
+ */
 export class RegisterDto {
   @ApiProperty({
     example: 'user@example.com',
@@ -39,6 +35,17 @@ export class RegisterDto {
   name: string;
 
   @ApiProperty({
+    example: 'MALE',
+    description: '성별 (MALE, FEMALE, OTHER)',
+    enum: ['MALE', 'FEMALE', 'OTHER'],
+  })
+  @IsEnum(['MALE', 'FEMALE', 'OTHER'], {
+    message: '성별은 MALE, FEMALE, OTHER 중 하나여야 합니다.',
+  })
+  @IsNotEmpty({ message: '성별은 필수입니다.' })
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+
+  @ApiProperty({
     example: '010-1234-5678',
     description: '전화번호',
   })
@@ -48,29 +55,4 @@ export class RegisterDto {
     message: '올바른 전화번호 형식이 아닙니다. (예: 010-1234-5678)',
   })
   phone: string;
-
-  @ApiProperty({
-    example: '2026-05-15',
-    description: '결혼 예정일 (YYYY-MM-DD)',
-  })
-  @IsDateString({}, { message: '올바른 날짜 형식이 아닙니다. (YYYY-MM-DD)' })
-  @IsNotEmpty({ message: '결혼 예정일은 필수입니다.' })
-  wedding_date: string;
-
-  @ApiProperty({
-    example: '강남구',
-    description: '선호 지역',
-  })
-  @IsString()
-  @IsNotEmpty({ message: '선호 지역은 필수입니다.' })
-  preferred_region: string;
-
-  @ApiProperty({
-    example: 10000000,
-    description: '예산 한도 (원)',
-  })
-  @IsInt({ message: '예산은 정수여야 합니다.' })
-  @Min(0, { message: '예산은 0 이상이어야 합니다.' })
-  @IsNotEmpty({ message: '예산 한도는 필수입니다.' })
-  budget_limit: number;
 }

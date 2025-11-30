@@ -1,5 +1,6 @@
 // Export all entities (Classes only, not Enums)
 export { User } from './user.entity';
+export { UsersInfo } from './users-info.entity';
 export { Vendor } from './vendor.entity';
 export { VendorVenueDetail } from './vendor-venue-detail.entity';
 export { VendorImage } from './vendor-image.entity';

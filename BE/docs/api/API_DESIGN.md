@@ -144,19 +144,17 @@ GET    /api/v1/plans/:id/items    # 플랜 항목 목록
 
 ### 3.1 인증 (Authentication)
 
-#### **POST** `/api/v1/auth/register`
-회원가입
+> **2단계 회원가입**: 1단계에서 기본 정보만 입력 후, 2단계에서 추가 정보를 입력하는 방식
+
+#### **POST** `/api/v1/users/auth/register`
+회원가입 (1단계) - 기본 정보만 입력
 
 **Request Body:**
 ```json
 {
   "email": "user@example.com",
   "password": "password123!",
-  "name": "홍길동",
-  "phone": "010-1234-5678",
-  "wedding_date": "2026-05-15",
-  "preferred_region": "강남구",
-  "budget_limit": 10000000
+  "name": "홍길동"
 }
 ```
 
@@ -165,20 +163,24 @@ GET    /api/v1/plans/:id/items    # 플랜 항목 목록
 {
   "success": true,
   "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "id": "...",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
       "email": "user@example.com",
-      "name": "홍길동"
-    },
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      "name": "홍길동",
+      "phone": null,
+      "wedding_date": null,
+      "preferred_region": null,
+      "budget_limit": null
+    }
   },
-  "timestamp": "..."
+  "timestamp": "2025-11-29T14:00:00.000Z"
 }
 ```
 
 ---
 
-#### **POST** `/api/v1/auth/login`
+#### **POST** `/api/v1/users/auth/login`
 로그인
 
 **Request Body:**
@@ -194,29 +196,111 @@ GET    /api/v1/plans/:id/items    # 플랜 항목 목록
 {
   "success": true,
   "data": {
-    "access_token": "...",
-    "user": { ... }
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "email": "user@example.com",
+      "name": "홍길동",
+      "phone": "010-1234-5678",
+      "wedding_date": "2026-05-15",
+      "preferred_region": "강남구",
+      "budget_limit": 10000000
+    }
   },
-  "timestamp": "..."
+  "timestamp": "2025-11-29T14:00:00.000Z"
 }
 ```
 
 ---
 
-#### **GET** `/api/v1/auth/me`
+#### **GET** `/api/v1/users/auth/me`
 현재 사용자 정보 조회 (인증 필요)
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
 
 **Response:** `200 OK`
 ```json
 {
   "success": true,
   "data": {
-    "id": "...",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "email": "user@example.com",
     "name": "홍길동",
-    "wedding_date": "2026-05-15"
+    "phone": "010-1234-5678",
+    "wedding_date": "2026-05-15",
+    "preferred_region": "강남구",
+    "budget_limit": 10000000,
+    "is_push_on": true,
+    "created_at": "2025-11-29T14:00:00.000Z"
   },
-  "timestamp": "..."
+  "timestamp": "2025-11-29T14:00:00.000Z"
+}
+```
+
+---
+
+#### **PUT** `/api/v1/users/auth/profile`
+프로필 추가 정보 업데이트 (2단계 회원가입) (인증 필요)
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Request Body:**
+```json
+{
+  "phone": "010-1234-5678",
+  "wedding_date": "2026-05-15",
+  "preferred_region": "강남구",
+  "budget_limit": 10000000
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "user@example.com",
+    "name": "홍길동",
+    "phone": "010-1234-5678",
+    "wedding_date": "2026-05-15",
+    "preferred_region": "강남구",
+    "budget_limit": 10000000,
+    "is_push_on": true,
+    "created_at": "2025-11-29T14:00:00.000Z"
+  },
+  "timestamp": "2025-11-29T14:00:00.000Z"
+}
+```
+
+**에러 응답:**
+- `401 Unauthorized`: 인증 실패
+- `400 Bad Request`: 잘못된 입력값 (전화번호 형식, 날짜 형식 등)
+
+---
+
+#### **POST** `/api/v1/users/auth/refresh`
+토큰 재발급 (인증 필요)
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  },
+  "timestamp": "2025-11-29T14:00:00.000Z"
 }
 ```
 

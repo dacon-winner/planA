@@ -14,8 +14,8 @@ export const dataSourceOptions: DataSourceOptions = {
   username: configService.get('DB_USERNAME') || 'postgres',
   password: configService.get('DB_PASSWORD') || 'password',
   database: configService.get('DB_DATABASE') || 'plana',
-  entities: ['dist/entities/**/*.entity.js'],
-  migrations: ['dist/migrations/**/*.js'],
+  entities: ['dist/src/entities/**/*.entity.js'],
+  migrations: ['dist/src/migrations/**/*.js'],
   synchronize: false, // 프로덕션에서는 반드시 false
   logging: configService.get('NODE_ENV') === 'development',
 };

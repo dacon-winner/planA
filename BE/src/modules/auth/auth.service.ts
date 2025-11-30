@@ -37,31 +37,38 @@ export class AuthService {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
-    // 사용자 생성
+    // 사용자 생성 (필요한 필드만 명시적으로 지정)
     const user = this.userRepository.create({
-      ...registerDto,
+      email: registerDto.email,
+      name: registerDto.name,
+      gender: registerDto.gender,
+      phone: registerDto.phone,
       password_hash: hashedPassword,
       provider: 'EMAIL',
     });
 
-    const savedUser = await this.userRepository.save(user);
+    const savedUser: User = await this.userRepository.save(user);
 
     // JWT 토큰 생성
-    const access_token = this.generateAccessToken(savedUser);
+    const access_token: string = this.generateAccessToken(savedUser);
+    const userResponse: UserResponseDto = this.toUserResponse(savedUser);
 
-    return {
+    const response: AuthResponseDto = {
       access_token,
-      user: this.toUserResponse(savedUser),
+      user: userResponse,
     };
+
+    return response;
   }
 
   /**
    * 로그인
    */
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
-    // 사용자 조회
+    // 사용자 조회 (users_info 관계 포함)
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
+      relations: ['users_info'],
     });
 
     if (!user) {
@@ -76,12 +83,15 @@ export class AuthService {
     }
 
     // JWT 토큰 생성
-    const access_token = this.generateAccessToken(user);
+    const access_token: string = this.generateAccessToken(user);
+    const userResponse: UserResponseDto = this.toUserResponse(user);
 
-    return {
+    const response: AuthResponseDto = {
       access_token,
-      user: this.toUserResponse(user),
+      user: userResponse,
     };
+
+    return response;
   }
 
   /**
@@ -90,6 +100,7 @@ export class AuthService {
   async validateUser(payload: JwtPayload): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
+      relations: ['users_info'],
     });
 
     if (!user) {
@@ -105,6 +116,7 @@ export class AuthService {
   async findUserById(userId: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
+      relations: ['users_info'],
     });
 
     if (!user) {
@@ -128,28 +140,52 @@ export class AuthService {
 
   /**
    * User 엔티티를 UserResponseDto로 변환
+   * users_info 중 is_main_plan=true인 것만 반환
    */
   private toUserResponse(user: User): UserResponseDto {
-    return {
+    // users_info 데이터 추출 (is_main_plan=true인 것만)
+    let wedding_date: Date | null = null;
+    let preferred_region: string | null = null;
+    let budget_limit: number | null = null;
+
+    // users_info가 로드되었고 배열인 경우에만 처리
+    // TypeORM relations는 선택적으로 로드되므로 타입 단언 필요
+    const usersInfoArray = user.users_info;
+    if (usersInfoArray && Array.isArray(usersInfoArray) && usersInfoArray.length > 0) {
+      // is_main_plan이 true인 users_info 찾기 (한 유저당 하나만 존재)
+      const main_info = usersInfoArray.find((info) => info.is_main_plan === true);
+
+      if (main_info) {
+        wedding_date = main_info.wedding_date ?? null;
+        preferred_region = main_info.preferred_region ?? null;
+        budget_limit = main_info.budget_limit ?? null;
+      }
+    }
+
+    const response: UserResponseDto = {
       id: user.id,
       email: user.email,
       name: user.name,
+      gender: user.gender,
       phone: user.phone,
-      wedding_date: user.wedding_date,
-      preferred_region: user.preferred_region,
-      budget_limit: user.budget_limit,
+      wedding_date,
+      preferred_region,
+      budget_limit,
       provider: user.provider,
       is_push_on: user.is_push_on,
       created_at: user.created_at,
     };
+
+    return response;
   }
 
   /**
    * 현재 로그인한 사용자 정보 조회
    */
   async getMe(userId: string): Promise<UserResponseDto> {
-    const user = await this.findUserById(userId);
-    return this.toUserResponse(user);
+    const user: User = await this.findUserById(userId);
+    const userResponse: UserResponseDto = this.toUserResponse(user);
+    return userResponse;
   }
 
   /**

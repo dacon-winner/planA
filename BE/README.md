@@ -11,7 +11,7 @@
 
 ### 주요 기능
 
-- **🤖 AI 맞춤 추천**: RAG 기술 기반 업체 추천 
+- **🤖 AI 맞춤 추천**: RAG 기술 기반 업체 추천
 - **📋 플랜 관리**: 나만의 웨딩 플랜 생성 및 관리
 - **📅 예약 시스템**: 업체별 상담/예약 일정 통합 관리
 - **🗓️ 일정 관리**: 웨딩 준비 일정 추적
@@ -40,11 +40,33 @@ npm install
 
 ### 2. 환경 변수 설정
 
+`.env` 파일을 생성하고 다음 환경변수를 설정하세요:
+
 ```bash
-cp .env.example .env
+# 데이터베이스 설정
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_DATABASE=plana
+
+# JWT 인증 설정
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRES_IN=7d
+
+# OpenAI API 설정 (AI 추천 기능)
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# 서버 설정
+NODE_ENV=development
+PORT=3000
 ```
 
-`.env` 파일을 열어 데이터베이스 정보 등을 설정하세요.
+**⚠️ OPENAI_API_KEY 발급 방법:**
+1. [OpenAI Platform](https://platform.openai.com/) 접속
+2. 로그인 후 **API keys** 메뉴 선택
+3. **Create new secret key** 클릭
+4. 생성된 키를 `.env` 파일에 추가
 
 ### 3. 데이터베이스 설정
 
@@ -78,20 +100,29 @@ http://localhost:3000/api-docs 에서 Swagger 문서를 확인할 수 있습니�
 프로젝트 문서는 관심사별로 분리되어 있습니다:
 
 ### 📂 Database (데이터베이스)
+
 - **[DATABASE.md](docs/database/DATABASE.md)**: DB 설계, ERD, 테이블 명세, 인덱스 전략
 - **[DATABASE_V.1.0.0.dbml](docs/database/DATABASE_V.1.0.0.dbml)**: DBML 형식 스키마
 - **[Plan_A.sql](docs/database/Plan_A.sql)**: SQL 스크립트
 
 ### 🏗️ Architecture (아키텍처)
+
 - **[ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)**: 기술 스택, 아키텍처 패턴, 모듈 구조
 
 ### 🔌 API (API 설계)
+
 - **[API_DESIGN.md](docs/api/API_DESIGN.md)**: API 엔드포인트, 응답 형식, 페이지네이션
 
 ### 💼 Business (비즈니스 로직)
+
 - **[BUSINESS_LOGIC.md](docs/business/BUSINESS_LOGIC.md)**: RAG AI 추천, 플랜 관리, 예약 프로세스
 
+### 🤖 AI (AI 추천 시스템)
+
+- **[AI_RECOMMENDATION.md](docs/AI_RECOMMENDATION.md)**: AI 스드메 추천 구현 가이드, 환경변수 설정
+
 ### 📖 Guides (가이드)
+
 - **[SETUP_COMPLETE.md](SETUP_COMPLETE.md)**: 초기 세팅 완료 문서
 
 ---
@@ -160,6 +191,7 @@ BE/
 자세한 내용: [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)
 
 ### 3. PostgreSQL + JSONB
+
 - **JSONB 타입**: 유연한 메타데이터 저장 (NoSQL 장점)
 - **GIN 인덱스**: JSON 내부 필드 검색 최적화
 - **pgvector 확장 계획**: 향후 벡터 검색 지원
