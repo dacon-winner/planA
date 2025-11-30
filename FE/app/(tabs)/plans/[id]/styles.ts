@@ -515,5 +515,238 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.black['black-5'], // #d9d9d9
     borderRadius: 0,
   },
+
+  /* Calendar Section */
+  'calendar-section': {
+    width: 345,
+    borderWidth: 1,
+    borderColor: colors.black['black-5'], // #d9d9d9
+    borderRadius: 8,
+    alignSelf: 'center',
+    paddingVertical: parseInt(spacing.md),
+    overflow: 'hidden',
+  },
+
+  /* Reservation Section */
+  'reservation-section': {
+    width: '100%',
+    marginTop: parseInt(spacing.md),
+    paddingBottom: 20, // 하단 여백 - 스크롤 영역에 확실히 포함되도록 충분히 크게
+  },
+
+  'reservation-divider': {
+    width: '100%',
+    height: 1,
+    backgroundColor: colors.divider.default,
+    marginBottom: parseInt(spacing.lg),
+  },
+
+  'reservation-title': {
+    fontSize: parseInt(fontSize['mobile-s-bold'][0]),
+    lineHeight: parseInt(fontSize['mobile-s-bold'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-s-bold'][1].letterSpacing) *
+      parseInt(fontSize['mobile-s-bold'][0]),
+    fontWeight: fontSize['mobile-s-bold'][1].fontWeight,
+    color: colors.black['black-13'],
+    fontFamily: 'Pretendard',
+    marginBottom: parseInt(spacing.md),
+  },
+
+  /* Datetime Picker */
+  'datetime-picker-container': {
+    width: 345,
+    height: 73,
+    borderWidth: 1,
+    borderColor: colors.black['black-5'], // #d9d9d9
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 0,
+    gap: 0,
+    alignSelf: 'center',
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'datetime-picker-item': {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    minWidth: 0,
+  },
+
+  'datetime-picker-label': {
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: -0.3125,
+    fontWeight: '400',
+    color: colors.root.text, // #524a4e
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'datetime-picker-value': {
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0,
+    fontWeight: '600', // SemiBold
+    color: colors.root.text, // #524a4e
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'datetime-picker-divider': {
+    width: 1,
+    height: 29,
+    backgroundColor: colors.black['black-5'], // #d9d9d9
+  },
+
+  /* Time Picker */
+  'time-picker-container': {
+    width: 345,
+    alignSelf: 'center',
+    paddingVertical: parseInt(spacing.md),
+    paddingHorizontal: 0,
+    // 좌우 갭을 더 작게 하기 위해 padding 제거
+  },
+
+  'time-picker-header': {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'time-picker-label': {
+    fontSize: 12,
+    lineHeight: 14,
+    letterSpacing: -0.3125,
+    fontWeight: '400',
+    color: colors.root.text, // #524a4e
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'time-picker-value': {
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0,
+    fontWeight: '600', // SemiBold
+    color: colors.root.text, // #524a4e
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'time-picker-grid': {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    rowGap: parseInt(spacing.xs), // 4px로 더 작게
+    columnGap: parseInt(spacing.xs), // 4px로 더 작게
+    justifyContent: 'center',
+  },
+
+  'time-picker-button-wrapper': {
+    // 3개씩 배치: 컨테이너 345px, gap 4px * 2 = 8px, 각 버튼 (345 - 8) / 3 = 112.33px
+    // SelectButton small 크기는 112px이므로 정확히 맞춤
+    width: 112,
+  },
+
+  /* Datetime Section */
+  'datetime-section': {
+    width: '100%',
+    marginTop: parseInt(spacing.lg),
+  },
+
+  'datetime-divider': {
+    width: '100%',
+    height: 1,
+    backgroundColor: colors.divider.default,
+    marginBottom: parseInt(spacing.lg),
+  },
+
+  'datetime-display': {
+    width: '100%',
+    gap: parseInt(spacing.md),
+  },
+
+  'datetime-item': {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: parseInt(spacing.md),
+  },
+
+  'datetime-label': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-s'][1].letterSpacing) *
+      parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.root.text,
+    fontFamily: 'Pretendard',
+    minWidth: 40,
+  },
+
+  'datetime-value': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-s'][1].letterSpacing) *
+      parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.black['black-13'],
+    fontFamily: 'Pretendard',
+  },
+
+  'time-options-container': {
+    flexDirection: 'row',
+    gap: parseInt(spacing.xs),
+    paddingRight: parseInt(spacing.lg),
+  },
+
+  'time-option-button': {
+    paddingVertical: parseInt(spacing.xs),
+    paddingHorizontal: parseInt(spacing.sm),
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.black['black-5'],
+    backgroundColor: colors.black['black-1'],
+  },
+
+  'time-option-button-selected': {
+    borderColor: colors.root.brand,
+    backgroundColor: colors.red['red-1'],
+  },
+
+  'time-option-text': {
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
+      parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    color: colors.root.text,
+    fontFamily: 'Pretendard',
+  },
+
+  'time-option-text-selected': {
+    color: colors.root.brand,
+    fontWeight: '600',
+  },
+
+  'reservation-actions': {
+    flexDirection: 'row',
+    gap: parseInt(spacing.sm),
+    width: '100%',
+    marginTop: parseInt(spacing.md),
+  },
+
+  'reservation-action-button': {
+    flex: 1,
+  },
 });
 

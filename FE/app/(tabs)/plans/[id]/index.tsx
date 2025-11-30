@@ -14,9 +14,12 @@
 import { View, Text, ScrollView, SafeAreaView, Image, Pressable, Dimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams } from 'expo-router';
-import { Calendar, MapPin, Wallet, Phone, Clock, CircleDollarSign, ClockCheck } from 'lucide-react-native';
+import { Calendar as CalendarIcon, MapPin, Wallet, Phone, Clock, CircleDollarSign, ClockCheck } from 'lucide-react-native';
 import { ContentSwitcher } from '@/commons/components/content-switcher';
 import { Button } from '@/commons/components/button';
+import { Toast } from '@/commons/components/toast-message';
+import { Calendar } from '@/commons/components/calendar';
+import { SelectButton } from '@/commons/components/select-button';
 import { styles } from './styles';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo } from 'react';
@@ -26,7 +29,23 @@ export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
   const [isBottomSheetAt70, setIsBottomSheetAt70] = useState(false); // 바텀 시트가 70% 높이에 도달했는지
+  const [isSaved, setIsSaved] = useState(false); // 저장 상태
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 달력 선택 날짜
+  const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
+  const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
+  const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
+
+  // 시간 옵션 생성 (9시부터 20시까지)
+  const timeOptions = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const hour = 9 + i;
+      return {
+        value: `${hour.toString().padStart(2, '0')}:00`,
+        label: `${hour.toString().padStart(2, '0')}:00`,
+      };
+    });
+  }, []);
   
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -114,9 +133,59 @@ export default function PlanDetail() {
   };
 
   const handleSave = () => {
-    // TODO: 저장하기 로직 구현
-    console.log('저장하기');
+    if (isSaved) {
+      // 저장 취소하기
+      setIsSaved(false);
+      setSelectedDate(null);
+    } else {
+      // 저장하기
+      setIsSaved(true);
+      Toast.success('플랜이 성공적으로 저장되었습니다.');
+    }
   };
+
+  // 서비스 상태 계산 함수
+  const getServiceStatus = (serviceIndex: number) => {
+    // 현재 선택된 서비스가 아니면 원래 상태 반환
+    if (serviceIndex !== selectedTab) {
+      return planData.services[serviceIndex].status;
+    }
+
+    // 예약 확정된 경우
+    if (isReserved && selectedDate && selectedTime) {
+      return `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 방문 예정`;
+    }
+
+    // 저장 완료된 경우
+    if (isSaved) {
+      return '저장 완료';
+    }
+
+    // 기본 상태
+    return planData.services[serviceIndex].status;
+  };
+
+  // 서비스 상태 아이콘 계산 함수
+  const getServiceStatusIcon = (serviceIndex: number) => {
+    // 현재 선택된 서비스가 아니면 원래 아이콘 반환
+    if (serviceIndex !== selectedTab) {
+      return planData.services[serviceIndex].statusIcon;
+    }
+
+    // 예약 확정된 경우
+    if (isReserved && selectedDate && selectedTime) {
+      return 'clockCheck' as const;
+    }
+
+    // 저장 완료된 경우
+    if (isSaved) {
+      return 'clock' as const;
+    }
+
+    // 기본 아이콘
+    return planData.services[serviceIndex].statusIcon;
+  };
+
 
   const handleServiceItemPress = (serviceIndex: number) => {
     // 선택된 서비스에 해당하는 탭으로 변경
@@ -173,7 +242,7 @@ export default function PlanDetail() {
             {/* 기본 정보 */}
             <View style={styles['basic-info']}>
               <View style={styles['info-row']}>
-                <Calendar size={14} color={colors.root.text} />
+                <CalendarIcon size={14} color={colors.root.text} />
                 <Text style={styles['info-text']}>{planData.date}</Text>
               </View>
               <View style={styles['info-row']}>
@@ -202,9 +271,9 @@ export default function PlanDetail() {
                   {planData.services[0].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {planData.services[0].statusIcon && getStatusIcon(planData.services[0].statusIcon, planData.services[0].isSelected)}
+                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, planData.services[0].isSelected)}
                   <Text style={[styles['service-grid-status-text'], !planData.services[0].isSelected && styles['service-grid-status-text-inactive']]}>
-                    {planData.services[0].status}
+                    {getServiceStatus(0)}
                   </Text>
                 </View>
               </View>
@@ -223,9 +292,9 @@ export default function PlanDetail() {
                   {planData.services[1].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {planData.services[1].statusIcon && getStatusIcon(planData.services[1].statusIcon, planData.services[1].isSelected)}
+                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, planData.services[1].isSelected)}
                   <Text style={[styles['service-grid-status-text'], !planData.services[1].isSelected && styles['service-grid-status-text-inactive']]}>
-                    {planData.services[1].status}
+                    {getServiceStatus(1)}
                   </Text>
                 </View>
               </View>
@@ -244,9 +313,9 @@ export default function PlanDetail() {
                   {planData.services[2].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {planData.services[2].statusIcon && getStatusIcon(planData.services[2].statusIcon, planData.services[2].isSelected)}
+                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, planData.services[2].isSelected)}
                   <Text style={[styles['service-grid-status-text'], !planData.services[2].isSelected && styles['service-grid-status-text-inactive']]}>
-                    {planData.services[2].status}
+                    {getServiceStatus(2)}
                   </Text>
                 </View>
               </View>
@@ -265,9 +334,9 @@ export default function PlanDetail() {
                   {planData.services[3].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {planData.services[3].statusIcon && getStatusIcon(planData.services[3].statusIcon, planData.services[3].isSelected)}
+                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, planData.services[3].isSelected)}
                   <Text style={[styles['service-grid-status-text'], !planData.services[3].isSelected && styles['service-grid-status-text-inactive']]}>
-                    {planData.services[3].status}
+                    {getServiceStatus(3)}
                   </Text>
                 </View>
               </View>
@@ -383,26 +452,156 @@ export default function PlanDetail() {
                   size="medium"
                   onPress={handleSave}
                 >
-                  저장하기
+                  {isSaved ? '저장 취소하기' : '저장하기'}
                 </Button>
               </View>
             </View>
 
-            {/* AI 추천 업체 */}
-            <View style={styles['ai-recommendations']}>
-              <Text style={styles['ai-recommendations-title']}>
-                AI가 추천하는 다른 업체
-              </Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles['ai-recommendations-images']}
-              >
-                <View style={styles['ai-recommendation-image']} />
-                <View style={styles['ai-recommendation-image']} />
-                <View style={styles['ai-recommendation-image']} />
-              </ScrollView>
-            </View>
+            {/* AI 추천 업체 또는 방문 예약하기 */}
+            {isSaved ? (
+              <View style={styles['reservation-section']}>
+                {/* 구분선 */}
+                <View style={styles['reservation-divider']} />
+                
+                {/* 방문 예약하기 제목 */}
+                <Text style={styles['reservation-title']}>
+                  방문 예약하기
+                </Text>
+
+                {/* 날짜/시간 선택 UI */}
+                <View style={styles['datetime-picker-container']}>
+                  {/* 날짜 섹션 */}
+                  <Pressable
+                    style={styles['datetime-picker-item']}
+                    onPress={() => {
+                      // 날짜 섹션 클릭 시 달력 표시
+                      setShowTimePicker(false);
+                    }}
+                  >
+                    <Text style={styles['datetime-picker-label']}>날짜</Text>
+                    <Text style={styles['datetime-picker-value']}>
+                      {selectedDate
+                        ? `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`
+                        : '-'}
+                    </Text>
+                  </Pressable>
+
+                  {/* 구분선 */}
+                  <View style={styles['datetime-picker-divider']} />
+
+                  {/* 시간 섹션 */}
+                  <Pressable
+                    style={styles['datetime-picker-item']}
+                    disabled={!selectedDate}
+                    onPress={() => {
+                      // 시간 섹션 클릭 시 시간 선택 버튼 표시 (날짜가 선택된 경우만)
+                      if (selectedDate) {
+                        setShowTimePicker(true);
+                      }
+                    }}
+                  >
+                    <Text style={styles['datetime-picker-label']}>시간</Text>
+                    <Text style={styles['datetime-picker-value']}>
+                      {selectedTime || '-'}
+                    </Text>
+                  </Pressable>
+                </View>
+
+                {/* 달력 또는 시간 선택 버튼 그리드 - 예약 완료 시 숨김 */}
+                {!isReserved && (
+                  <>
+                    {showTimePicker && selectedDate ? (
+                      <View style={styles['time-picker-container']}>
+                        <View style={styles['time-picker-grid']}>
+                          {timeOptions.map((option) => {
+                            const isSelected = selectedTime === option.value;
+                            return (
+                              <View key={option.value} style={styles['time-picker-button-wrapper']}>
+                                <SelectButton
+                                  state={isSelected ? 'selected' : 'default'}
+                                  label={option.label}
+                                  size="small"
+                                  icon={
+                                    <Clock
+                                      size={20}
+                                      color={isSelected ? '#861043' : colors.brown['brown-2']}
+                                    />
+                                  }
+                                  onSelect={() => setSelectedTime(option.value)}
+                                />
+                              </View>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    ) : (
+                      <View style={styles['calendar-section']}>
+                        <Calendar
+                          selectedDate={selectedDate}
+                          onDateSelect={(date) => {
+                            // 날짜가 변경되면 시간 초기화
+                            if (selectedDate && date.getTime() !== selectedDate.getTime()) {
+                              setSelectedTime(null);
+                            }
+                            setSelectedDate(date);
+                            setShowTimePicker(true); // 날짜 선택 시 자동으로 시간 선택 버튼 표시
+                          }}
+                          subtitle="날짜를 선택하세요"
+                        />
+                      </View>
+                    )}
+                  </>
+                )}
+
+                {/* 예약 버튼 - 예약 완료 시 숨김 */}
+                {!isReserved && (
+                  <View style={styles['reservation-actions']}>
+                    <View style={styles['reservation-action-button']}>
+                      <Button
+                        variant="outlined"
+                        size="medium"
+                        onPress={() => {
+                          // TODO: 취소 로직 구현
+                          console.log('취소');
+                        }}
+                      >
+                        취소
+                      </Button>
+                    </View>
+                    <View style={styles['reservation-action-button']}>
+                      <Button
+                        variant="filled"
+                        size="medium"
+                        disabled={!selectedDate || !selectedTime}
+                        onPress={() => {
+                          // 예약 신청 완료
+                          setIsReserved(true);
+                          setShowTimePicker(false); // 시간 선택 버튼 숨김
+                          Toast.success('예약 신청이 완료되었습니다.');
+                        }}
+                      >
+                        예약 신청
+                      </Button>
+                    </View>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View style={styles['ai-recommendations']}>
+                <Text style={styles['ai-recommendations-title']}>
+                  AI가 추천하는 다른 업체
+                </Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles['ai-recommendations-images']}
+                >
+                  <View style={styles['ai-recommendation-image']} />
+                  <View style={styles['ai-recommendation-image']} />
+                  <View style={styles['ai-recommendation-image']} />
+                </ScrollView>
+              </View>
+            )}
             </ScrollView>
           </View>
          
