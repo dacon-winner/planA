@@ -20,15 +20,16 @@ import { Button } from '@/commons/components/button';
 import { Toast } from '@/commons/components/toast-message';
 import { Calendar } from '@/commons/components/calendar';
 import { SelectButton } from '@/commons/components/select-button';
-import { styles } from './styles';
+import { styles, getDetailContentScrollStyle } from './styles';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo } from 'react';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
+import { useAnimatedReaction, runOnJS } from 'react-native-reanimated';
 
 export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isBottomSheetAt70, setIsBottomSheetAt70] = useState(false); // 바텀 시트가 70% 높이에 도달했는지
+  const [isHeaderCompact, setIsHeaderCompact] = useState(false); // 헤더가 컴팩트 모드인지 (0.65 기준)
   const [isSaved, setIsSaved] = useState(false); // 저장 상태
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 달력 선택 날짜
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
@@ -49,29 +50,52 @@ export default function PlanDetail() {
   
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
-  // snapPoints를 숫자로 명시적으로 제한
+  const screenHeight = useMemo(() => Dimensions.get('window').height, []);
+  const thresholdHeight = useMemo(() => screenHeight * 0.65, [screenHeight]);
+  
+  // snapPoints를 [0.35, 0.70]로 설정
   const snapPoints = useMemo(() => {
-    const screenHeight = Dimensions.get('window').height;
     return [
-      screenHeight * 0.35, // 35% - 인덱스 0 (최소 높이 증가)
-      screenHeight * 0.35, // 35% - 인덱스 1
-      screenHeight * 0.70, // 70% - 인덱스 2 (최대값)
+      screenHeight * 0.35, // 35% - 인덱스 0 (최소 높이)
+      screenHeight * 0.70, // 70% - 인덱스 1 (최대값)
     ];
-  }, []);
+  }, [screenHeight]);
+  
+  // 현재 높이에 따라 헤더 상태 업데이트
+  const updateHeaderState = useCallback((currentHeight: number) => {
+    const shouldBeCompact = currentHeight > thresholdHeight;
+    setIsHeaderCompact(shouldBeCompact);
+  }, [thresholdHeight]);
   
   const handleSheetChanges = useCallback((index: number) => {
-    // Bottom sheet 상태 변경 시 처리
-    console.log('Bottom sheet index:', index);
-    // 바텀 시트가 70% 높이(인덱스 2)에 도달했는지 확인
-    setIsBottomSheetAt70(index === 2);
+    // 현재 snap point의 높이 계산
+    const currentHeight = snapPoints[index];
+    updateHeaderState(currentHeight);
     // 최대 높이로 올라갔으면 플래그 리셋
-    if (index === 2) {
+    if (index === 1) {
       hasSnappedToMaxRef.current = true;
-    } else if (index < 2) {
+    } else if (index < 1) {
       hasSnappedToMaxRef.current = false;
     }
-  }, []);
-
+  }, [snapPoints, updateHeaderState]);
+  
+  // BottomSheet 내부 컴포넌트에서 animatedPosition 추적
+  const BottomSheetContentWrapper = () => {
+    const { animatedPosition } = useBottomSheet();
+    
+    // animatedPosition 변경 시 헤더 상태 업데이트
+    useAnimatedReaction(
+      () => animatedPosition.value,
+      (currentPosition) => {
+        // 현재 높이 계산 (screenHeight - currentPosition = bottom sheet 높이)
+        const currentHeight = screenHeight - currentPosition;
+        runOnJS(updateHeaderState)(currentHeight);
+      },
+      [screenHeight, updateHeaderState]
+    );
+    
+    return null;
+  };
 
   // TODO: 실제 데이터로 교체 필요 (planId 기반으로 API 호출)
   // 현재는 planId를 사용하지 않지만, 나중에 API 호출 시 사용 예정
@@ -129,7 +153,6 @@ export default function PlanDetail() {
 
   const handleViewOtherVendors = () => {
     // TODO: 다른 업체 보기 로직 구현
-    console.log('다른 업체 보기');
   };
 
   const handleSave = () => {
@@ -225,17 +248,17 @@ export default function PlanDetail() {
           {/* 상단 헤더 섹션 */}
           <View style={[
             styles['header-section'],
-            isBottomSheetAt70 && styles['header-section-compact']
+            isHeaderCompact && styles['header-section-compact']
           ]}>
             <View style={styles['header-content']}>
-              {!isBottomSheetAt70 && (
+              {!isHeaderCompact && (
                 <Text style={styles['header-subtitle']}>
                   결혼식까지 {planData.daysLeft}일 남았어요
                 </Text>
               )}
               <Text style={[
                 styles['header-title'],
-                isBottomSheetAt70 && styles['header-title-compact']
+                isHeaderCompact && styles['header-title-compact']
               ]}>{planData.planName}</Text>
             </View>
 
@@ -363,6 +386,9 @@ export default function PlanDetail() {
         backgroundStyle={styles['bottom-sheet-background']}
       >
         <BottomSheetView style={styles['bottom-sheet-content']}>
+          {/* animatedPosition 추적을 위한 래퍼 */}
+          <BottomSheetContentWrapper />
+          
           {/* Bottom Sheet Handle */}
           <View style={styles['detail-section-header']}>
             <View style={styles['detail-section-handle']} />
@@ -377,7 +403,7 @@ export default function PlanDetail() {
           </View>
 
           {/* 상세 정보 컨텐츠 - 스크롤 가능 */}
-          <View style={[styles['detail-content-scroll'], { height: Dimensions.get('window').height * 0.6 }]}>
+          <View style={useMemo(() => getDetailContentScrollStyle(screenHeight), [screenHeight])}>
             <ScrollView
               contentContainerStyle={styles['detail-content']}
               showsVerticalScrollIndicator={false}
@@ -524,7 +550,7 @@ export default function PlanDetail() {
                                   icon={
                                     <Clock
                                       size={20}
-                                      color={isSelected ? '#861043' : colors.brown['brown-2']}
+                                      color={isSelected ? colors.red['red-9'] : colors.brown['brown-2']}
                                     />
                                   }
                                   onSelect={() => setSelectedTime(option.value)}
@@ -562,7 +588,6 @@ export default function PlanDetail() {
                         size="medium"
                         onPress={() => {
                           // TODO: 취소 로직 구현
-                          console.log('취소');
                         }}
                       >
                         취소
