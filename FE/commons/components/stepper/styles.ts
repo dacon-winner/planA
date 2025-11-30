@@ -32,9 +32,10 @@ export const styles = StyleSheet.create({
   /**
    * Stepper Container
    * 피그마: width 300, borderRadius 6
+   * 실제 사용 시: 부모 컨테이너의 width에 맞춤
    */
   stepperContainer: {
-    width: 300,
+    width: "100%",
     borderRadius: 6,
   },
 
@@ -53,9 +54,10 @@ export const styles = StyleSheet.create({
   /**
    * Step Wrapper (Header + Content)
    * 피그마: width 300, height 52
+   * 실제 사용 시: 부모 컨테이너의 width에 맞춤
    */
   stepWrapper: {
-    width: 300,
+    width: "100%",
     minHeight: 52,
     flexDirection: "column",
   },
@@ -216,10 +218,12 @@ export const styles = StyleSheet.create({
   /**
    * Step Content Container
    * 각 스텝의 폼 영역 (애니메이션 적용됨)
+   * 피그마: Frame 128 (y=52, height=371) 다음 Step Wrapper (y=423)
+   * → 간격 0px이므로 paddingBottom 제거
    */
   stepContent: {
     paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingBottom: 0,
   },
 
   /* ========================================
