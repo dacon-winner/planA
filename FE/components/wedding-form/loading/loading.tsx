@@ -49,6 +49,8 @@ export const WeddingFormLoading: React.FC<WeddingFormLoadingProps> = ({
   const [currentIconIndex, setCurrentIconIndex] = useState(0);
   // 현재 진행 중인 스텝 (자동으로 증가)
   const [currentStep, setCurrentStep] = useState(0);
+  // 이미 라우팅 완료 여부 (중복 라우팅 방지)
+  const hasNavigated = useRef(false);
   // 각 스텝의 체크마크 애니메이션 값
   const checkmarkAnims = useRef([
     new Animated.Value(0),
@@ -119,10 +121,13 @@ export const WeddingFormLoading: React.FC<WeddingFormLoadingProps> = ({
     // 4개 스텝 진행: 0.9375초 * 4 = 3.75초
     // 마지막 스텝 완료 애니메이션 보여주기: 0.5초 추가
     const stepInterval = setInterval(() => {
-      setCurrentStep((prev) => {
-        const nextStep = (prev + 1) % 5; // 0,1,2,3,4 (4는 완료 상태)
+      // 이미 라우팅 완료되었으면 스텝 순환 중지
+      if (hasNavigated.current) return;
 
-        return nextStep;
+      setCurrentStep((prev) => {
+        // 4에 도달하면 더 이상 순환하지 않음
+        if (prev >= 4) return prev;
+        return prev + 1;
       });
     }, 937.5); // 0.9375초마다 스텝 변경
 
@@ -156,11 +161,14 @@ export const WeddingFormLoading: React.FC<WeddingFormLoadingProps> = ({
         useNativeDriver: false,
       }).start();
 
-      // 스텝 완료 후 0.5초 대기 후 라우팅
+      // 스텝 완료 후 0.5초 대기 후 라우팅 (중복 방지)
       const navigationTimer = setTimeout(() => {
+        if (hasNavigated.current) return; // 이미 라우팅 완료됨
+
         if (isSuccess) {
           // API 성공 시 plans/[id] 페이지로 이동
           // TODO: 실제 API에서 받은 planId 사용
+          hasNavigated.current = true; // 라우팅 완료 표시
           const targetPlanId = planId || "demo-plan-123";
           router.push(`/(tabs)/plans/${targetPlanId}`);
         } else {
