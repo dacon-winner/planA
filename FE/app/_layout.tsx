@@ -2,9 +2,11 @@ import "../global.css";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ToastLib from "react-native-toast-message";
 import { AuthProvider } from "../commons/providers/auth/auth.provider";
 import { ReactQueryProvider } from "../commons/providers/react-query/react-query.provider";
 import { ModalProvider } from "../commons/providers/modal/modal.provider";
+import { toastConfig } from "../commons/components/toast-message";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -46,6 +48,7 @@ export default function RootLayout() {
                 }}
               />
             </Stack>
+            <ToastLib config={toastConfig} position="bottom" />
           </ModalProvider>
         </ReactQueryProvider>
       </AuthProvider>
