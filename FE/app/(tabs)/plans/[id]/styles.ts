@@ -59,11 +59,11 @@ export const styles = StyleSheet.create({
   },
 
   'header-section-compact': {
-    paddingTop: parseInt(spacing.sm),
+    paddingTop: parseInt(spacing.lg),
   },
   
   'header-content': {
-    marginBottom: parseInt(spacing.sm), // 8px gap
+    marginBottom: parseInt(spacing.md), // 8px gap
     gap: parseInt(spacing.sm), // 8px gap (xs -> sm)
   },
 
@@ -266,7 +266,7 @@ export const styles = StyleSheet.create({
 
   'bottom-sheet-background': {
     // backgroundColor: 'blue',
-    backgroundColor: colors.black['black-1'], // var(--white, #FFF)
+    // backgroundColor: colors.black['black-1'], // var(--white, #FFF)
     borderTopLeftRadius: 32, // border-radius: 32px 32px 0 0
     borderTopRightRadius: 32,
     // 그림자 효과: box-shadow: 0px 0px 20px 0px rgba(128, 12, 58, 0.1)
