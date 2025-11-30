@@ -144,6 +144,7 @@ const RegionStep: React.FC<RegionStepProps> = ({
           showsVerticalScrollIndicator={false}
           decelerationRate="fast"
           snapToAlignment="start"
+          snapToInterval={345} // 각 페이지 전체 너비에 맞춰 스냅
           bounces={false}
         >
           {pages.map((pageRegions, pageIndex) => (
@@ -192,12 +193,64 @@ const RegionStep: React.FC<RegionStepProps> = ({
 };
 
 /**
- * Step 3: 예상 예산 입력 컴포넌트 (미구현)
+ * Step 3: 예상 예산 입력 컴포넌트
  */
-const BudgetStep: React.FC = () => {
+interface BudgetStepProps {
+  selectedBudget: string | null;
+  onBudgetSelect: (budget: string) => void;
+}
+
+const BudgetStep: React.FC<BudgetStepProps> = ({
+  selectedBudget,
+  onBudgetSelect,
+}) => {
+  const { goToNextStep } = useStepperContext();
+
+  // 예산 옵션 목록
+  const budgetOptions = [
+    "1,000만원",
+    "2,000만원",
+    "3,000만원",
+    "4,000만원",
+    "5,000만원",
+    "6,000만원",
+    "7,000만원",
+    "8,000만원 이상",
+  ];
+
+  const handleBudgetSelect = (budget: string) => {
+    onBudgetSelect(budget);
+    // 예산 선택 후 자동으로 다음 단계로 이동
+    setTimeout(() => {
+      goToNextStep();
+    }, 300);
+  };
+
   return (
-    <View>
-      <Text>예상 예산 입력 (미구현)</Text>
+    <View style={styles.budgetWrapper}>
+      <View style={styles.budgetCard}>
+        <View style={styles.budgetGridContainer}>
+          {Array.from({ length: 4 }).map((_, rowIndex) => {
+            const startIdx = rowIndex * 2;
+            const rowBudgets = budgetOptions.slice(startIdx, startIdx + 2);
+
+            return (
+              <View key={rowIndex} style={styles.budgetRow}>
+                {rowBudgets.map((budget) => (
+                  <SelectButton
+                    key={budget}
+                    value={budget}
+                    label={budget}
+                    size="medium"
+                    state={selectedBudget === budget ? "selected" : "default"}
+                    onSelect={() => handleBudgetSelect(budget)}
+                  />
+                ))}
+              </View>
+            );
+          })}
+        </View>
+      </View>
     </View>
   );
 };
@@ -294,8 +347,15 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
                     ),
                   },
                   {
-                    title: "예상 예산 입력",
-                    content: <BudgetStep />,
+                    title: formData.budget || "예상 예산 입력",
+                    content: (
+                      <BudgetStep
+                        selectedBudget={formData.budget}
+                        onBudgetSelect={(budget) =>
+                          setFormData((prev) => ({ ...prev, budget }))
+                        }
+                      />
+                    ),
                   },
                 ]}
                 currentStep={0}

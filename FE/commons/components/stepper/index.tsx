@@ -261,6 +261,7 @@ export const Stepper: React.FC<StepperProps> = ({
    * - default 상태인 스텝은 클릭 불가
    * - completed 또는 active 상태인 스텝은 클릭 시 열림
    * - 현재 열린 스텝을 다시 클릭하면 닫힘 (토글)
+   * - 단, 첫 번째 스텝(index 0)은 토글 불가 (항상 열려있음)
    */
   const handleStepPress = (stepIndex: number) => {
     const stepState = getStepState(stepIndex);
@@ -271,7 +272,13 @@ export const Stepper: React.FC<StepperProps> = ({
     }
 
     // 현재 열린 스텝을 다시 클릭하면 닫기 (토글)
+    // 단, 첫 번째 스텝(index 0)은 토글 불가
     if (currentStep === stepIndex) {
+      // 첫 번째 스텝은 닫히지 않도록 함
+      if (stepIndex === 0) {
+        return;
+      }
+
       if (controlledCurrentStep === undefined) {
         setInternalCurrentStep(-1); // 모든 폼 닫기
       }
