@@ -1,10 +1,11 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersInfoService } from './users-info.service';
 import { CreateUsersInfoDto } from './dto/create-users-info.dto';
+import { CreateUsersInfoResponseDto } from './dto/create-users-info-response.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ApiCommonResponse } from '../../common/decorators/api-common-response.decorator';
-import { Plan } from '../../entities/plan.entity';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 /**
  * 사용자 상세 정보 컨트롤러
@@ -14,6 +15,7 @@ import { Plan } from '../../entities/plan.entity';
 @ApiTags('UsersInfo')
 @ApiBearerAuth()
 @Controller('users-info')
+@UseGuards(JwtAuthGuard)
 export class UsersInfoController {
   constructor(private readonly usersInfoService: UsersInfoService) {}
 
@@ -30,10 +32,16 @@ export class UsersInfoController {
   @ApiOperation({
     summary: '사용자 상세 정보 생성 및 AI 추천 플랜 반환',
     description:
-      '결혼 계획 관련 상세 정보를 생성하고, AI가 스드메 조합을 추천하여 자동으로 플랜을 생성하여 반환합니다. plan_items에는 vendor와 service_item 정보가 포함됩니다.',
+      '결혼 계획 관련 상세 정보를 생성하고, AI가 스드메 조합을 추천하여 자동으로 플랜을 생성하여 반환합니다. plan_items에는 vendor와 service_item 정보가 포함됩니다. AI 추천 실패 시 null을 반환합니다.',
   })
-  @ApiCommonResponse(Plan)
-  async create(@CurrentUser('id') userId: string, @Body() createUsersInfoDto: CreateUsersInfoDto) {
+  @ApiCommonResponse(CreateUsersInfoResponseDto, {
+    nullable: true,
+    description: 'AI 추천 플랜 정보 (추천 실패 시 null)',
+  })
+  async create(
+    @CurrentUser('id') userId: string,
+    @Body() createUsersInfoDto: CreateUsersInfoDto,
+  ): Promise<CreateUsersInfoResponseDto | null> {
     return await this.usersInfoService.create(userId, createUsersInfoDto);
   }
 }
