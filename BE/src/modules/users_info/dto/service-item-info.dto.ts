@@ -55,4 +55,3 @@ export class ServiceItemInfoDto {
   })
   created_at: Date;
 }
-

@@ -56,4 +56,3 @@ export class CreateUsersInfoResponseDto {
   })
   plan_items: PlanItemInfoDto[];
 }
-

@@ -78,4 +78,3 @@ export class PlanItemInfoDto {
   })
   service_item: ServiceItemInfoDto | null;
 }
-

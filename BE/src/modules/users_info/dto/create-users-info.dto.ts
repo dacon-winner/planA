@@ -1,5 +1,5 @@
 import { IsDateString, IsString, IsInt, IsOptional, Min } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * 사용자 상세 정보 생성 DTO
@@ -33,4 +33,3 @@ export class CreateUsersInfoDto {
   @Min(0)
   budget_limit?: number;
 }
-

@@ -67,4 +67,3 @@ export class AiRecommendationResponseDto {
   })
   overall_reason: string;
 }
-

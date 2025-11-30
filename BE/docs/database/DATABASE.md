@@ -613,5 +613,32 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ---
 
-**문서 버전**: 1.0.0  
+**문서 버전**: 1.1.0  
 **최종 수정일**: 2025.11.29
+
+---
+
+## 수정사항 - 2025.11.29
+
+### 1. USERS 테이블에서 제거된 필드
+
+| 필드명           | 설명        |
+| ---------------- | ----------- |
+| wedding_date     | 결혼 예정일 |
+| preferred_region | 선호 지역   |
+| budget_limit     | 예산 한도   |
+
+### 2. USERS_INFO 테이블로 분기
+
+| 필드명           | 타입      | 설명           |
+| ---------------- | --------- | -------------- |
+| id               | INT       | 기본 키        |
+| user_id          | INT       | 사용자 ID (FK) |
+| is_main_plan     | BOOLEAN   | 메인 플랜 여부 |
+| wedding_date     | DATE      | 결혼 예정일    |
+| preferred_region | VARCHAR   | 선호 지역      |
+| budget_limit     | INT       | 예산 한도      |
+| created_at       | TIMESTAMP | 생성 일시      |
+| updated_at       | TIMESTAMP | 수정 일시      |
+
+**변경 사유**: 사용자별 다중 플랜 지원을 위해 결혼 관련 정보를 별도 테이블로 분리

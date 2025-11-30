@@ -116,4 +116,3 @@ export class VendorInfoDto {
   })
   created_at: Date;
 }
-
