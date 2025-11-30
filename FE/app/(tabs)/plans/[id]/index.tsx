@@ -25,7 +25,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isBottomSheetAt80, setIsBottomSheetAt80] = useState(false); // 바텀 시트가 80% 높이에 도달했는지
+  const [isBottomSheetAt70, setIsBottomSheetAt70] = useState(false); // 바텀 시트가 80% 높이에 도달했는지
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
   
   // Bottom Sheet 설정
@@ -34,17 +34,17 @@ export default function PlanDetail() {
   const snapPoints = useMemo(() => {
     const screenHeight = Dimensions.get('window').height;
     return [
-      screenHeight * 0.80, // 80% - 인덱스 0 (최소 높이 증가)
-      screenHeight * 0.80, // 80% - 인덱스 1
-      screenHeight * 0.80, // 80% - 인덱스 2 (최대값)
+      screenHeight * 0.35, // 35% - 인덱스 0 (최소 높이 증가)
+      screenHeight * 0.35, // 35% - 인덱스 1
+      screenHeight * 0.70, // 70% - 인덱스 2 (최대값)
     ];
   }, []);
   
   const handleSheetChanges = useCallback((index: number) => {
     // Bottom sheet 상태 변경 시 처리
     console.log('Bottom sheet index:', index);
-    // 바텀 시트가 80% 높이(인덱스 2)에 도달했는지 확인
-    setIsBottomSheetAt80(index === 2);
+    // 바텀 시트가 70% 높이(인덱스 2)에 도달했는지 확인
+    setIsBottomSheetAt70(index === 2);
     // 최대 높이로 올라갔으면 플래그 리셋
     if (index === 2) {
       hasSnappedToMaxRef.current = true;
@@ -156,17 +156,17 @@ export default function PlanDetail() {
           {/* 상단 헤더 섹션 */}
           <View style={[
             styles['header-section'],
-            isBottomSheetAt80 && styles['header-section-compact']
+            isBottomSheetAt70 && styles['header-section-compact']
           ]}>
             <View style={styles['header-content']}>
-              {!isBottomSheetAt80 && (
+              {!isBottomSheetAt70 && (
                 <Text style={styles['header-subtitle']}>
                   결혼식까지 {planData.daysLeft}일 남았어요
                 </Text>
               )}
               <Text style={[
                 styles['header-title'],
-                isBottomSheetAt80 && styles['header-title-compact']
+                isBottomSheetAt70 && styles['header-title-compact']
               ]}>{planData.planName}</Text>
             </View>
 
