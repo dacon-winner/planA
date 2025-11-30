@@ -14,10 +14,10 @@
 
 import { StyleSheet } from "react-native";
 
+// tailwind.config.js에서 색상 토큰 import
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const tailwindConfig = require("@/tailwind.config.js");
 const colors = tailwindConfig.theme.extend.colors;
-const fontSize = tailwindConfig.theme.extend.fontSize;
 
 export const styles = StyleSheet.create({
   /* ========================================
@@ -28,12 +28,13 @@ export const styles = StyleSheet.create({
    * Container
    * 전체 폼 컨테이너
    * 피그마: width 393, height 852
+   * 토큰: foundationBlack.1 (white)
    */
   container: {
     flex: 1,
     width: "100%",
     minHeight: 852,
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.foundationBlack[1], // #ffffff
     position: "relative",
   },
 
@@ -77,18 +78,18 @@ export const styles = StyleSheet.create({
 
   /**
    * Title Text
-   * 피그마: "PlanA와 함께 결혼 준비를 시작해보세요."
-   * fontSize 20, fontWeight 700, color #dd4677
-   * 토큰: mobile-xl-bold + root.brand
+   * 피그마 노드ID: 4040:3959
+   * fontSize 24, fontWeight 700, color #5c5050
+   * lineHeight 28, letterSpacing -0.24px
+   * 토큰: root.text (#524a4e) - 가장 유사
    */
   titleText: {
     fontFamily: "Pretendard Variable",
-    fontSize: parseInt(fontSize["mobile-xl-bold"][0]), // 20px
-    lineHeight: parseInt(fontSize["mobile-xl-bold"][1].lineHeight), // 28px
-    letterSpacing: parseFloat(fontSize["mobile-xl-bold"][1].letterSpacing), // 0em
-    fontWeight: fontSize["mobile-xl-bold"][1].fontWeight, // 700
-    color: colors.root.brand, // #ff5c8d
-    width: 243,
+    fontSize: 24,
+    lineHeight: 28,
+    letterSpacing: -0.24,
+    fontWeight: "700",
+    color: colors.root.text, // #524a4e
   },
 
   /* ========================================
@@ -107,10 +108,11 @@ export const styles = StyleSheet.create({
   /**
    * Stepper Wrapper
    * Stepper 컴포넌트 래퍼
+   * 피그마: Step Wrapper (width=393, height=52)
+   * Content 패딩: x=24, y=16
    */
   stepperWrapper: {
     width: "100%",
-    alignItems: "center",
     paddingHorizontal: 0,
   },
 
@@ -118,10 +120,11 @@ export const styles = StyleSheet.create({
    * Calendar Wrapper
    * 달력 영역 래퍼
    * 피그마: Frame 128 (x=0, y=52, width=394, height=371)
+   * 참고: Stepper의 stepContent가 이미 paddingHorizontal: 24 적용함
    */
   calendarWrapper: {
     width: "100%",
-    paddingHorizontal: 24,
+    paddingHorizontal: 0,
     paddingVertical: 0,
     marginTop: 0,
   },
@@ -129,28 +132,32 @@ export const styles = StyleSheet.create({
   /**
    * Calendar Card
    * 달력 카드 배경
-   * 피그마: Card (x=0, y=0, width=344, height=371)
+   * 피그마 노드ID: 4040:6793
+   * Card (x=0, y=0, width=344, height=371)
+   * 피그마: borderRadius 12px, border white, opacity 0.85, mix-blend-overlay
+   * 피그마: shadowColor #800C3A (진한 핑크/레드)
+   * 내부 패딩: 24px(좌우), 18px(상하)
+   * 토큰: foundationBlack.1 (white)
    */
   calendarCard: {
     width: "100%",
-    height: 371,
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
+    backgroundColor: colors.foundationBlack[1], // #ffffff
+    borderRadius: 12, // Figma: 12px (not 16px)
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    overflow: "hidden",
-  },
-
-  /**
-   * Calendar Inner Container
-   * 달력 내부 영역
-   * 피그마: ScrollableCalendar (x=24, y=18, width=296, height=335)
-   */
-  calendarInnerContainer: {
-    width: "100%",
-    height: "100%",
+    borderColor: colors.foundationBlack[1], // white
     paddingHorizontal: 24,
     paddingVertical: 18,
+    // Shadow: Figma shadowColor #800C3A
+    shadowColor: colors.foundationRed[10], // #73293f (가장 유사한 토큰)
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    // React Native에서는 mix-blend-mode 미지원으로 opacity만 적용
+    opacity: 0.95,
   },
 });
 

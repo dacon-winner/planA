@@ -182,7 +182,7 @@ export const StepItem: React.FC<StepItemProps> = ({
         )}
       </View>
 
-      {/* Connector Line (다음 스텝이 default일 때만 표시) */}
+      {/* Connector Line (닫혀있고 다음 스텝이 default일 때만 렌더링) */}
       {!isLast && !isOpen && nextStepState === "default" && (
         <View style={styles.connectorLine} />
       )}

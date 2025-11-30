@@ -67,6 +67,12 @@ export const styles = StyleSheet.create({
     fontFamily: "Pretendard",
   },
 
+  /* 폼 페이지 이동 버튼 */
+  "form-button-container": {
+    zIndex: 1,
+    alignSelf: "stretch",
+  },
+
   /* 중앙 정보 카드 */
   "info-card-wrapper": {
     alignSelf: "center",
