@@ -13,13 +13,12 @@
  */
 
 import React, { useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Image } from "react-native";
 import {
   StepperWithContext,
   useStepperContext,
 } from "@/commons/components/stepper";
 import { Calendar } from "@/commons/components/calendar";
-import { GradientBackground } from "@/commons/components/gradient-background";
 import { styles } from "./styles";
 
 /**
@@ -145,9 +144,11 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Background */}
-      <GradientBackground top={0} zIndex={-1} />
-
+      {/* Background Gradient */}
+      <Image
+        source={require("@/assets/form-background.png")}
+        style={styles.gradientBackground}
+      />
       {/* Content */}
       <ScrollView
         style={styles.contentWrapper}

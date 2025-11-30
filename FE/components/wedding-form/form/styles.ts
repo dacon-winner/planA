@@ -28,14 +28,22 @@ export const styles = StyleSheet.create({
    * Container
    * 전체 폼 컨테이너
    * 피그마: width 393, height 852
-   * 토큰: foundationBlack.1 (white)
    */
   container: {
     flex: 1,
     width: "100%",
     minHeight: 852,
-    backgroundColor: colors.foundationBlack[1], // #ffffff
-    position: "relative",
+  },
+
+  /**
+   * Gradient Background
+   * 배경 그라데이션 이미지
+   * 피그마: x=13, y=190, width=438, height=447
+   */
+  gradientBackground: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
 
   /**
@@ -44,6 +52,7 @@ export const styles = StyleSheet.create({
    */
   contentWrapper: {
     flex: 1,
+    marginTop: 59,
     width: "100%",
   },
 
