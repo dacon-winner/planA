@@ -28,6 +28,10 @@ export default function Home() {
     router.push(URL_PATHS.FORM);
   };
 
+  const handleNavigateToLogin = () => {
+    router.push(URL_PATHS.AUTH_LOGIN);
+  };
+
   return (
     <View style={styles["home-wrapper"]}>
       <StatusBar style="dark" translucent backgroundColor="transparent" />
@@ -55,13 +59,24 @@ export default function Home() {
 
           {/* 폼 페이지로 이동 버튼 */}
           <View style={styles["form-button-container"]}>
-            <Button
-              variant="filled"
-              size="medium"
-              onPress={handleNavigateToForm}
-            >
-              결혼 정보 입력하기
-            </Button>
+            <View style={styles["form-button"]}>
+              <Button
+                variant="filled"
+                size="medium"
+                onPress={handleNavigateToForm}
+              >
+                결혼 정보 입력하기
+              </Button>
+            </View>
+            <View style={styles["login-button"]}>
+              <Button
+                variant="filled"
+                size="medium"
+                onPress={handleNavigateToLogin}
+              >
+                로그인 하기
+              </Button>
+            </View>
           </View>
 
           {/* 중앙 정보 카드 */}

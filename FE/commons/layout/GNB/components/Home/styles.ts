@@ -71,6 +71,17 @@ export const styles = StyleSheet.create({
   "form-button-container": {
     zIndex: 1,
     alignSelf: "stretch",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+  },
+
+  "form-button": {
+    flex: 1,
+  },
+
+  "login-button": {
+    flex: 1,
   },
 
   /* 중앙 정보 카드 */
