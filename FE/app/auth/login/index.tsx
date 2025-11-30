@@ -7,7 +7,13 @@
  */
 
 import { Login } from "@/components/auth/login/login";
+import { Stack } from "expo-router";
 
 export default function LoginPage() {
-  return <Login />;
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: false, title: "" }} />
+      <Login />
+    </>
+  );
 }

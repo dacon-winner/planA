@@ -14,7 +14,7 @@
 import { View, ScrollView, Text, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Clock, Calendar, MapPin, CircleDollarSign } from "lucide-react-native";
-import { useRouter } from "expo-router";
+import { Link } from "expo-router";
 import { GradientBackground } from "@/commons/components/gradient-background";
 import { Button } from "@/commons/components/button";
 import { URL_PATHS } from "@/commons/enums/url";
@@ -22,15 +22,6 @@ import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
 
 export default function Home() {
-  const router = useRouter();
-
-  const handleNavigateToForm = () => {
-    router.push(URL_PATHS.FORM);
-  };
-
-  const handleNavigateToLogin = () => {
-    router.push(URL_PATHS.AUTH_LOGIN);
-  };
 
   return (
     <View style={styles["home-wrapper"]}>
@@ -60,22 +51,18 @@ export default function Home() {
           {/* 폼 페이지로 이동 버튼 */}
           <View style={styles["form-button-container"]}>
             <View style={styles["form-button"]}>
-              <Button
-                variant="filled"
-                size="medium"
-                onPress={handleNavigateToForm}
-              >
-                결혼 정보 입력하기
-              </Button>
+              <Link href={URL_PATHS.FORM} asChild>
+                <Button variant="filled" size="medium">
+                  결혼 정보 입력하기
+                </Button>
+              </Link>
             </View>
             <View style={styles["login-button"]}>
-              <Button
-                variant="filled"
-                size="medium"
-                onPress={handleNavigateToLogin}
-              >
-                로그인 하기
-              </Button>
+              <Link href={URL_PATHS.AUTH_LOGIN} asChild>
+                <Button variant="filled" size="medium">
+                  로그인 하기
+                </Button>
+              </Link>
             </View>
           </View>
 
