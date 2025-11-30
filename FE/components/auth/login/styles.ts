@@ -58,7 +58,7 @@ export const styles = StyleSheet.create({
    * Figma: Plan A
    */
   titleMain: {
-    fontFamily: "Pretendard_Variable",
+    fontFamily: "Pretendard-Bold",
     fontSize: 40,
     fontWeight: "700",
     lineHeight: 44,
@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
    * Figma: 결혼 준비 이제 한 곳 에서,
    */
   titleSub: {
-    fontFamily: "Pretendard_Variable",
+    fontFamily: "Pretendard-Medium",
     fontSize: 24,
     fontWeight: "500",
     lineHeight: 28,
@@ -140,7 +140,7 @@ export const styles = StyleSheet.create({
    * 회원가입 텍스트 (일반)
    */
   signUpTextNormal: {
-    fontFamily: "Pretendard_Variable",
+    fontFamily: "Pretendard-Regular",
     fontSize: 12,
     fontWeight: "400",
     lineHeight: 20,
@@ -152,7 +152,7 @@ export const styles = StyleSheet.create({
    * 회원가입 텍스트 (볼드)
    */
   signUpTextBold: {
-    fontFamily: "Pretendard_Variable",
+    fontFamily: "Pretendard-Bold",
     fontSize: 12,
     fontWeight: "700",
     lineHeight: 20,
