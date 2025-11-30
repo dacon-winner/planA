@@ -25,7 +25,7 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isBottomSheetAt70, setIsBottomSheetAt70] = useState(false); // 바텀 시트가 80% 높이에 도달했는지
+  const [isBottomSheetAt70, setIsBottomSheetAt70] = useState(false); // 바텀 시트가 70% 높이에 도달했는지
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
   
   // Bottom Sheet 설정
