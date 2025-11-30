@@ -12,15 +12,16 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView, SafeAreaView, Image } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { styles } from "./styles";
 import { PlannerCard } from "@/components/schedule/planner-card";
 import { AddNewPlanCard } from "@/components/schedule/add-new-plan-card";
 import { useModal } from "@/commons/providers/modal/modal.provider";
-import { NewPlanModalContent } from "@/commons/components/modal/NewPlanModal";
+import { NewPlanModalContent } from "@/commons/components/modal";
 import { getPlanDetailUrl } from "@/commons/enums/url";
+import { GradientBackground } from "@/commons/components/gradient-background";
 
 export default function Schedule() {
   const { openModal } = useModal();
@@ -77,28 +78,23 @@ export default function Schedule() {
       <StatusBar style="dark" translucent backgroundColor="transparent" />
 
       {/* 배경 그라데이션 */}
-      <Image
-        source={require("@/assets/Gradient.png")}
-        style={styles["background-gradient"]}
-      />
+      <GradientBackground zIndex={0} />
 
-      <SafeAreaView style={styles["safe-area"]}>
-        <View style={styles["schedule-container"]}>
-          {/* Header with Gradient */}
-          <View style={styles["schedule-header"]}>
-            <View style={styles["header-content"]}>
-              <Text style={styles["schedule-header-title"]}>
-                나의 플랜 관리
-              </Text>
-              <Text style={styles["schedule-header-subtitle"]}>D-0일</Text>
-            </View>
+      <ScrollView
+        style={styles["schedule-content"]}
+        contentContainerStyle={styles["schedule-content-container"]}
+      >
+        {/* Header with Gradient */}
+        <View style={styles["schedule-header"]}>
+          <View style={styles["header-section"]}>
+            <Text style={styles["schedule-header-title"]}>
+              나의 플랜 관리
+            </Text>
+            <Text style={styles["schedule-header-subtitle"]}>D-0일</Text>
           </View>
+        </View>
 
-          {/* Content: Plan Cards */}
-          <ScrollView
-            style={styles["schedule-content"]}
-            contentContainerStyle={styles["schedule-content-container"]}
-          >
+        {/* Content: Plan Cards */}
             {plans.map((plan, index) => (
               <PlannerCard
                 key={index}
@@ -115,9 +111,7 @@ export default function Schedule() {
               />
             ))}
             <AddNewPlanCard onPress={handleAddNewPlan} />
-          </ScrollView>
-        </View>
-      </SafeAreaView>
+      </ScrollView>
     </View>
   );
 }

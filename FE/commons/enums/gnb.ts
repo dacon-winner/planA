@@ -21,9 +21,9 @@ export const SCHEDULE_CONTENT = {
 } as const;
 
 export const MY_INFO_CONTENT = {
-  HEADER_TITLE: '내정보',
-  SECTION_TITLE: '내 정보',
-  PLACEHOLDER: '내 정보가 여기에 표시됩니다',
+  HEADER_TITLE: '나의 정보',
+  SECTION_TITLE: '나의 정보',
+  PLACEHOLDER: '나의 정보가 여기에 표시됩니다',
 } as const;
 
 export const TAB_LABELS = {
