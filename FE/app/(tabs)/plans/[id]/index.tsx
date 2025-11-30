@@ -34,8 +34,8 @@ export default function PlanDetail() {
   const snapPoints = useMemo(() => {
     const screenHeight = Dimensions.get('window').height;
     return [
-      screenHeight * 0.45, // 45% - 인덱스 0 (최소 높이 증가)
-      screenHeight * 0.45, // 45% - 인덱스 1
+      screenHeight * 0.80, // 80% - 인덱스 0 (최소 높이 증가)
+      screenHeight * 0.80, // 80% - 인덱스 1
       screenHeight * 0.80, // 80% - 인덱스 2 (최대값)
     ];
   }, []);
