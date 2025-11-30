@@ -116,6 +116,13 @@ export const modalColors = {
 } as const;
 
 /**
+ * 구분선 색상
+ */
+export const dividerColors = {
+  default: 'rgba(173, 162, 162, 0.2)', // #ADA2A233
+} as const;
+
+/**
  * 모든 색상을 통합한 객체
  * 프로젝트 전체에서 사용할 수 있는 통합 색상 토큰
  */
@@ -127,6 +134,7 @@ export const colors = {
   blue: blueColors,
   black: blackColors,
   modal: modalColors,
+  divider: dividerColors,
 } as const;
 
 /**
@@ -154,6 +162,9 @@ export type BlackColorKey = keyof typeof blackColors;
 /** Modal 색상 키 타입 */
 export type ModalColorKey = keyof typeof modalColors;
 
+/** Divider 색상 키 타입 */
+export type DividerColorKey = keyof typeof dividerColors;
+
 /**
  * 모든 색상 값의 유니온 타입
  * 모든 색상 토큰의 실제 hex 값 타입
@@ -165,5 +176,6 @@ export type ColorValue =
   | typeof brownColors[keyof typeof brownColors]
   | typeof blueColors[keyof typeof blueColors]
   | typeof blackColors[keyof typeof blackColors]
-  | typeof modalColors[keyof typeof modalColors];
+  | typeof modalColors[keyof typeof modalColors]
+  | typeof dividerColors[keyof typeof dividerColors];
 

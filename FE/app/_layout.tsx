@@ -1,6 +1,7 @@
 import "../global.css";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "../commons/providers/auth/auth.provider";
 import { ReactQueryProvider } from "../commons/providers/react-query/react-query.provider";
 import { ModalProvider } from "../commons/providers/modal/modal.provider";
@@ -31,12 +32,14 @@ export default function RootLayout() {
   
 
   return (
-    <AuthProvider>
-      <ReactQueryProvider>
-        <ModalProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-        </ModalProvider>
-      </ReactQueryProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <ReactQueryProvider>
+          <ModalProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ModalProvider>
+        </ReactQueryProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
