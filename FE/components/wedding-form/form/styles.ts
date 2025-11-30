@@ -203,10 +203,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.foundationBlack[1],
-    paddingLeft: 25,
-    paddingRight: 0,
-    paddingTop: 22,
-    paddingBottom: 22, // 하단 여유 공간
+    paddingVertical: 22,
     shadowColor: colors.foundationRed[10],
     shadowOffset: {
       width: 0,
@@ -222,12 +219,11 @@ export const styles = StyleSheet.create({
   /**
    * Region Page
    * 각 페이지 (2열 x 4행 = 8개 버튼)
-   * 카드 콘텐츠 영역 너비에 맞춰 설정 (345 - 25 = 320px)
+   * 카드 전체 너비에 맞춰 패딩 포함
    */
   regionPage: {
-    width: 320, // 카드 콘텐츠 영역 width (maxWidth 345 - paddingLeft 25)
-    paddingRight: 25, // 오른쪽 여백 (버튼과 카드 경계 사이)
-    marginRight: 0, // 페이지 간 간격 없음 (페이징을 위해)
+    width: 345, // 카드 전체 너비
+    paddingHorizontal: 25, // 각 페이지별 좌우 여백 25px
   },
 
   /**
@@ -241,6 +237,68 @@ export const styles = StyleSheet.create({
   },
 
   regionRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+
+  /* ========================================
+   * BUDGET STEP STYLES
+   * ======================================== */
+
+  /**
+   * Budget Wrapper
+   * 예산 선택 영역 래퍼
+   */
+  budgetWrapper: {
+    width: "100%",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
+
+  /**
+   * Budget Card
+   * 예산 선택 카드 배경
+   * 피그마 노드ID: 4048:11917
+   * width 345px, height 324px
+   * borderRadius 12px, border white, opacity 0.85
+   */
+  budgetCard: {
+    width: "100%",
+    maxWidth: 345,
+    height: "auto",
+    backgroundColor: colors.foundationBlack[1], // white
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.foundationBlack[1],
+    paddingHorizontal: 25,
+    paddingVertical: 24,
+    shadowColor: colors.foundationRed[10],
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    opacity: 0.85,
+  },
+
+  /**
+   * Budget Grid Container
+   * 예산 선택 그리드 레이아웃
+   * 피그마 노드ID: 4048:11945
+   * 2열 4행, gap 12px
+   */
+  budgetGridContainer: {
+    flexDirection: "column",
+    gap: 12,
+  },
+
+  /**
+   * Budget Row
+   * 예산 선택 행 (2개의 버튼)
+   */
+  budgetRow: {
     flexDirection: "row",
     gap: 12,
   },
