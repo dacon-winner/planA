@@ -26,13 +26,14 @@ export const styles = StyleSheet.create({
 
   'schedule-container': {
     flex: 1,
-    backgroundColor: colors.black['black-1'],
+    backgroundColor: 'transparent',
   },
 
   'schedule-header': {
     height: 102,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: 'transparent',
   },
 
   'header-gradient': {
@@ -42,17 +43,24 @@ export const styles = StyleSheet.create({
     width: 309,
     height: 315.536,
     resizeMode: 'cover',
+    zIndex: 0,
   },
 
   'header-content': {
-    padding: parseInt(spacing.lg),
+    paddingHorizontal: parseInt(spacing.lg),
     paddingTop: parseInt(spacing.lg),
+    paddingBottom: parseInt(spacing.lg),
     flexDirection: 'column',
     gap: parseInt(spacing.sm),
+    position: 'relative',
+    zIndex: 1,
+    justifyContent: 'center',
+    flex: 1,
   },
 
   'schedule-content': {
     flex: 1,
+    backgroundColor: 'transparent',
   },
 
   'schedule-content-container': {

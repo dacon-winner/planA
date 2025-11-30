@@ -19,7 +19,7 @@ export interface NewPlanModalProps {
   onAIGenerate?: (planName: string) => void;
 }
 
-const NewPlanModalContent: React.FC<NewPlanModalProps> = ({
+export const NewPlanModalContent: React.FC<NewPlanModalProps> = ({
   initialPlanName = '',
   onManualAdd,
   onAIGenerate,
