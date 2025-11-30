@@ -34,7 +34,6 @@ import { styles } from "./styles";
  * 피그마 디자인 시스템을 기반으로 한 회원가입 페이지
  */
 export const SignUp: React.FC = () => {
-
   // 폼 상태 관리
   const [name, setName] = useState("");
   const [gender, setGender] = useState("female"); // 기본값: 여성 (피그마 디자인 기준)
@@ -42,6 +41,16 @@ export const SignUp: React.FC = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [phone, setPhone] = useState("");
+
+  /**
+   * 폼 유효성 검사: 모든 필드가 채워져 있는지 확인
+   */
+  const isFormValid =
+    name.trim() !== "" &&
+    email.trim() !== "" &&
+    password.trim() !== "" &&
+    passwordConfirm.trim() !== "" &&
+    phone.trim() !== "";
 
   /**
    * 회원가입 처리
@@ -179,6 +188,7 @@ export const SignUp: React.FC = () => {
                       variant="filled"
                       size="medium"
                       onPress={handleSignUp}
+                      disabled={!isFormValid}
                     >
                       회원가입
                     </Button>
