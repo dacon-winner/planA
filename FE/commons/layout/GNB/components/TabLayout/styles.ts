@@ -10,7 +10,7 @@
  * - [x] Figma 디자인 준수 (높이 56px, 아이콘 20px)
  */
 
-const tailwindConfig = require('@/tailwind.config.js');
+const tailwindConfig = require("@/tailwind.config.js");
 const colors = tailwindConfig.theme.extend.colors;
 const spacing = tailwindConfig.theme.extend.spacing;
 const fontSize = tailwindConfig.theme.extend.fontSize;
@@ -19,22 +19,18 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
 export const tabLayoutStyles = {
   screenOptions: {
     tabBarActiveTintColor: colors.primary[400],
-    tabBarInactiveTintColor: 'rgba(82, 74, 78, 0.5)',
+    tabBarInactiveTintColor: "rgba(82, 74, 78, 0.5)",
     headerShown: false,
     tabBarStyle: {
       backgroundColor: colors.secondary[50],
       borderTopWidth: 0,
-      height: 56,
+      height: 65,
     },
     tabBarLabelStyle: {
-      fontSize: parseInt(fontSize['mobile-xs'][0]),
-      fontWeight: fontSize['mobile-xs'][1].fontWeight,
-      fontFamily: 'Pretendard',
+      fontSize: parseInt(fontSize["mobile-xs"][0]),
+      fontWeight: fontSize["mobile-xs"][1].fontWeight,
+      fontFamily: "Pretendard",
       marginTop: parseInt(spacing.xs),
     },
   },
 };
-
-
-
-

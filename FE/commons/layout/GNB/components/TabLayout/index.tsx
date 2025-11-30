@@ -10,10 +10,10 @@
  * - [x] Figma 디자인 준수
  */
 
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { tabLayoutStyles } from './styles';
-import { TAB_LABELS, TAB_ICON_NAMES } from '@/commons/enums/gnb';
+import { Tabs } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { tabLayoutStyles } from "./styles";
+import { TAB_LABELS, TAB_ICON_NAMES } from "@/commons/enums/gnb";
 
 export default function TabLayout() {
   return (
@@ -41,7 +41,11 @@ export default function TabLayout() {
         options={{
           title: TAB_LABELS.SCHEDULE,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name={TAB_ICON_NAMES.SCHEDULE} size={size} color={color} />
+            <Ionicons
+              name={TAB_ICON_NAMES.SCHEDULE}
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -54,10 +58,13 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* 플랜 상세 페이지 - 탭 바에는 표시하지 않음 */}
+      <Tabs.Screen
+        name="plans/[id]/index"
+        options={{
+          href: null, // 탭 바에서 숨김
+        }}
+      />
     </Tabs>
   );
 }
-
-
-
-

@@ -46,7 +46,7 @@ Plan A - 웨딩 플래닝 모바일 애플리케이션
   - Typography: Mobile/Desktop 폰트 크기 체계
   - Spacing: 4px 기반 간격 시스템
   - Border: 모서리 반경, 테두리 색상
-- [x] Pretendard 폰트 시스템
+- [x] PretendardVariable 폰트 시스템
 
 #### 3. GNB (Global Navigation Bar) 구현
 - [x] 탭 네비게이션 레이아웃
@@ -495,7 +495,7 @@ const fontSize = tailwindConfig.theme.extend.fontSize;
   lineHeight: parseInt(fontSize['mobile-3xl-bold'][1].lineHeight),
   letterSpacing: parseFloat(fontSize['mobile-3xl-bold'][1].letterSpacing) * parseInt(fontSize['mobile-3xl-bold'][0]),
   fontWeight: fontSize['mobile-3xl-bold'][1].fontWeight,
-  fontFamily: 'Pretendard',
+  fontFamily: 'PretendardVariable',
 }
 ```
 
