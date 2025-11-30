@@ -15,18 +15,17 @@ import { View, Text, ScrollView, SafeAreaView, Image, Pressable, Dimensions } fr
 import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams } from 'expo-router';
 import { Calendar, MapPin, Wallet, Phone, Clock, CircleDollarSign, ClockCheck } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { ContentSwitcher } from '@/commons/components/content-switcher';
 import { Button } from '@/commons/components/button';
 import { styles } from './styles';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo } from 'react';
-import BottomSheet, { BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import type { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 
 export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [isScrolledPast80, setIsScrolledPast80] = useState(false);
   const [isBottomSheetAt80, setIsBottomSheetAt80] = useState(false); // 바텀 시트가 80% 높이에 도달했는지
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
   
@@ -36,9 +35,9 @@ export default function PlanDetail() {
   const snapPoints = useMemo(() => {
     const screenHeight = Dimensions.get('window').height;
     return [
-      screenHeight * 0.25, // 25% - 인덱스 0 (최소 높이 증가)
-      screenHeight * 0.50, // 50% - 인덱스 1
-      screenHeight * 0.70, // 70% - 인덱스 2 (최대값)
+      screenHeight * 0.45, // 45% - 인덱스 0 (최소 높이 증가)
+      screenHeight * 0.45, // 45% - 인덱스 1
+      screenHeight * 0.80, // 80% - 인덱스 2 (최대값)
     ];
   }, []);
   
@@ -55,30 +54,6 @@ export default function PlanDetail() {
     }
   }, []);
 
-  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-    const scrollY = contentOffset.y;
-    const contentHeight = contentSize.height;
-    const scrollViewHeight = layoutMeasurement.height;
-    
-    // 스크롤 가능한 전체 높이
-    const scrollableHeight = Math.max(0, contentHeight - scrollViewHeight);
-    
-    // 스크롤 진행률 계산 (0 ~ 1)
-    const scrollPercentage = scrollableHeight > 0 ? Math.min(1, Math.max(0, scrollY / scrollableHeight)) : 0;
-    
-    // 80% 지점 체크
-    const shouldShowScrolledStyle = scrollPercentage >= 0.7;
-    
-    setIsScrolledPast80(shouldShowScrolledStyle);
-    
-    // 스크롤이 80%에 도달하고 아직 최대 높이로 올라가지 않았으면 바텀 시트를 90% 높이로 올리기
-    if (shouldShowScrolledStyle && !hasSnappedToMaxRef.current && bottomSheetRef.current) {
-      console.log('스크롤 80% 도달 - 바텀 시트를 90% 높이로 확장');
-      bottomSheetRef.current.snapToIndex(2); // 90% 높이 (인덱스 2)
-      hasSnappedToMaxRef.current = true;
-    }
-  }, []);
 
   // TODO: 실제 데이터로 교체 필요 (planId 기반으로 API 호출)
   // 현재는 planId를 사용하지 않지만, 나중에 API 호출 시 사용 예정
@@ -321,18 +296,12 @@ export default function PlanDetail() {
       >
         <BottomSheetView style={styles['bottom-sheet-content']}>
           {/* Bottom Sheet Handle */}
-          <View style={[
-            styles['detail-section-header'],
-            isScrolledPast80 && styles['detail-section-header-scrolled']
-          ]}>
+          <View style={styles['detail-section-header']}>
             <View style={styles['detail-section-handle']} />
           </View>
 
           {/* Content Switcher */}
-          <View style={[
-            styles['content-switcher-wrapper'],
-            isScrolledPast80 && styles['content-switcher-wrapper-scrolled']
-          ]}>
+          <View style={styles['content-switcher-wrapper']}>
             <ContentSwitcher
               selectedIndex={selectedTab}
               onSelectionChange={setSelectedTab}
@@ -340,15 +309,11 @@ export default function PlanDetail() {
           </View>
 
           {/* 상세 정보 컨텐츠 - 스크롤 가능 */}
-          <BottomSheetScrollView
-            style={styles['detail-content-scroll']}
-            contentContainerStyle={styles['detail-content']}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            nestedScrollEnabled={true}
-            bounces={true}
-          >
+          <View style={[styles['detail-content-scroll'], { height: Dimensions.get('window').height * 0.6 }]}>
+            <ScrollView
+              contentContainerStyle={styles['detail-content']}
+              showsVerticalScrollIndicator={false}
+            >
             <Text style={styles['detail-name']}>
               {planData.detailInfo.name}
             </Text>
@@ -439,10 +404,31 @@ export default function PlanDetail() {
                 <View style={styles['ai-recommendation-image']} />
               </ScrollView>
             </View>
-
-          </BottomSheetScrollView>
+            </ScrollView>
+          </View>
+         
         </BottomSheetView>
+       
       </BottomSheet>
+      {/* GNB 탭 (ScrollView 안쪽 복제) */}
+      <View style={styles['gnb-tab-bar']}>
+        <Pressable style={styles['gnb-tab-item']}>
+          <Ionicons name="home-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
+          <Text style={styles['gnb-tab-label']}>홈</Text>
+        </Pressable>
+        <Pressable style={styles['gnb-tab-item']}>
+          <Ionicons name="search-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
+          <Text style={styles['gnb-tab-label']}>검색</Text>
+        </Pressable>
+        <Pressable style={styles['gnb-tab-item']}>
+          <Ionicons name="calendar-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
+          <Text style={styles['gnb-tab-label']}>일정</Text>
+        </Pressable>
+        <Pressable style={styles['gnb-tab-item']}>
+          <Ionicons name="person-outline" size={20} color="rgba(82, 74, 78, 0.5)" />
+          <Text style={styles['gnb-tab-label']}>내정보</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

@@ -300,3 +300,4 @@ describe('SearchBar', () => {
 - [피그마 디자인](https://www.figma.com/file/...)
 - [lucide-react-native 문서](https://lucide.dev/guide/packages/lucide-react-native)
 
+

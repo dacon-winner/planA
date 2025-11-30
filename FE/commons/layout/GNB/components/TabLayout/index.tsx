@@ -57,7 +57,7 @@ export default function TabLayout() {
             <Ionicons name={TAB_ICON_NAMES.MY_INFO} size={size} color={color} />
           ),
         }}
-      />
+      /> 
     </Tabs>
   );
 }
