@@ -3,6 +3,8 @@ export { User } from './user.entity';
 export { UsersInfo } from './users-info.entity';
 export { Vendor } from './vendor.entity';
 export { VendorVenueDetail } from './vendor-venue-detail.entity';
+export { VendorOperatingHour } from './vendor-operating-hour.entity';
+export { VendorCostDetail } from './vendor-cost-detail.entity';
 export { VendorImage } from './vendor-image.entity';
 export { ServiceItem } from './service-item.entity';
 export { Plan } from './plan.entity';

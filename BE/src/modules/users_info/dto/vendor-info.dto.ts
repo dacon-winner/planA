@@ -51,13 +51,6 @@ export class VendorInfoDto {
   introduction: string | null;
 
   @ApiProperty({
-    description: '운영 시간',
-    example: '평일 10:00-19:00',
-    nullable: true,
-  })
-  operating_hours: string | null;
-
-  @ApiProperty({
     description: '위도',
     example: 37.5012345,
     nullable: true,
@@ -70,24 +63,6 @@ export class VendorInfoDto {
     nullable: true,
   })
   longitude: number | null;
-
-  @ApiProperty({
-    description: '네이버 평점',
-    example: 4.5,
-  })
-  naver_rating: number;
-
-  @ApiProperty({
-    description: '리뷰 개수',
-    example: 150,
-  })
-  review_count: number;
-
-  @ApiProperty({
-    description: '종합 점수',
-    example: 85.5,
-  })
-  total_score: number;
 
   @ApiProperty({
     description: '네이버 플레이스 URL',

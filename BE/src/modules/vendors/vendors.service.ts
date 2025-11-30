@@ -115,10 +115,9 @@ export class VendorsService {
   private applySorting(queryBuilder: SelectQueryBuilder<Vendor>, sort: string) {
     switch (sort) {
       case 'rating':
-        queryBuilder.orderBy('vendor.naver_rating', 'DESC');
-        break;
       case 'review_count':
-        queryBuilder.orderBy('vendor.review_count', 'DESC');
+        // 평점/리뷰 수 정렬은 더 이상 사용하지 않음 - 이름순으로 대체
+        queryBuilder.orderBy('vendor.name', 'ASC');
         break;
       case 'price':
         // service_item의 최소 가격 기준으로 정렬
@@ -128,7 +127,7 @@ export class VendorsService {
         queryBuilder.orderBy('vendor.name', 'ASC');
         break;
       default:
-        queryBuilder.orderBy('vendor.naver_rating', 'DESC');
+        queryBuilder.orderBy('vendor.name', 'ASC');
     }
   }
 
@@ -165,7 +164,6 @@ export class VendorsService {
       name: vendor.name,
       address: vendor.address,
       phone: vendor.phone,
-      operating_hours: vendor.operating_hours,
       introduction: vendor.introduction,
       service_items:
         vendor.service_items?.map((item) => ({
@@ -378,7 +376,6 @@ export class VendorsService {
           name: vendor.name,
           thumbnail_url: vendor.thumbnail_url,
           address: vendor.address,
-          naver_rating: vendor.naver_rating,
           reason: aiRec.reason,
         });
       }
@@ -396,13 +393,9 @@ export class VendorsService {
       name: vendor.name,
       address: vendor.address,
       phone: vendor.phone,
-      operating_hours: vendor.operating_hours,
       latitude: vendor.latitude,
       longitude: vendor.longitude,
       thumbnail_url: vendor.thumbnail_url,
-      naver_rating: vendor.naver_rating,
-      review_count: vendor.review_count,
-      total_score: vendor.total_score,
       badges: vendor.badges,
       // service_items 배열
       service_items:

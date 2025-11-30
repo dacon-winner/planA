@@ -60,7 +60,7 @@ CREATE TABLE "users_info" (
   "updated_at" timestamp NOT NULL DEFAULT (now())
 );
 
--- 2. 업체 (Vendor)
+-- 2. 업체 (Vendor) - 기본 정보
 CREATE TABLE "vendor" (
   "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "category" vendor_category NOT NULL,
@@ -69,26 +69,66 @@ CREATE TABLE "vendor" (
   "region" varchar NOT NULL,
   "phone" varchar NOT NULL,
   "introduction" text,
-  "operating_hours" varchar,
+  -- operating_hours 삭제됨 -> vendor_operating_hour 테이블로 이동
+  -- naver_rating 등 평점 필드 삭제됨
+  
   "latitude" decimal(10,7),
   "longitude" decimal(10,7),
-  "naver_rating" double precision DEFAULT 0,
-  "review_count" int DEFAULT 0,
-  "total_score" double precision DEFAULT 0,
+  
   "naver_place_url" varchar,
   "thumbnail_url" varchar,
   "badges" json DEFAULT '[]',
+  
+  -- [NEW] 시트 데이터 대응 필드
+  "parking_info" varchar,   -- 예: "500대 / 혼주 6시간 무료"
+  "transport_info" varchar, -- 예: "셔틀버스 수시 운행"
+  
   "created_at" timestamp DEFAULT (now())
 );
 
--- 웨딩홀 상세 정보
+-- [NEW] 업체 영업시간 (정규화)
+CREATE TABLE "vendor_operating_hour" (
+  "vendor_id" uuid NOT NULL,
+  "day_of_week" int NOT NULL, -- 0:일요일 ~ 6:토요일
+  "open_time" time,
+  "close_time" time,
+  "is_holiday" boolean DEFAULT false,
+  PRIMARY KEY ("vendor_id", "day_of_week")
+);
+
+-- 2-1. 웨딩홀 상세 정보 (VENUE)
 CREATE TABLE "vendor_venue_detail" (
   "vendor_id" uuid PRIMARY KEY,
-  "hall_type" varchar,
-  "meal_type" varchar,
+  "hall_type" varchar,    -- 어두운/밝은/채플 등
+  "meal_type" varchar,    -- 뷔페/코스 등
   "min_guarantee" int DEFAULT 200,
   "meal_cost" int DEFAULT 0,
-  "rental_fee" int DEFAULT 0
+  "rental_fee" int DEFAULT 0,
+  
+  -- [NEW] 시트 데이터 대응 필드
+  "ceremony_interval" int DEFAULT 60, -- 예식 간격 (분)
+  "ceremony_form" varchar             -- 분리예식/동시예식
+);
+
+-- [NEW] 2-2. 스드메 추가 비용 상세 (Cost Detail)
+CREATE TABLE "vendor_cost_detail" (
+  "vendor_id" uuid PRIMARY KEY,
+  
+  -- 드레스/메이크업
+  "fitting_fee" int DEFAULT 0,       -- 피팅비
+  "helper_fee" int DEFAULT 0,        -- 헬퍼비
+  "early_start_fee" int DEFAULT 0,   -- 얼리비
+  
+  -- 스튜디오
+  "original_file_fee" int DEFAULT 0, -- 원본비
+  "modified_file_fee" int DEFAULT 0, -- 수정비
+  
+  -- 공통
+  "valet_fee" int DEFAULT 0,         -- 발렛비
+  "after_party_fee" int DEFAULT 0,   -- 피로연 비용
+  "cancellation_policy" text,        -- 위약금 규정
+  
+  "created_at" timestamp DEFAULT (now())
 );
 
 -- 업체 이미지
@@ -186,19 +226,9 @@ CREATE TABLE "user_policy_scrap" (
   "created_at" timestamp DEFAULT (now())
 );
 
--- 8. 리뷰 (Review)
-CREATE TABLE "review" (
-  "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
-  "vendor_id" uuid NOT NULL,
-  "user_id" uuid NOT NULL,
-  "rating" int NOT NULL,
-  "content" text,
-  "images" json,
-  "created_at" timestamp DEFAULT (now())
-);
+-- 8. 리뷰 (Review) - 삭제됨
 
 -- 9. AI RAG 및 로그
--- AI 지식 저장소
 CREATE TABLE "ai_resource" (
   "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "vendor_id" uuid,
@@ -209,7 +239,6 @@ CREATE TABLE "ai_resource" (
   "created_at" timestamp DEFAULT (now())
 );
 
--- AI 비용 로그
 CREATE TABLE "ai_log" (
   "id" uuid PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "user_id" uuid,
@@ -223,159 +252,62 @@ CREATE TABLE "ai_log" (
 );
 
 -- =========================================================
--- 인덱스 정의
+-- 인덱스 및 제약조건
 -- =========================================================
 
--- 사용자 정보 조회 최적화
+-- Indexes
 CREATE INDEX "IDX_users_info_user_id" ON "users_info" ("user_id");
-
--- 플랜 조회 최적화
 CREATE INDEX "IDX_plan_users_info_id" ON "plan" ("users_info_id");
-
--- 정책 스크랩 중복 방지
 CREATE UNIQUE INDEX "idx_user_policy_scrap_unique" ON "user_policy_scrap" ("user_id", "policy_info_id");
 
--- =========================================================
--- 외래키 제약조건
--- =========================================================
+-- Foreign Keys
+ALTER TABLE "users_info" ADD CONSTRAINT "FK_users_info_user_id" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
--- users_info 관계
-ALTER TABLE "users_info" 
-  ADD CONSTRAINT "FK_users_info_user_id" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "vendor_operating_hour" ADD CONSTRAINT "fk_vendor_operating_hour_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
+ALTER TABLE "vendor_venue_detail" ADD CONSTRAINT "fk_vendor_venue_detail_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
+ALTER TABLE "vendor_cost_detail" ADD CONSTRAINT "fk_vendor_cost_detail_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
+ALTER TABLE "vendor_image" ADD CONSTRAINT "fk_vendor_image_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
 
--- vendor 관계
-ALTER TABLE "vendor_venue_detail" 
-  ADD CONSTRAINT "fk_vendor_venue_detail_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "service_item" ADD CONSTRAINT "fk_service_item_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "vendor_image" 
-  ADD CONSTRAINT "fk_vendor_image_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "plan" ADD CONSTRAINT "fk_plan_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "plan" ADD CONSTRAINT "FK_plan_users_info_id" FOREIGN KEY ("users_info_id") REFERENCES "users_info" ("id") ON DELETE CASCADE;
 
--- service_item 관계
-ALTER TABLE "service_item" 
-  ADD CONSTRAINT "fk_service_item_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "plan_item" ADD CONSTRAINT "fk_plan_item_plan" FOREIGN KEY ("plan_id") REFERENCES "plan" ("id") ON DELETE CASCADE;
+ALTER TABLE "plan_item" ADD CONSTRAINT "fk_plan_item_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
+ALTER TABLE "plan_item" ADD CONSTRAINT "fk_plan_item_service_item" FOREIGN KEY ("service_item_id") REFERENCES "service_item" ("id") ON DELETE SET NULL;
 
--- plan 관계
-ALTER TABLE "plan" 
-  ADD CONSTRAINT "fk_plan_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "reservation" ADD CONSTRAINT "fk_reservation_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "reservation" ADD CONSTRAINT "fk_reservation_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE CASCADE;
+ALTER TABLE "reservation" ADD CONSTRAINT "fk_reservation_plan" FOREIGN KEY ("plan_id") REFERENCES "plan" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "plan" 
-  ADD CONSTRAINT "FK_plan_users_info_id" 
-  FOREIGN KEY ("users_info_id") 
-  REFERENCES "users_info" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "personal_schedule" ADD CONSTRAINT "fk_personal_schedule_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
--- plan_item 관계
-ALTER TABLE "plan_item" 
-  ADD CONSTRAINT "fk_plan_item_plan" 
-  FOREIGN KEY ("plan_id") 
-  REFERENCES "plan" ("id") 
-  ON DELETE CASCADE;
+ALTER TABLE "user_policy_scrap" ADD CONSTRAINT "fk_user_policy_scrap_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "user_policy_scrap" ADD CONSTRAINT "fk_user_policy_scrap_policy" FOREIGN KEY ("policy_info_id") REFERENCES "policy_info" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "plan_item" 
-  ADD CONSTRAINT "fk_plan_item_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
-
-ALTER TABLE "plan_item" 
-  ADD CONSTRAINT "fk_plan_item_service_item" 
-  FOREIGN KEY ("service_item_id") 
-  REFERENCES "service_item" ("id") 
-  ON DELETE SET NULL;
-
--- reservation 관계
-ALTER TABLE "reservation" 
-  ADD CONSTRAINT "fk_reservation_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
-
-ALTER TABLE "reservation" 
-  ADD CONSTRAINT "fk_reservation_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
-
-ALTER TABLE "reservation" 
-  ADD CONSTRAINT "fk_reservation_plan" 
-  FOREIGN KEY ("plan_id") 
-  REFERENCES "plan" ("id") 
-  ON DELETE SET NULL;
-
--- personal_schedule 관계
-ALTER TABLE "personal_schedule" 
-  ADD CONSTRAINT "fk_personal_schedule_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
-
--- user_policy_scrap 관계
-ALTER TABLE "user_policy_scrap" 
-  ADD CONSTRAINT "fk_user_policy_scrap_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
-
-ALTER TABLE "user_policy_scrap" 
-  ADD CONSTRAINT "fk_user_policy_scrap_policy" 
-  FOREIGN KEY ("policy_info_id") 
-  REFERENCES "policy_info" ("id") 
-  ON DELETE CASCADE;
-
--- review 관계
-ALTER TABLE "review" 
-  ADD CONSTRAINT "fk_review_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE CASCADE;
-
-ALTER TABLE "review" 
-  ADD CONSTRAINT "fk_review_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE CASCADE;
-
--- ai_resource 관계
-ALTER TABLE "ai_resource" 
-  ADD CONSTRAINT "fk_ai_resource_vendor" 
-  FOREIGN KEY ("vendor_id") 
-  REFERENCES "vendor" ("id") 
-  ON DELETE SET NULL;
-
--- ai_log 관계
-ALTER TABLE "ai_log" 
-  ADD CONSTRAINT "fk_ai_log_user" 
-  FOREIGN KEY ("user_id") 
-  REFERENCES "users" ("id") 
-  ON DELETE SET NULL;
+ALTER TABLE "ai_resource" ADD CONSTRAINT "fk_ai_resource_vendor" FOREIGN KEY ("vendor_id") REFERENCES "vendor" ("id") ON DELETE SET NULL;
+ALTER TABLE "ai_log" ADD CONSTRAINT "fk_ai_log_user" FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE SET NULL;
 
 -- =========================================================
 -- 메타데이터
 -- =========================================================
--- 버전: 1.1.0
+-- 버전: 1.2.0
 -- 작성일: 2025.11.30
--- 작성자: 이윤재
+-- 작성자: 김동언
 -- 설명: PlanA 웨딩 플래닝 서비스 PostgreSQL 스키마
 -- 참조: docs/database/DATABASE.md
 -- 
 -- 사용법:
 -- psql -d plana -f Plan_A.sql
 -- 
+-- 주요 변경사항 (v1.2.0):
+-- - vendor 테이블: operating_hours 삭제 (정규화), 평점 필드 삭제
+-- - vendor 테이블: parking_info, transport_info 추가
+-- - vendor_operating_hour 테이블 추가 (영업시간 정규화)
+-- - vendor_cost_detail 테이블 추가 (스드메 추가 비용)
+-- - vendor_venue_detail: ceremony_interval, ceremony_form 추가
+--
 -- 주요 변경사항 (v1.1.0):
 -- - uuid-ossp extension 명시적 추가
 -- - 모든 PRIMARY KEY 제약조건 명시

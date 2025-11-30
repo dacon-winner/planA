@@ -1,0 +1,354 @@
+// =========================================================
+// Enum 정의
+// =========================================================
+Enum vendor_category {
+  VENUE    // 웨딩홀
+  STUDIO
+  DRESS
+  MAKEUP
+}
+
+Enum item_source {
+  AI_RECOMMEND   
+  USER_SELECT    
+}
+
+Enum reservation_status {
+  PENDING           
+  AWAITING_PAYMENT  
+  CONFIRMED         
+  CANCELLED         
+}
+
+Enum user_gender_enum {
+  MALE
+  FEMALE
+  OTHER
+}
+
+// =========================================================
+// 1. 사용자 (User)
+// =========================================================
+Table users {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  email varchar [not null, unique]
+  password_hash varchar [null] 
+  provider varchar [default: 'EMAIL']
+  
+  name varchar [not null]
+  gender user_gender_enum [not null] // MALE, FEMALE, OTHER (1단계 필수 입력)
+  phone varchar [not null] // 1단계 필수 입력
+  
+  is_push_on boolean [default: true]
+  
+  created_at timestamp [default: `now()`]
+}
+
+// 사용자 상세 정보 (결혼 계획 관련)
+// 1:N 관계 - 한 사용자가 여러 개의 상세 정보를 가질 수 있음
+// is_main_plan이 true인 것이 현재 활성 플랜 (한 유저당 하나)
+Table users_info {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [not null, ref: > users.id] // N:1 관계
+  is_main_plan boolean [not null, default: false] // 메인 플랜 여부
+  
+  wedding_date date [null] // 2단계 입력
+  preferred_region varchar [null] // 2단계 입력
+  budget_limit int [null] // 2단계 입력
+  
+  created_at timestamp [not null, default: `now()`]
+  updated_at timestamp [not null, default: `now()`]
+  
+  indexes {
+    user_id [name: 'IDX_users_info_user_id']
+  }
+}
+
+// =========================================================
+// 2. 업체 (Vendor)
+// =========================================================
+Table vendor {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  category vendor_category [not null]
+  name varchar [not null]
+  
+  address varchar [not null]
+  region varchar [not null] 
+  phone varchar [not null]
+  introduction text 
+  
+  // 영업시간은 vendor_operating_hour 테이블로 정규화
+  
+  latitude decimal(10,7) 
+  longitude decimal(10,7) 
+  
+  // 평점 필드 삭제됨 (naver_rating, review_count, total_score)
+  
+  naver_place_url varchar
+  thumbnail_url varchar 
+  badges json [default: '[]'] 
+  
+  // [NEW] 시트 데이터 대응 필드
+  parking_info varchar [null] // 예: "500대 / 혼주 6시간 무료"
+  transport_info varchar [null] // 예: "셔틀버스 수시 운행"
+
+  created_at timestamp [default: `now()`]
+}
+
+// [NEW] 업체 영업시간 (정규화)
+Table vendor_operating_hour {
+  vendor_id uuid [not null, ref: > vendor.id]
+  day_of_week int [not null] // 0:일요일 ~ 6:토요일
+  open_time time [null]
+  close_time time [null]
+  is_holiday boolean [default: false]
+  
+  indexes {
+    (vendor_id, day_of_week) [pk]
+  }
+}
+
+// 웨딩홀 상세 정보
+Table vendor_venue_detail {
+  vendor_id uuid [pk, not null, ref: - vendor.id]
+  hall_type varchar 
+  meal_type varchar 
+  min_guarantee int [default: 200]
+  meal_cost int [default: 0]
+  rental_fee int [default: 0]
+  
+  // [NEW] 시트 데이터 대응 필드
+  ceremony_interval int [default: 60] // 예식 간격 (분)
+  ceremony_form varchar [null] // 분리예식/동시예식
+}
+
+// [NEW] 스드메 추가 비용 상세
+Table vendor_cost_detail {
+  vendor_id uuid [pk, not null, ref: - vendor.id]
+  
+  // 드레스/메이크업
+  fitting_fee int [default: 0] // 피팅비
+  helper_fee int [default: 0] // 헬퍼비
+  early_start_fee int [default: 0] // 얼리비
+  
+  // 스튜디오
+  original_file_fee int [default: 0] // 원본비
+  modified_file_fee int [default: 0] // 수정비
+  
+  // 공통
+  valet_fee int [default: 0] // 발렛비
+  after_party_fee int [default: 0] // 피로연 비용
+  cancellation_policy text [null] // 위약금 규정
+  
+  created_at timestamp [default: `now()`]
+}
+
+Table vendor_image {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  vendor_id uuid [not null, ref: > vendor.id]
+  image_url varchar [not null]
+  role varchar [default: 'DETAIL'] 
+  sort_order int [default: 0]
+}
+
+// =========================================================
+// 3. 상품 (Service)
+// =========================================================
+Table service_item {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  vendor_id uuid [not null, ref: > vendor.id]
+  name varchar [not null]
+  description text
+  thumbnail_url varchar
+  price int [not null] 
+  is_package boolean [default: false]
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 4. 플랜 (Plan)
+// =========================================================
+Table plan {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [not null, ref: > users.id]
+  users_info_id uuid [not null, ref: > users_info.id] // 사용자 상세 정보 참조
+  title varchar [default: '나의 웨딩']
+  total_budget int
+  is_ai_generated boolean [default: false]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    users_info_id [name: 'IDX_plan_users_info_id']
+  }
+}
+
+Table plan_item {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  plan_id uuid [not null, ref: > plan.id]
+  vendor_id uuid [not null, ref: > vendor.id]
+  service_item_id uuid [null, ref: > service_item.id]
+  
+  source item_source [default: 'AI_RECOMMEND'] 
+  selection_reason text 
+  order_index int [default: 0]
+  is_confirmed boolean [default: false]
+  
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 5. 예약 (Reservation)
+// =========================================================
+Table reservation {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [not null, ref: > users.id]
+  vendor_id uuid [not null, ref: > vendor.id]
+  plan_id uuid [null, ref: > plan.id]
+  
+  reservation_date date [not null]
+  reservation_time time [not null]
+  status reservation_status [default: 'PENDING']
+  
+  is_deposit_paid boolean [default: false]
+  deposit_amount int [default: 0]
+  
+  visitor_name varchar
+  visitor_phone varchar
+  visitor_count int [default: 2]
+  memo text
+  
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 6. 개인 일정 (Personal Schedule)
+// =========================================================
+Table personal_schedule {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [not null, ref: > users.id]
+  title varchar [not null]
+  memo text
+  schedule_date date [not null]
+  schedule_time time
+  color_hex varchar [default: '#E1E1E1']
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 7. 정책 정보 (Policy)
+// =========================================================
+Table policy_info {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  title varchar [not null]
+  subtitle varchar
+  type varchar // SUBSIDY, LOAN, ETC (varchar로 저장)
+  badges json [default: '[]'] 
+  benefit_summary varchar 
+  apply_url varchar
+  thumbnail_url varchar
+}
+
+Table user_policy_scrap {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [not null, ref: > users.id]
+  policy_info_id uuid [not null, ref: > policy_info.id]
+  created_at timestamp [default: `now()`]
+  
+  indexes { 
+    (user_id, policy_info_id) [unique, name: 'idx_user_policy_scrap_unique'] 
+  }
+}
+
+// =========================================================
+// 8. 리뷰 (Review)
+// =========================================================
+Table review {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  vendor_id uuid [not null, ref: > vendor.id]
+  user_id uuid [not null, ref: > users.id]
+  rating int [not null]
+  content text
+  images json 
+  created_at timestamp [default: `now()`]
+}
+
+// =========================================================
+// 9. AI RAG 및 로그 (비용 관리)
+// =========================================================
+
+// [AI 지식 저장소] RAG를 위해 가공된 텍스트 데이터
+Table ai_resource {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  
+  // 우리 서비스의 업체 데이터와 연결 (Optional)
+  vendor_id uuid [null, ref: > vendor.id] 
+  
+  category varchar [not null] // 'studio', 'dress' (1차 필터링용)
+  name varchar [not null]
+  
+  // [핵심] AI가 읽을 텍스트 (업체 특징, 가격대, 분위기 등을 문장형으로 요약)
+  content text [not null] 
+  
+  // [메타데이터] 가격, 지역 등 필터링용 데이터 (JSON)
+  metadata json [default: '{}'] 
+  
+  // (선택) pgvector 등을 쓴다면 임베딩 값 저장
+  // embedding vector(1536) 
+  
+  created_at timestamp [default: `now()`]
+}
+
+// [AI 비용 로그] 내 API Key 사용 내역 추적
+Table ai_log {
+  id uuid [pk, default: `uuid_generate_v4()`]
+  user_id uuid [null, ref: > users.id] // 누가 요청했나
+  
+  request_prompt text // 실제 프롬프트 내용
+  response_result json // AI가 뱉은 추천 결과 (JSON)
+  
+  model_name varchar [default: 'gpt-4o-mini'] // 사용 모델
+  
+  // 비용 계산용 토큰 수
+  input_tokens int [default: 0]
+  output_tokens int [default: 0]
+  total_tokens int [default: 0]
+  
+  created_at timestamp [default: `now()`]
+}
+
+
+// =========================================================
+// 메타데이터
+// =========================================================
+// 버전: 1.2.0
+// 작성일: 2025.11.30
+// 작성자: 김동언
+// 설명: PlanA 웨딩 플래닝 서비스 데이터베이스 스키마 (DBML)
+// 참조: docs/database/DATABASE.md
+// 
+// 주요 변경사항 (v1.2.0):
+// 1. VENDOR 테이블 변경
+//    - 평점 필드 삭제: naver_rating, review_count, total_score 제거
+//    - 영업시간 정규화: operating_hours 제거 → vendor_operating_hour 테이블로 분리
+//    - 새 필드 추가: parking_info, transport_info
+//
+// 2. VENDOR_OPERATING_HOUR 테이블 추가 (정규화)
+//    - 복합 PK: (vendor_id, day_of_week)
+//    - 컬럼: vendor_id, day_of_week(0-6), open_time, close_time, is_holiday
+//    - 관계: vendor(N:1) → ON DELETE CASCADE
+//
+// 3. VENDOR_COST_DETAIL 테이블 추가
+//    - PK: vendor_id (1:1 관계)
+//    - 드레스/메이크업: fitting_fee, helper_fee, early_start_fee
+//    - 스튜디오: original_file_fee, modified_file_fee
+//    - 공통: valet_fee, after_party_fee, cancellation_policy
+//
+// 4. VENDOR_VENUE_DETAIL 테이블 확장
+//    - ceremony_interval: 예식 간격 (분)
+//    - ceremony_form: 분리예식/동시예식
+//
+// 5. 외래키 ON DELETE 동작
+//    - CASCADE: 부모 삭제 시 자식도 삭제
+//    - SET NULL: 부모 삭제 시 자식의 FK를 NULL로 설정
+//    (DBML에서는 명시적으로 표현되지 않지만, SQL 스크립트에서 구현됨)
+
