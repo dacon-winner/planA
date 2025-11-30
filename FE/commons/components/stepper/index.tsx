@@ -272,10 +272,10 @@ export const Stepper: React.FC<StepperProps> = ({
     }
 
     // 현재 열린 스텝을 다시 클릭하면 닫기 (토글)
-    // 단, 첫 번째 스텝(index 0)은 토글 불가
+    // 단, 첫 번째 스텝이 active 상태일 때는 토글 불가
     if (currentStep === stepIndex) {
-      // 첫 번째 스텝은 닫히지 않도록 함
-      if (stepIndex === 0) {
+      // 첫 번째 스텝이 active 상태일 때는 닫히지 않도록 함 (완료된 경우는 토글 가능)
+      if (stepIndex === 0 && stepState === "active") {
         return;
       }
 
@@ -416,6 +416,24 @@ export const StepperWithContext: React.FC<StepperProps> = (props) => {
 
   const autoProgress = props.autoProgress ?? false;
   const autoProgressDelay = props.autoProgressDelay ?? 500;
+
+  /**
+   * props.currentStep이 변경되면 내부 state 동기화
+   */
+  useEffect(() => {
+    if (props.currentStep !== undefined && props.currentStep !== currentStep) {
+      setCurrentStep(props.currentStep);
+    }
+  }, [props.currentStep]);
+
+  /**
+   * props.completedSteps가 변경되면 내부 state 동기화
+   */
+  useEffect(() => {
+    if (props.completedSteps !== undefined) {
+      setCompletedSteps(props.completedSteps);
+    }
+  }, [props.completedSteps]);
 
   const goToNextStep = () => {
     const nextStepIndex = currentStep + 1;

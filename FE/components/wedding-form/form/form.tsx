@@ -12,7 +12,7 @@
  * [✓] 피그마 구조 대비 누락 섹션 없음
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Image } from "react-native";
 import {
   StepperWithContext,
@@ -89,8 +89,6 @@ const RegionStep: React.FC<RegionStepProps> = ({
   selectedRegion,
   onRegionSelect,
 }) => {
-  const { goToNextStep } = useStepperContext();
-
   // 서울시 25개 구 목록
   const regions = [
     "강남구",
@@ -119,14 +117,6 @@ const RegionStep: React.FC<RegionStepProps> = ({
     "구로구",
     "강서구",
   ];
-
-  const handleRegionSelect = (region: string) => {
-    onRegionSelect(region);
-    // 지역 선택 후 자동으로 다음 단계로 이동
-    setTimeout(() => {
-      goToNextStep();
-    }, 300);
-  };
 
   // 각 페이지에 2열 x 4행 = 8개씩 버튼 배치 (달력처럼 페이지 단위로 스냅)
   const pages: string[][] = [];
@@ -177,7 +167,7 @@ const RegionStep: React.FC<RegionStepProps> = ({
                               }
                             />
                           }
-                          onSelect={() => handleRegionSelect(region)}
+                          onSelect={() => onRegionSelect(region)}
                         />
                       ))}
                     </View>
@@ -204,8 +194,6 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
   selectedBudget,
   onBudgetSelect,
 }) => {
-  const { goToNextStep } = useStepperContext();
-
   // 예산 옵션 목록
   const budgetOptions = [
     "1,000만원",
@@ -220,10 +208,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
 
   const handleBudgetSelect = (budget: string) => {
     onBudgetSelect(budget);
-    // 예산 선택 후 자동으로 다음 단계로 이동
-    setTimeout(() => {
-      goToNextStep();
-    }, 300);
+    // 부모 컴포넌트에서 완료 처리
   };
 
   return (
@@ -273,6 +258,27 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
     budget: null,
   });
 
+  // Stepper 상태 - formData 기반으로 계산
+  const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+
+  /**
+   * formData 변경 시 완료 상태 자동 업데이트
+   * budget이 null이 아니면 모든 단계가 완료된 것으로 간주
+   */
+  useEffect(() => {
+    if (formData.budget !== null) {
+      // 모든 단계 완료
+      setCompletedSteps([0, 1, 2]);
+      setCurrentStep(-1);
+
+      // onSubmit 호출
+      if (onSubmit) {
+        onSubmit(formData);
+      }
+    }
+  }, [formData.budget]);
+
   /**
    * 날짜를 "YYYY년 M월 D일" 형식으로 포맷
    */
@@ -295,9 +301,39 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       weddingDate: date,
     }));
 
+    // 날짜가 선택되었으므로 0단계 완료
+    if (!completedSteps.includes(0)) {
+      setCompletedSteps((prev) => [...prev, 0]);
+    }
+
     if (onDateSelected) {
       onDateSelected(date);
     }
+  };
+
+  /**
+   * 지역 선택 핸들러
+   */
+  const handleRegionSelect = (region: string) => {
+    setFormData((prev) => ({ ...prev, region }));
+
+    // 지역이 선택되었으므로 1단계 완료
+    if (!completedSteps.includes(1)) {
+      setCompletedSteps((prev) => [...prev, 1]);
+    }
+
+    // 지역 선택 후 자동으로 3단계(예산)로 이동
+    setTimeout(() => {
+      setCurrentStep(2);
+    }, 300);
+  };
+
+  /**
+   * 예산 선택 핸들러
+   * formData 업데이트만 수행 (완료 처리는 useEffect에서)
+   */
+  const handleBudgetSelect = (budget: string) => {
+    setFormData((prev) => ({ ...prev, budget }));
   };
 
   return (
@@ -340,9 +376,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
                     content: (
                       <RegionStep
                         selectedRegion={formData.region}
-                        onRegionSelect={(region) =>
-                          setFormData((prev) => ({ ...prev, region }))
-                        }
+                        onRegionSelect={handleRegionSelect}
                       />
                     ),
                   },
@@ -351,21 +385,27 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
                     content: (
                       <BudgetStep
                         selectedBudget={formData.budget}
-                        onBudgetSelect={(budget) =>
-                          setFormData((prev) => ({ ...prev, budget }))
-                        }
+                        onBudgetSelect={handleBudgetSelect}
                       />
                     ),
                   },
                 ]}
-                currentStep={0}
-                completedSteps={[]}
+                currentStep={currentStep}
+                completedSteps={completedSteps}
                 onStepChange={(stepIndex) => {
                   console.log("Step changed to:", stepIndex);
+                  setCurrentStep(stepIndex);
                 }}
                 onStepComplete={(stepIndex) => {
                   console.log("Step completed:", stepIndex);
                   console.log("Form data:", formData);
+
+                  // 마지막 단계가 완료되면 onSubmit 호출
+                  if (stepIndex === 2) {
+                    if (onSubmit) {
+                      onSubmit(formData);
+                    }
+                  }
                 }}
               />
             </View>
