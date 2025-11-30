@@ -12,6 +12,9 @@
 | 4 | `@react-native-async-storage/async-storage` | `2.2.0` | 25-11-28 | React Native용 영구 저장소 (인증 상태 관리) |
 | 5 | `expo-linear-gradient` | `~14.0.2` | 25-11-29 | 선형 및 방사형 그라데이션 구현 라이브러리 |
 | 6 | `expo-blur` | `~14.0.1` | 25-11-29 | 실제 blur 효과 구현 라이브러리 |
+| 7 | `@gorhom/bottom-sheet` | `^5` | 25-11-30 | 하단 시트(Bottom Sheet) UI 컴포넌트 라이브러리 |
+| 8 | `react-native-gesture-handler` | `~2.28.0` | 25-11-30 | 제스처 핸들링 라이브러리 (@gorhom/bottom-sheet 의존성) |
+| 9 | `react-native-reanimated` | `~4.1.1` | 25-11-30 | 고성능 애니메이션 라이브러리 (@gorhom/bottom-sheet 의존성) |
 
 ---
 
@@ -77,6 +80,36 @@
 | **설치 이유** | 실제 blur 효과 구현 라이브러리 |
 | **카테고리** | UI Components |
 
+### 7. @gorhom/bottom-sheet
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `@gorhom/bottom-sheet` |
+| **버전** | `^5` |
+| **설치 날짜** | 25-11-30 |
+| **설치 이유** | 하단 시트(Bottom Sheet) UI 컴포넌트 라이브러리 |
+| **카테고리** | UI Components |
+
+### 8. react-native-gesture-handler
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `react-native-gesture-handler` |
+| **버전** | `~2.28.0` |
+| **설치 날짜** | 25-11-30 |
+| **설치 이유** | 제스처 핸들링 라이브러리 (@gorhom/bottom-sheet 의존성) |
+| **카테고리** | Gesture Handling |
+
+### 9. react-native-reanimated
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `react-native-reanimated` |
+| **버전** | `~4.1.1` |
+| **설치 날짜** | 25-11-30 |
+| **설치 이유** | 고성능 애니메이션 라이브러리 (@gorhom/bottom-sheet 의존성) |
+| **카테고리** | Animation |
+
 ---
 
 ## 변경 이력
@@ -88,3 +121,4 @@
 | 1.2.0 | 25-11-28 | @react-native-async-storage/async-storage 패키지 추가 | - |
 | 1.3.0 | 25-11-29 | expo-linear-gradient 패키지 추가 | - |
 | 1.4.0 | 25-11-29 | expo-blur 패키지 추가 | - |
+| 1.5.0 | 25-11-30 | @gorhom/bottom-sheet, react-native-gesture-handler, react-native-reanimated 패키지 추가 | - |
