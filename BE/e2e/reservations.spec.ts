@@ -172,23 +172,20 @@ test.describe('Reservations API E2E Tests', () => {
         reservation_time: '14:00', // hh:mm 형식
       };
 
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: reservationData,
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: reservationData,
+      });
 
       console.log(`Response status: ${response.status()}`);
-      const body = await response.json();
+      const body = (await response.json()) as ApiResponse<ReservationResponse>;
       console.log('Response body:', JSON.stringify(body, null, 2));
 
       expect(response.status()).toBe(201);
 
-      const result = body as ApiResponse<ReservationResponse>;
+      const result = body;
       expect(result.success).toBe(true);
       expect(result.data).toHaveProperty('id');
       expect(result.data.user_id).toBe(userId);
@@ -213,15 +210,12 @@ test.describe('Reservations API E2E Tests', () => {
         reservation_time: '10:30',
       };
 
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: reservationData,
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: reservationData,
+      });
 
       expect(response.status()).toBe(201);
       const result = (await response.json()) as ApiResponse<ReservationResponse>;
@@ -233,19 +227,16 @@ test.describe('Reservations API E2E Tests', () => {
 
   test.describe('예약 생성 실패 - 검증 오류', () => {
     test('[1] 잘못된 날짜 형식 (yyyy-mm-dd)', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '2025-12-25', // 잘못된 형식 (yy-mm-dd여야 함)
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '2025-12-25', // 잘못된 형식 (yy-mm-dd여야 함)
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -254,19 +245,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[2] 잘못된 시간 형식', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-12-25',
-            reservation_time: '14:00:00', // 잘못된 형식 (hh:mm여야 함)
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-12-25',
+          reservation_time: '14:00:00', // 잘못된 형식 (hh:mm여야 함)
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -275,19 +263,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[3] vendor_id 누락', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-            // vendor_id 누락
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
+          // vendor_id 누락
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -295,19 +280,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[4] reservation_date 누락', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_time: '14:00',
-            // reservation_date 누락
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_time: '14:00',
+          // reservation_date 누락
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -315,19 +297,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[5] reservation_time 누락', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-12-25',
-            // reservation_time 누락
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-12-25',
+          // reservation_time 누락
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -335,19 +314,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[6] 잘못된 UUID 형식 (vendor_id)', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: 'invalid-uuid',
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: 'invalid-uuid',
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -355,19 +331,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[7] 존재하지 않는 vendor_id', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: '00000000-0000-0000-0000-000000000000', // 존재하지 않는 UUID
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: '00000000-0000-0000-0000-000000000000', // 존재하지 않는 UUID
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(404);
       const body = (await response.json()) as ErrorResponse;
@@ -378,19 +351,16 @@ test.describe('Reservations API E2E Tests', () => {
     test('[8] 존재하지 않는 plan_id', async ({ request }) => {
       const fakePlanId = '00000000-0000-0000-0000-000000000000';
 
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${fakePlanId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${fakePlanId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(404);
       const body = (await response.json()) as ErrorResponse;
@@ -399,19 +369,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[9] 유효하지 않은 날짜 (존재하지 않는 날짜)', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-13-35', // 13월 35일은 존재하지 않음
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-13-35', // 13월 35일은 존재하지 않음
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(400);
       const body = (await response.json()) as ErrorResponse;
@@ -480,19 +447,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[2] 자신의 플랜에는 예약 가능', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '26-02-14',
-            reservation_time: '15:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '26-02-14',
+          reservation_time: '15:00',
+        },
+      });
 
       expect(response.status()).toBe(201);
       const result = (await response.json()) as ApiResponse<ReservationResponse>;
@@ -502,16 +466,13 @@ test.describe('Reservations API E2E Tests', () => {
 
   test.describe('인증 검증', () => {
     test('[1] 토큰 없이 예약 시도', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
         },
-      );
+      });
 
       expect(response.status()).toBe(401);
       const body = (await response.json()) as ErrorResponse;
@@ -519,19 +480,16 @@ test.describe('Reservations API E2E Tests', () => {
     });
 
     test('[2] 잘못된 토큰으로 예약 시도', async ({ request }) => {
-      const response = await request.post(
-        `${BASE_URL}/api/v1/plans/${planId}/reservations`,
-        {
-          headers: {
-            Authorization: 'Bearer invalid-token',
-          },
-          data: {
-            vendor_id: vendorId,
-            reservation_date: '25-12-25',
-            reservation_time: '14:00',
-          },
+      const response = await request.post(`${BASE_URL}/api/v1/plans/${planId}/reservations`, {
+        headers: {
+          Authorization: 'Bearer invalid-token',
         },
-      );
+        data: {
+          vendor_id: vendorId,
+          reservation_date: '25-12-25',
+          reservation_time: '14:00',
+        },
+      });
 
       expect(response.status()).toBe(401);
       const body = (await response.json()) as ErrorResponse;
@@ -588,8 +546,7 @@ test.describe('Reservations API E2E Tests', () => {
       );
 
       expect(reservationRes.status()).toBe(201);
-      const reservationBody =
-        (await reservationRes.json()) as ApiResponse<ReservationResponse>;
+      const reservationBody = (await reservationRes.json()) as ApiResponse<ReservationResponse>;
       expect(reservationBody.data.visitor_name).toBe(newUser.name);
       expect(reservationBody.data.visitor_phone).toBe(newUser.phone);
 
@@ -601,4 +558,3 @@ test.describe('Reservations API E2E Tests', () => {
     });
   });
 });
-

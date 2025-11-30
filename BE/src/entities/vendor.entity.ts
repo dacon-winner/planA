@@ -7,6 +7,8 @@ import {
   OneToOne,
 } from 'typeorm';
 import { VendorVenueDetail } from './vendor-venue-detail.entity';
+import { VendorOperatingHour } from './vendor-operating-hour.entity';
+import { VendorCostDetail } from './vendor-cost-detail.entity';
 import { VendorImage } from './vendor-image.entity';
 import { ServiceItem } from './service-item.entity';
 import { PlanItem } from './plan-item.entity';
@@ -47,23 +49,11 @@ export class Vendor {
   @Column({ type: 'text', nullable: true })
   introduction: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  operating_hours: string;
-
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
   latitude: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
   longitude: number;
-
-  @Column({ type: 'float', default: 0 })
-  naver_rating: number;
-
-  @Column({ type: 'int', default: 0 })
-  review_count: number;
-
-  @Column({ type: 'float', default: 0 })
-  total_score: number;
 
   @Column({ type: 'varchar', nullable: true })
   naver_place_url: string;
@@ -74,12 +64,25 @@ export class Vendor {
   @Column({ type: 'json', default: '[]' })
   badges: string[];
 
+  // 시트 데이터 대응 필드
+  @Column({ type: 'varchar', nullable: true })
+  parking_info: string; // 예: "500대 / 혼주 6시간 무료"
+
+  @Column({ type: 'varchar', nullable: true })
+  transport_info: string; // 예: "셔틀버스 수시 운행"
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 
   // Relations
   @OneToOne(() => VendorVenueDetail, (detail) => detail.vendor)
   venue_detail: VendorVenueDetail;
+
+  @OneToMany(() => VendorOperatingHour, (hour) => hour.vendor)
+  operating_hours: VendorOperatingHour[];
+
+  @OneToOne(() => VendorCostDetail, (detail) => detail.vendor)
+  cost_detail: VendorCostDetail;
 
   @OneToMany(() => VendorImage, (image) => image.vendor)
   images: VendorImage[];

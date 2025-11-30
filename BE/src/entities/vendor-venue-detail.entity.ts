@@ -21,6 +21,13 @@ export class VendorVenueDetail {
   @Column({ type: 'int', default: 0 })
   rental_fee: number;
 
+  // 시트 데이터 대응 필드
+  @Column({ type: 'int', default: 60 })
+  ceremony_interval: number; // 예식 간격 (분)
+
+  @Column({ type: 'varchar', nullable: true })
+  ceremony_form: string; // 분리예식/동시예식
+
   // Relations
   @OneToOne(() => Vendor, (vendor) => vendor.venue_detail)
   @JoinColumn({ name: 'vendor_id' })

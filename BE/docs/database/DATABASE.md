@@ -1,8 +1,8 @@
 # 데이터베이스 설계 문서
 
 > **작성일**: 2025.11.30  
-> **작성자**: 이윤재  
-> **버전**: 1.1.0
+> **작성자**: 김동언  
+> **버전**: 1.2.0
 
 ---
 
@@ -86,14 +86,14 @@
 │   User   │            │   User   │              │
 └──────────┘            └──────────┘              │
                                                    │
-                  ┌────────────────────────────────┼────┐
-                  │1                   │1          │1   │1
-                  ↓                    ↓           ↓    ↓
-          ┌─────────────┐      ┌─────────────┐  ┌──────┐ ┌────────┐
-          │VendorVenue  │      │VendorImage  │  │Service│ │AiResource│
-          │   Detail    │      │             │  │ Item  │ │         │
-          │(웨딩홀 상세) │      │ (업체이미지) │  │(상품) │ │(AI자원)  │
-          └─────────────┘      └─────────────┘  └───────┘ └─────────┘
+                  ┌────────────────────────────────┼────┬────┬────┐
+                  │1                   │1          │1   │1   │1   │1
+                  ↓                    ↓           ↓    ↓    ↓    ↓
+          ┌─────────────┐      ┌─────────────┐  ┌──────┐ ┌────────┐ ┌──────────┐ ┌───────────┐
+          │VendorVenue  │      │VendorImage  │  │Service│ │AiResource│ │Vendor    │ │Vendor     │
+          │   Detail    │      │             │  │ Item  │ │         │ │Operating │ │Cost       │
+          │(웨딩홀 상세) │      │ (업체이미지) │  │(상품) │ │(AI자원)  │ │Hour      │ │Detail     │
+          └─────────────┘      └─────────────┘  └───────┘ └─────────┘ └──────────┘ └───────────┘
 
 ┌─────────────┐         ┌─────────────┐         ┌─────────────┐
 │  PolicyInfo │1      n│ UserPolicy  │         │   Review    │
@@ -123,6 +123,8 @@
 | Plan → PlanItem            | 1:N        | 플랜은 여러 항목으로 구성                       | CASCADE   |
 | User → Reservation         | 1:N        | 사용자는 여러 예약 가능                         | CASCADE   |
 | Vendor → VendorVenueDetail | 1:1        | 웨딩홀만 상세 정보 보유                         | CASCADE   |
+| Vendor → VendorOperatingHour | **1:N**  | 업체는 요일별 영업시간 보유                     | CASCADE   |
+| Vendor → VendorCostDetail  | 1:1        | 스드메 업체는 추가 비용 정보 보유               | CASCADE   |
 | Vendor → AiResource        | 1:N        | 업체당 여러 AI 리소스                           | SET NULL  |
 | User → AiLog               | 1:N        | 사용자의 AI 요청 이력                           | SET NULL  |
 | PlanItem → ServiceItem     | N:1        | 플랜 항목은 특정 상품 참조 가능                 | SET NULL  |
@@ -205,37 +207,39 @@
 
 #### **vendor** - 웨딩 업체 정보
 
-| 컬럼명          | 타입                 | 제약조건 | 기본값             | 설명                         |
-| --------------- | -------------------- | -------- | ------------------ | ---------------------------- |
-| id              | UUID                 | PK       | uuid_generate_v4() | 업체 고유 ID                 |
-| category        | vendor_category      | NOT NULL | -                  | VENUE, STUDIO, DRESS, MAKEUP |
-| name            | VARCHAR              | NOT NULL | -                  | 업체명                       |
-| address         | VARCHAR              | NOT NULL | -                  | 주소                         |
-| region          | VARCHAR              | NOT NULL | -                  | 지역 (검색/필터링용)         |
-| phone           | VARCHAR              | NOT NULL | -                  | 전화번호                     |
-| introduction    | TEXT                 | NULLABLE | NULL               | 업체 소개                    |
-| operating_hours | VARCHAR              | NULLABLE | NULL               | 영업시간                     |
-| latitude        | DECIMAL(10,7)        | NULLABLE | NULL               | 위도                         |
-| longitude       | DECIMAL(10,7)        | NULLABLE | NULL               | 경도                         |
-| naver_rating    | **DOUBLE PRECISION** | NOT NULL | 0                  | 네이버 평점                  |
-| review_count    | INT                  | NOT NULL | 0                  | 리뷰 수                      |
-| total_score     | **DOUBLE PRECISION** | NOT NULL | 0                  | 자체 평점                    |
-| naver_place_url | VARCHAR              | NULLABLE | NULL               | 네이버 플레이스 URL          |
-| thumbnail_url   | VARCHAR              | NULLABLE | NULL               | 대표 이미지 URL              |
-| badges          | JSON                 | NOT NULL | '[]'               | 배지 배열                    |
-| created_at      | TIMESTAMP            | NOT NULL | now()              | 등록일                       |
+| 컬럼명          | 타입            | 제약조건 | 기본값             | 설명                         |
+| --------------- | --------------- | -------- | ------------------ | ---------------------------- |
+| id              | UUID            | PK       | uuid_generate_v4() | 업체 고유 ID                 |
+| category        | vendor_category | NOT NULL | -                  | VENUE, STUDIO, DRESS, MAKEUP |
+| name            | VARCHAR         | NOT NULL | -                  | 업체명                       |
+| address         | VARCHAR         | NOT NULL | -                  | 주소                         |
+| region          | VARCHAR         | NOT NULL | -                  | 지역 (검색/필터링용)         |
+| phone           | VARCHAR         | NOT NULL | -                  | 전화번호                     |
+| introduction    | TEXT            | NULLABLE | NULL               | 업체 소개                    |
+| latitude        | DECIMAL(10,7)   | NULLABLE | NULL               | 위도                         |
+| longitude       | DECIMAL(10,7)   | NULLABLE | NULL               | 경도                         |
+| naver_place_url | VARCHAR         | NULLABLE | NULL               | 네이버 플레이스 URL          |
+| thumbnail_url   | VARCHAR         | NULLABLE | NULL               | 대표 이미지 URL              |
+| badges          | JSON            | NOT NULL | '[]'               | 배지 배열                    |
+| parking_info    | VARCHAR         | NULLABLE | NULL               | 주차 정보                    |
+| transport_info  | VARCHAR         | NULLABLE | NULL               | 교통편 정보                  |
+| created_at      | TIMESTAMP       | NOT NULL | now()              | 등록일                       |
 
 **설계 의도:**
 
 - `category`: ENUM으로 업체 유형 명확히 구분
 - `region`: 지역별 필터링 최적화 (인덱스 대상)
-- `naver_rating` vs `total_score`: 외부 평점과 내부 알고리즘 분리
 - `badges`: JSON 배열로 유연한 태그 시스템 (예: ["인기업체", "가성비 추천"])
-- **타입 변경**: FLOAT → DOUBLE PRECISION (더 높은 정밀도)
+- `parking_info`: 주차 가능 대수 및 혜택 정보 (예: "500대 / 혼주 6시간 무료")
+- `transport_info`: 셔틀버스 등 교통편 정보 (예: "셔틀버스 수시 운행")
+- **평점 필드 제거**: naver_rating, review_count, total_score 삭제 (비즈니스 로직 단순화)
+- **영업시간 정규화**: operating_hours → vendor_operating_hour 테이블로 분리
 
 **관계:**
 
 - venue_detail (1:1) - VENUE 카테고리만 (ON DELETE CASCADE)
+- operating_hours (1:N) → ON DELETE CASCADE
+- cost_detail (1:1) - STUDIO, DRESS, MAKEUP 카테고리 (ON DELETE CASCADE)
 - images (1:N) → ON DELETE CASCADE
 - service_items (1:N) → ON DELETE CASCADE
 - plan_items (1:N) → ON DELETE CASCADE
@@ -243,22 +247,73 @@
 - reviews (1:N) → ON DELETE CASCADE
 - ai_resources (1:N) → ON DELETE SET NULL
 
+#### **vendor_operating_hour** - 업체 영업시간 (정규화)
+
+| 컬럼명       | 타입    | 제약조건                    | 기본값 | 설명                        |
+| ------------ | ------- | --------------------------- | ------ | --------------------------- |
+| vendor_id    | UUID    | PK, FK → vendor.id NOT NULL | -      | 업체 ID                     |
+| day_of_week  | INT     | PK, NOT NULL                | -      | 요일 (0:일요일 ~ 6:토요일)  |
+| open_time    | TIME    | NULLABLE                    | NULL   | 오픈 시간                   |
+| close_time   | TIME    | NULLABLE                    | NULL   | 마감 시간                   |
+| is_holiday   | BOOLEAN | NOT NULL                    | false  | 휴무일 여부                 |
+
+**설계 의도:**
+
+- **정규화**: 요일별 영업시간을 별도 테이블로 분리
+- **복합 PK**: (vendor_id, day_of_week)로 요일별 고유성 보장
+- `day_of_week`: 0(일요일) ~ 6(토요일) 숫자로 표현
+- `is_holiday`: 휴무일인 경우 open_time/close_time은 NULL
+- **유연성**: 업체별 요일별 다른 영업시간 설정 가능
+
+**관계:**
+
+- vendor (N:1) → vendor.id (ON DELETE CASCADE)
+
 #### **vendor_venue_detail** - 웨딩홀 상세 정보
 
-| 컬럼명        | 타입    | 제약조건                         | 기본값 | 설명                      |
-| ------------- | ------- | -------------------------------- | ------ | ------------------------- |
-| vendor_id     | UUID    | PK, FK → vendor.id, **NOT NULL** | -      | 업체 ID                   |
-| hall_type     | VARCHAR | NULLABLE                         | NULL   | 홀 타입 (호텔, 웨딩홀 등) |
-| meal_type     | VARCHAR | NULLABLE                         | NULL   | 식사 타입 (뷔페, 코스 등) |
-| min_guarantee | INT     | NOT NULL                         | 200    | 최소 보증 인원            |
-| meal_cost     | INT     | NOT NULL                         | 0      | 식대 (1인당)              |
-| rental_fee    | INT     | NOT NULL                         | 0      | 대관료                    |
+| 컬럼명            | 타입    | 제약조건                         | 기본값 | 설명                      |
+| ----------------- | ------- | -------------------------------- | ------ | ------------------------- |
+| vendor_id         | UUID    | PK, FK → vendor.id, **NOT NULL** | -      | 업체 ID                   |
+| hall_type         | VARCHAR | NULLABLE                         | NULL   | 홀 타입 (호텔, 웨딩홀 등) |
+| meal_type         | VARCHAR | NULLABLE                         | NULL   | 식사 타입 (뷔페, 코스 등) |
+| min_guarantee     | INT     | NOT NULL                         | 200    | 최소 보증 인원            |
+| meal_cost         | INT     | NOT NULL                         | 0      | 식대 (1인당)              |
+| rental_fee        | INT     | NOT NULL                         | 0      | 대관료                    |
+| ceremony_interval | INT     | NOT NULL                         | 60     | 예식 간격 (분)            |
+| ceremony_form     | VARCHAR | NULLABLE                         | NULL   | 예식 형태                 |
 
 **설계 의도:**
 
 - VENUE 카테고리만 해당하는 정보를 별도 테이블로 분리 (정규화)
 - 1:1 관계로 vendor_id를 PK이자 FK로 사용
+- `ceremony_interval`: 예식 간격 (예: 60분, 90분)
+- `ceremony_form`: 분리예식/동시예식 등 예식 형태
 - **NOT NULL 추가**: vendor_id는 필수 값
+- **외래키**: ON DELETE CASCADE (vendor 삭제 시 상세 정보도 삭제)
+
+#### **vendor_cost_detail** - 스드메 추가 비용 상세
+
+| 컬럼명               | 타입      | 제약조건                         | 기본값 | 설명                     |
+| -------------------- | --------- | -------------------------------- | ------ | ------------------------ |
+| vendor_id            | UUID      | PK, FK → vendor.id, **NOT NULL** | -      | 업체 ID                  |
+| fitting_fee          | INT       | NOT NULL                         | 0      | 피팅비 (드레스/메이크업) |
+| helper_fee           | INT       | NOT NULL                         | 0      | 헬퍼비 (드레스/메이크업) |
+| early_start_fee      | INT       | NOT NULL                         | 0      | 얼리비 (드레스/메이크업) |
+| original_file_fee    | INT       | NOT NULL                         | 0      | 원본비 (스튜디오)        |
+| modified_file_fee    | INT       | NOT NULL                         | 0      | 수정비 (스튜디오)        |
+| valet_fee            | INT       | NOT NULL                         | 0      | 발렛비 (공통)            |
+| after_party_fee      | INT       | NOT NULL                         | 0      | 피로연 비용 (공통)       |
+| cancellation_policy  | TEXT      | NULLABLE                         | NULL   | 위약금 규정              |
+| created_at           | TIMESTAMP | NOT NULL                         | now()  | 생성일                   |
+
+**설계 의도:**
+
+- STUDIO, DRESS, MAKEUP 카테고리의 추가 비용 정보를 별도 관리
+- 1:1 관계로 vendor_id를 PK이자 FK로 사용
+- **드레스/메이크업 비용**: fitting_fee(피팅비), helper_fee(헬퍼비), early_start_fee(얼리비)
+- **스튜디오 비용**: original_file_fee(원본비), modified_file_fee(수정비)
+- **공통 비용**: valet_fee(발렛비), after_party_fee(피로연비)
+- `cancellation_policy`: 위약금 규정을 텍스트로 저장
 - **외래키**: ON DELETE CASCADE (vendor 삭제 시 상세 정보도 삭제)
 
 #### **vendor_image** - 업체 이미지
@@ -610,7 +665,7 @@ CREATE UNIQUE INDEX "idx_user_policy_scrap_unique" ON user_policy_scrap(user_id,
 
 ### 5.1 스키마 파일 위치
 
-- **DBML 형식**: `docs/database/DATABASE_V.1.1.0.dbml`
+- **DBML 형식**: `docs/database/DATABASE_V.1.2.0.dbml`
 - **SQL 스크립트**: `docs/database/PLAN_A.sql`
 - **TypeORM 엔티티**: `src/entities/*.entity.ts`
 - **마이그레이션 파일**: `src/migrations/*.ts`
@@ -659,6 +714,53 @@ CREATE EXTENSION IF NOT EXISTS vector;
 ---
 
 ## 6. 변경 이력
+
+### v1.2.0 (2025.11.30)
+
+#### 주요 변경사항
+
+1. **업체 테이블 구조 개선**
+   
+   **vendor 테이블 변경:**
+   - 평점 필드 삭제: `naver_rating`, `review_count`, `total_score` 제거
+   - 영업시간 정규화: `operating_hours` 제거 → `vendor_operating_hour` 테이블로 분리
+   - 새 필드 추가:
+     - `parking_info` VARCHAR: 주차 정보 (예: "500대 / 혼주 6시간 무료")
+     - `transport_info` VARCHAR: 교통편 정보 (예: "셔틀버스 수시 운행")
+
+2. **새 테이블 추가**
+
+   **vendor_operating_hour** - 영업시간 정규화:
+   - 복합 PK: (vendor_id, day_of_week)
+   - 컬럼: vendor_id, day_of_week(0-6), open_time, close_time, is_holiday
+   - 관계: vendor(N:1) → ON DELETE CASCADE
+   - 목적: 요일별 다른 영업시간 설정 가능
+
+   **vendor_cost_detail** - 스드메 추가 비용:
+   - PK: vendor_id (1:1 관계)
+   - 드레스/메이크업: fitting_fee, helper_fee, early_start_fee
+   - 스튜디오: original_file_fee, modified_file_fee
+   - 공통: valet_fee, after_party_fee, cancellation_policy
+   - 관계: vendor(1:1) → ON DELETE CASCADE
+   - 목적: 카테고리별 추가 비용 체계적 관리
+
+3. **vendor_venue_detail 테이블 확장**
+   - `ceremony_interval` INT: 예식 간격 (분) - 기본값 60
+   - `ceremony_form` VARCHAR: 예식 형태 (분리예식/동시예식)
+
+#### 변경 사유
+
+- **데이터 정규화**: 영업시간을 별도 테이블로 분리하여 요일별 관리 용이
+- **비즈니스 로직 단순화**: 평점 필드 제거로 외부 데이터 의존성 감소
+- **상세 정보 확장**: 주차/교통편 정보, 추가 비용 등 실무에 필요한 정보 추가
+- **카테고리별 특화**: 업체 유형(웨딩홀/스드메)에 따른 상세 정보 체계화
+
+#### 마이그레이션
+
+```sql
+-- 마이그레이션 파일: 1734000000000-UpdateVendorSchema.ts
+npm run migration:run
+```
 
 ### v1.1.0 (2025.11.30)
 
@@ -727,12 +829,12 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 ## 7. 참고 문서
 
-- **DBML 스키마**: [DATABASE_V.1.1.0.dbml](./DATABASE_V.1.1.0.dbml)
+- **DBML 스키마**: [DATABASE_V.1.2.0.dbml](./DATABASE_V.1.2.0.dbml)
 - **SQL 스크립트**: [PLAN_A.sql](./PLAN_A.sql)
 - **API 설계**: [../api/API_DESIGN.md](../api/API_DESIGN.md)
 
 ---
 
-**문서 버전**: 1.1.0  
+**문서 버전**: 1.2.0  
 **최종 수정일**: 2025.11.30  
-**작성자**: 이윤재
+**작성자**: 김동언

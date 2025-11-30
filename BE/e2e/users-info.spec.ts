@@ -117,12 +117,14 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
   });
 
   // 테스트 시작 전: 샘플 데이터 생성
-  test.beforeAll(async ({ request }) => {
+  test.beforeAll(() => {
     console.log('📦 샘플 데이터 생성 시작...');
 
     // Vendor 데이터 생성 (API를 통해 직접 DB에 삽입하는 대신, 이미 존재한다고 가정)
     // 실제로는 별도의 setup 스크립트나 migration으로 샘플 데이터를 삽입해야 함
-    console.log('⚠️  주의: AI 추천 테스트를 위해서는 ai_resource 테이블에 샘플 데이터가 필요합니다.');
+    console.log(
+      '⚠️  주의: AI 추천 테스트를 위해서는 ai_resource 테이블에 샘플 데이터가 필요합니다.',
+    );
     console.log('   샘플 데이터 삽입: psql -d plana < docs/database/sample_data_for_ai_test.sql');
   });
 
@@ -145,12 +147,12 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
       });
 
       console.log(`Response status: ${response.status()}`);
-      const body = await response.json();
+      const body = (await response.json()) as ApiResponse<UsersInfoResponse>;
       console.log('Response body:', JSON.stringify(body, null, 2));
 
       expect(response.status()).toBe(201);
 
-      const result = body as ApiResponse<UsersInfoResponse>;
+      const result = body;
       expect(result.success).toBe(true);
       expect(result.data).toHaveProperty('usersInfo');
       expect(result.data).toHaveProperty('plan');
@@ -401,4 +403,3 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
     });
   });
 });
-

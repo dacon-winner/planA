@@ -41,9 +41,6 @@ export class GetVendorDetailResponseDto {
   @ApiProperty({ description: '전화번호', example: '02-1234-5678' })
   phone: string;
 
-  @ApiProperty({ description: '운영 시간', example: '09:00-18:00' })
-  operating_hours: string;
-
   @ApiProperty({
     description: '업체 소개',
     example: '최고의 스튜디오입니다.',

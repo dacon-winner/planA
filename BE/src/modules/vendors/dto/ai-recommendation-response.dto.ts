@@ -38,13 +38,6 @@ export class RecommendedVendorDto {
   address: string;
 
   @ApiProperty({
-    description: '네이버 평점',
-    example: 4.8,
-    nullable: true,
-  })
-  naver_rating: number | null;
-
-  @ApiProperty({
     description: 'AI가 추천하는 이유',
     example: '고급스러운 스튜디오 분위기와 전문적인 촬영 기술로 유명합니다.',
   })
