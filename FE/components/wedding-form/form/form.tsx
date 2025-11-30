@@ -20,6 +20,7 @@ import {
 } from "@/commons/components/stepper";
 import { Calendar } from "@/commons/components/calendar";
 import { SelectButton } from "@/commons/components/select-button";
+import { Button } from "@/commons/components/button";
 import { MapPin } from "lucide-react-native";
 import { styles } from "./styles";
 
@@ -317,7 +318,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   const handleRegionSelect = (region: string) => {
     setFormData((prev) => ({ ...prev, region }));
 
-    // 지역이 선택되었으므로 1단계 완료
+    // 지역이 선택되었으므로 1단계 완료 (같은 값을 다시 선택해도 완료 처리)
     if (!completedSteps.includes(1)) {
       setCompletedSteps((prev) => [...prev, 1]);
     }
@@ -330,10 +331,36 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
   /**
    * 예산 선택 핸들러
-   * formData 업데이트만 수행 (완료 처리는 useEffect에서)
    */
   const handleBudgetSelect = (budget: string) => {
     setFormData((prev) => ({ ...prev, budget }));
+
+    // 예산이 선택되었으므로 2단계 완료 (같은 값을 다시 선택해도 완료 처리)
+    if (!completedSteps.includes(2)) {
+      setCompletedSteps((prev) => [...prev, 2]);
+    }
+
+    // 예산 선택 후 폼 닫기 (모든 단계 완료)
+    setTimeout(() => {
+      setCurrentStep(-1);
+    }, 300);
+  };
+
+  /**
+   * 모든 폼 데이터가 입력되었는지 확인
+   */
+  const isFormComplete =
+    formData.weddingDate !== null &&
+    formData.region !== null &&
+    formData.budget !== null;
+
+  /**
+   * 분석하기 버튼 클릭 핸들러
+   */
+  const handleAnalyze = () => {
+    if (onSubmit) {
+      onSubmit(formData);
+    }
   };
 
   return (
@@ -412,6 +439,15 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
           </View>
         </View>
       </ScrollView>
+
+      {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
+      {isFormComplete && (
+        <View style={styles.analyzeButtonWrapper}>
+          <Button variant="filled" size="large" onPress={handleAnalyze}>
+            분석하기
+          </Button>
+        </View>
+      )}
     </View>
   );
 };

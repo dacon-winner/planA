@@ -28,9 +28,11 @@ export const styles = StyleSheet.create({
    * Container
    * 전체 폼 컨테이너
    * 피그마: width 393, height 852
+   * position: relative - absolute 버튼의 기준점
    */
   container: {
     flex: 1,
+    position: "relative",
     backgroundColor: "transparent",
     width: "100%",
     minHeight: 852,
@@ -61,12 +63,13 @@ export const styles = StyleSheet.create({
    * Inner Container
    * 내부 컨텐츠 컨테이너
    * 피그마: Frame 130 (x=0, y=59, width=394, height=641)
+   * paddingBottom: 버튼 높이(44) + bottom(28) + 여유(24) = 96px
    */
   innerContainer: {
     width: "100%",
     backgroundColor: "transparent",
     paddingTop: 59,
-    paddingBottom: 20,
+    paddingBottom: 96,
     gap: 18,
   },
 
@@ -301,6 +304,25 @@ export const styles = StyleSheet.create({
   budgetRow: {
     flexDirection: "row",
     gap: 12,
+  },
+
+  /* ========================================
+   * ANALYZE BUTTON STYLES
+   * ======================================== */
+
+  /**
+   * Analyze Button Wrapper
+   * 분석하기 버튼 래퍼
+   * 피그마 노드ID: 4058:12390
+   * 화면 하단에서 28px 떨어진 위치에 고정
+   */
+  analyzeButtonWrapper: {
+    position: "absolute",
+    bottom: 28,
+    left: 0,
+    right: 0,
+    width: "100%",
+    paddingHorizontal: 24,
   },
 });
 
