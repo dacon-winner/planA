@@ -14,6 +14,7 @@
 
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Image } from "react-native";
+import { useRouter } from "expo-router";
 import {
   StepperWithContext,
   useStepperContext,
@@ -22,6 +23,7 @@ import { Calendar } from "@/commons/components/calendar";
 import { SelectButton } from "@/commons/components/select-button";
 import { Button } from "@/commons/components/button";
 import { MapPin } from "lucide-react-native";
+import { URL_PATHS } from "@/commons/enums/url";
 import { styles } from "./styles";
 
 /**
@@ -252,6 +254,9 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   onDateSelected,
   onSubmit,
 }) => {
+  // 라우터
+  const router = useRouter();
+
   // 폼 데이터 상태
   const [formData, setFormData] = useState<WeddingFormData>({
     weddingDate: null,
@@ -278,6 +283,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
         onSubmit(formData);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.budget]);
 
   /**
@@ -356,11 +362,19 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
 
   /**
    * 분석하기 버튼 클릭 핸들러
+   * 폼 데이터를 전달하고 로딩 화면으로 이동
    */
   const handleAnalyze = () => {
+    // TODO: 추후 API 요청 시 formData 사용
+    console.log("Form data to be sent:", formData);
+
+    // onSubmit 콜백이 있으면 호출
     if (onSubmit) {
       onSubmit(formData);
     }
+
+    // 로딩 화면으로 이동
+    router.push(URL_PATHS.FORM_LOADING);
   };
 
   return (
