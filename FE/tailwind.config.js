@@ -110,6 +110,10 @@ module.exports = {
           12: "#141414",
           13: "#000000",
         },
+        // 구분선 색상
+        divider: {
+          default: "#ADA2A233", // rgba(173, 162, 162, 0.2)
+        },
       },
       fontFamily: {
         sans: [

@@ -14,18 +14,22 @@
 
 import { View, Text, ScrollView, SafeAreaView, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 import { styles } from './styles';
 import { PlannerCard } from '../MyInfo/components/planner-card';
 import { AddNewPlanCard } from '../MyInfo/components/add-new-plan-card';
 import { useModal } from '@/commons/providers/modal/modal.provider';
 import { NewPlanModalContent } from '@/commons/components/modal/NewPlanModal';
+import { getPlanDetailUrl } from '@/commons/enums/url';
 
 export default function Schedule() {
   const { openModal } = useModal();
+  const router = useRouter();
 
   // TODO: 실제 데이터로 교체 필요
   const plans = [
     {
+      id: '1',
       planName: '플랜 A',
       isAi: true,
       isRepresentative: true,
@@ -34,6 +38,7 @@ export default function Schedule() {
       budget: '5,000만원',
     },
     {
+      id: '2',
       planName: '플랜 B',
       isAi: false,
       isRepresentative: false,
@@ -48,9 +53,9 @@ export default function Schedule() {
     console.log(`대표 플랜 설정: ${planName}`);
   };
 
-  const handleViewDetails = (planName: string) => {
-    // TODO: 상세 보기 로직 구현
-    console.log(`상세 보기: ${planName}`);
+  const handleViewDetails = (planId: string) => {
+    const url = getPlanDetailUrl(planId);
+    router.push(url);
   };
 
   const handleAddNewPlan = () => {
@@ -104,7 +109,7 @@ export default function Schedule() {
                 location={plan.location}
                 budget={plan.budget}
                 onSetRepresentative={() => handleSetRepresentative(plan.planName)}
-                onViewDetails={() => handleViewDetails(plan.planName)}
+                onViewDetails={() => handleViewDetails(plan.id)}
               />
             ))}
             <AddNewPlanCard onPress={handleAddNewPlan} />
