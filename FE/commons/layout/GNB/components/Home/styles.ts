@@ -34,22 +34,13 @@ export const styles = StyleSheet.create({
 
   "home-scroll-container": {
     flexGrow: 1,
-    paddingBottom: 100,
   },
 
   "home-container": {
     position: "relative",
     paddingHorizontal: 24,
-    paddingTop: STATUSBAR_HEIGHT + 82,
-    gap: 32,
-  },
-
-  /* 배경 그라데이션 */
-  "background-gradient": {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 0,
+    paddingTop: STATUSBAR_HEIGHT + 60,
+    gap: 16,
   },
 
   /* 상단 텍스트 섹션 */
@@ -167,7 +158,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "flex-start",
     paddingHorizontal: 12,
-    marginTop: 32,
+    marginTop: 12,
     zIndex: 1,
   },
 
