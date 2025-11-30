@@ -14,6 +14,7 @@
 import { View, ScrollView, Text, Image } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Clock, Calendar, MapPin, CircleDollarSign } from "lucide-react-native";
+import { GradientBackground } from "@/commons/components/gradient-background";
 import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
 
@@ -23,10 +24,7 @@ export default function Home() {
       <StatusBar style="dark" translucent backgroundColor="transparent" />
 
       {/* 배경 그라데이션 */}
-      <Image
-        source={require("@/assets/Gradient.png")}
-        style={styles["background-gradient"]}
-      />
+      <GradientBackground zIndex={0} />
 
       <ScrollView
         style={styles["home-scroll-view"]}

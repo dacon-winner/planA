@@ -24,11 +24,10 @@ export default function RootLayout() {
     "Pretendard-Black": require("../assets/fonts/Pretendard-Black.otf"),
     Pretendard: require("../assets/fonts/Pretendard-Regular.otf"),
   });
-  
+
   if (!loaded) {
     return null;
   }
-  
 
   return (
     <AuthProvider>
