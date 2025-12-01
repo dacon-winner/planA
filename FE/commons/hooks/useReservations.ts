@@ -152,7 +152,7 @@ export function useCreateReservation() {
     mutationFn: async (data: CreateReservationRequest): Promise<CreateReservationResponse> => {
       console.log('🌐 [API] 예약 생성 요청:', data);
 
-      const url = buildApiUrl(`/api/v1/plans/${data.plan_id}/reservations`);
+      const url = buildApiUrl(`/plans/${data.plan_id}/reservations`);
       const accessToken = await getAccessToken();
 
       // API 요청 시 plan_id와 category는 제외하고 전송
