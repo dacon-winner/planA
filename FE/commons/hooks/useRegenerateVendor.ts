@@ -27,13 +27,19 @@ export interface RegenerateVendorRequest {
  */
 export interface RegenerateVendorResponse {
   message: string;
-  planItem: {
-    id: string;
-    vendor: {
+  data: {
+    new_vendor: {
+      id: string;
+      name: string;
+      category: string;
+      selection_reason?: string;
+    };
+    old_vendor: {
       id: string;
       name: string;
       category: string;
     };
+    plan_item_id: string;
   };
 }
 
@@ -114,9 +120,9 @@ export function useRegenerateVendor() {
       // 플랜 목록 캐시도 무효화
       queryClient.invalidateQueries({ queryKey: ['plans'] });
 
-      // 업체 상세 캐시 무효화
+      // 업체 상세 캐시 무효화 (새 업체)
       queryClient.invalidateQueries({
-        queryKey: ['vendor', data.planItem.vendor.id],
+        queryKey: ['vendor', data.data.new_vendor.id],
       });
 
       // AI 추천 캐시 무효화
@@ -124,20 +130,20 @@ export function useRegenerateVendor() {
 
       // 플랜 상태 업데이트
       const category = mapApiCategoryToVendorCategory(
-        data.planItem.vendor.category
+        data.data.new_vendor.category
       );
       if (category) {
         await updateVendorState(
           variables.planId,
           category,
-          data.planItem.vendor.id,
+          data.data.new_vendor.id,
           '업체 저장됨'
         );
       }
 
       showPlanToast({
         variant: 'success',
-        message: `${data.planItem.vendor.name} 업체로 교체되었습니다.`,
+        message: `${data.data.new_vendor.name} 업체로 교체되었습니다.`,
       });
     },
     onError: (error: any) => {
