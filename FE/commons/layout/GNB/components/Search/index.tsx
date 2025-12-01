@@ -211,8 +211,8 @@ export default function Search() {
 
           {/* 지도 (배경) */}
           <KakaoMap
-            latitude={37.5665}
-            longitude={126.9780}
+            latitude={37.5247}
+            longitude={127.0404}
             level={5}
             markers={markers}
             onMapReady={handleMapReady}
