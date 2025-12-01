@@ -396,16 +396,35 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
    * 폼 데이터를 전달하고 로딩 화면으로 이동
    */
   const handleAnalyze = () => {
-    // TODO: 추후 API 요청 시 formData 사용
-    console.log("Form data to be sent:", formData);
+    // 데이터 변환 로직
+    const weddingDateStr = formData.weddingDate
+      ? formData.weddingDate.toISOString().split("T")[0]
+      : "";
+
+    const budgetNum = formData.budget
+      ? parseInt(formData.budget.replace(/,/g, "").replace("만원", "")) * 10000
+      : 0;
+
+    console.log("Form data to be sent:", {
+      wedding_date: weddingDateStr,
+      preferred_region: formData.region,
+      budget_limit: budgetNum,
+    });
 
     // onSubmit 콜백이 있으면 호출
     if (onSubmit) {
       onSubmit(formData);
     }
 
-    // 로딩 화면으로 이동
-    router.push(URL_PATHS.FORM_LOADING);
+    // 로딩 화면으로 이동하며 데이터 전달
+    router.push({
+      pathname: URL_PATHS.FORM_LOADING,
+      params: {
+        wedding_date: weddingDateStr,
+        preferred_region: formData.region,
+        budget_limit: budgetNum.toString(), // URL 파라미터는 문자열로 전달
+      },
+    });
   };
 
   return (
