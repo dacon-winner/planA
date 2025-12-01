@@ -77,7 +77,7 @@ export default function PlanDetail() {
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
   const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
   const [selectedAiRecommendation, setSelectedAiRecommendation] = useState<{
-    vendor_id: number;
+    vendor_id: string;
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
@@ -486,7 +486,7 @@ export default function PlanDetail() {
     data: vendorDetail,
     isLoading: isVendorLoading,
     error: vendorError,
-  } = useVendorDetail(selectedAiRecommendation?.vendor_id?.toString() || currentVendorId, planId as string, !!(selectedAiRecommendation?.vendor_id || currentVendorId));
+  } = useVendorDetail(selectedAiRecommendation?.vendor_id || currentVendorId, planId as string, !!(selectedAiRecommendation?.vendor_id || currentVendorId));
 
   // 업체 상세 정보 조회 상태 로그
   useEffect(() => {
@@ -580,11 +580,15 @@ export default function PlanDetail() {
         const selectedRecommendation = availableRecommendations[randomIndex];
 
         // 선택된 추천을 메인 섹션에 표시
-        setSelectedAiRecommendation({
-          vendor_id: parseInt(selectedRecommendation.vendor_id),
+        const selectedData = {
+          vendor_id: selectedRecommendation.vendor_id,
           name: selectedRecommendation.name,
           price: selectedRecommendation.reason || '추천 업체',
-        });
+        };
+
+        console.log('🎯 [다른 업체 보기] 선택된 업체:', selectedData);
+
+        setSelectedAiRecommendation(selectedData);
 
         // 바텀 시트를 최대 높이로 열기
         bottomSheetRef.current?.snapToIndex(1);
@@ -599,7 +603,7 @@ export default function PlanDetail() {
   };
 
   const handleAiRecommendationPress = (recommendation: {
-    vendor_id: number;
+    vendor_id: string;
     name: string;
     price: string;
   }) => {
@@ -611,6 +615,13 @@ export default function PlanDetail() {
 
   // 동적 상세 정보 계산
   const currentDetailInfo = useMemo(() => {
+    console.log('🔄 [currentDetailInfo] 계산:', {
+      hasSelectedAiRecommendation: !!selectedAiRecommendation,
+      selectedAiRecommendation: selectedAiRecommendation,
+      hasVendorDetail: !!vendorDetail,
+      vendorDetailKeys: vendorDetail ? Object.keys(vendorDetail) : null,
+    });
+
     if (selectedAiRecommendation && vendorDetail) {
       // 선택된 AI 추천 업체의 실제 API 데이터로 상세 정보 생성
       // 서비스 아이템이 있으면 가격 정보 생성
