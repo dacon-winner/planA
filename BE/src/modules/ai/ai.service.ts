@@ -362,7 +362,11 @@ export class AiService {
 
     // 사용자 조건
     if (request.wedding_date) {
-      parts.push(`- 결혼 예정일: ${request.wedding_date.toISOString().split('T')[0]}`);
+      const weddingDateStr =
+        typeof request.wedding_date === 'string'
+          ? request.wedding_date.split('T')[0]
+          : request.wedding_date.toISOString().split('T')[0];
+      parts.push(`- 결혼 예정일: ${weddingDateStr}`);
     }
     if (request.preferred_region) {
       parts.push(`- 선호 지역: ${request.preferred_region}`);
@@ -508,5 +512,277 @@ export class AiService {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
       this.logger.error(`AI 로그 저장 실패: ${errorMessage}`);
     }
+  }
+
+  /**
+   * 단일 카테고리 업체 재추천
+   * @param category - 재추천할 카테고리
+   * @param request - 추천 요청 파라미터 (결혼일, 지역, 예산)
+   * @param excludeVendorIds - 제외할 업체 ID 목록 (이미 플랜에 포함된 업체들)
+   * @param currentBudgetUsed - 현재 사용 중인 예산 (교체 대상 제외)
+   * @param userId - 요청 사용자 ID
+   * @returns 추천된 업체 정보 또는 null
+   */
+  async recommendSingleVendor(
+    category: 'STUDIO' | 'DRESS' | 'MAKEUP' | 'VENUE',
+    request: RecommendationRequest,
+    excludeVendorIds: string[],
+    currentBudgetUsed: number,
+    userId: string,
+  ): Promise<{
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null> {
+    this.logger.log(`단일 카테고리 재추천 시작: category=${category}, userId=${userId}`);
+
+    try {
+      // 1단계: DB에서 후보 업체 추출 (제외 목록 제외)
+      const candidates = await this.fetchSingleCategoryCandidates(
+        category,
+        request,
+        excludeVendorIds,
+        currentBudgetUsed,
+      );
+
+      this.logger.log(`후보 업체 수: ${category}=${candidates.length}`);
+
+      if (candidates.length === 0) {
+        this.logger.warn(`추천 가능한 ${category} 업체가 없습니다.`);
+        return null;
+      }
+
+      // 2단계: OpenAI API로 최적 업체 선택
+      const recommendation = await this.selectBestSingleVendor(
+        category,
+        candidates,
+        request,
+        currentBudgetUsed,
+        userId,
+      );
+
+      this.logger.log(`단일 카테고리 재추천 완료: category=${category}, userId=${userId}`);
+      return recommendation;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`단일 카테고리 재추천 실패: ${errorMessage}`, errorStack);
+      return null;
+    }
+  }
+
+  /**
+   * 단일 카테고리 후보 업체 추출
+   */
+  private async fetchSingleCategoryCandidates(
+    category: 'STUDIO' | 'DRESS' | 'MAKEUP' | 'VENUE',
+    request: RecommendationRequest,
+    excludeVendorIds: string[],
+    currentBudgetUsed: number,
+  ): Promise<AiResource[]> {
+    const maxCandidates = 5; // 10 -> 5로 줄여서 AI 처리 속도 개선
+
+    const queryBuilder = this.aiResourceRepository
+      .createQueryBuilder('ai_resource')
+      .where('ai_resource.category = :category', { category });
+
+    // 제외할 업체 필터링
+    if (excludeVendorIds.length > 0) {
+      queryBuilder.andWhere('ai_resource.vendor_id NOT IN (:...excludeIds)', {
+        excludeIds: excludeVendorIds,
+      });
+    }
+
+    // 지역 필터링
+    if (request.preferred_region) {
+      queryBuilder.andWhere(
+        "(ai_resource.metadata->>'region' = :region OR ai_resource.metadata->>'region' IS NULL)",
+        { region: request.preferred_region },
+      );
+    }
+
+    // 예산 필터링 (현재 사용 예산 + 새 업체 예산 <= 총 예산)
+    if (request.budget_limit) {
+      const remainingBudget = request.budget_limit - currentBudgetUsed;
+      queryBuilder.andWhere(
+        "((ai_resource.metadata->>'price_min')::int <= :remainingBudget OR ai_resource.metadata->>'price_min' IS NULL)",
+        { remainingBudget },
+      );
+    }
+
+    // 최대 개수 제한
+    queryBuilder.limit(maxCandidates);
+
+    const candidates = await queryBuilder.getMany();
+    return candidates;
+  }
+
+  /**
+   * 단일 업체 선택 (OpenAI API)
+   */
+  private async selectBestSingleVendor(
+    category: 'STUDIO' | 'DRESS' | 'MAKEUP' | 'VENUE',
+    candidates: AiResource[],
+    request: RecommendationRequest,
+    currentBudgetUsed: number,
+    userId: string,
+  ): Promise<{
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null> {
+    // 프롬프트 생성
+    const prompt = this.buildSingleCategoryPrompt(category, candidates, request, currentBudgetUsed);
+
+    try {
+      const startTime = Date.now();
+      const completion = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: `당신은 결혼 준비를 돕는 전문 웨딩 플래너 AI입니다.
+
+[핵심 규칙 - 절대 위반 금지]
+1. ⚠️ 후보 목록에서 정확히 1개의 업체만 선택하세요.
+2. ⚠️ 반드시 vendor_id, name, selection_reason을 모두 포함해야 합니다.
+3. ⚠️ 예산을 초과하지 않는 업체를 선택하세요.
+
+[추천 기준]
+1. 사용자의 남은 예산 범위 내에서 최적의 업체를 선택하세요.
+2. 지역 접근성을 고려하되, 예산을 초과하지 않는 것이 더 중요합니다.
+3. 가격 대비 품질이 좋은 업체를 우선 선택하세요.
+
+[응답 형식]
+- 반드시 JSON 형식으로만 작성하세요.
+- vendor_id, name, selection_reason 필드를 모두 포함해야 합니다.`,
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.2,
+      });
+
+      const responseTime = Date.now() - startTime;
+      const responseContent = completion.choices[0].message.content || '{}';
+      const recommendation = JSON.parse(responseContent) as {
+        vendor_id: string;
+        name: string;
+        selection_reason: string;
+      };
+
+      // AI 로그 저장 (간소화된 버전)
+      await this.saveAiLog({
+        user_id: userId,
+        request_prompt: prompt,
+        response_result: { [category.toLowerCase()]: recommendation } as any,
+        model_name: 'gpt-4o',
+        input_tokens: completion.usage?.prompt_tokens || 0,
+        output_tokens: completion.usage?.completion_tokens || 0,
+        total_tokens: completion.usage?.total_tokens || 0,
+      });
+
+      this.logger.log(`OpenAI API 호출 완료 (${responseTime}ms)`);
+
+      // 응답 검증 (vendor_id가 실제 후보 목록에 있는지)
+      const candidate = candidates.find((c) => c.vendor_id === recommendation.vendor_id);
+
+      if (!candidate) {
+        this.logger.warn(
+          `AI가 추천한 ${category} 업체(${recommendation.vendor_id})가 후보 목록에 없습니다.`,
+        );
+        return null;
+      }
+
+      return {
+        vendor_id: candidate.vendor_id,
+        name: recommendation.name || candidate.name,
+        selection_reason: recommendation.selection_reason || '추천 업체입니다.',
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      this.logger.error(`OpenAI API 호출 실패: ${errorMessage}`);
+      throw error;
+    }
+  }
+
+  /**
+   * 단일 카테고리 프롬프트 생성
+   */
+  private buildSingleCategoryPrompt(
+    category: 'STUDIO' | 'DRESS' | 'MAKEUP' | 'VENUE',
+    candidates: AiResource[],
+    request: RecommendationRequest,
+    currentBudgetUsed: number,
+  ): string {
+    const parts: string[] = [];
+
+    const categoryNameMap = {
+      STUDIO: '스튜디오',
+      DRESS: '드레스',
+      MAKEUP: '메이크업',
+      VENUE: '웨딩홀',
+    };
+
+    parts.push(`다음 조건에 맞는 ${categoryNameMap[category]} 업체를 추천해주세요:\n`);
+
+    // 사용자 조건
+    if (request.wedding_date) {
+      const weddingDateStr =
+        typeof request.wedding_date === 'string'
+          ? request.wedding_date.split('T')[0]
+          : request.wedding_date.toISOString().split('T')[0];
+      parts.push(`- 결혼 예정일: ${weddingDateStr}`);
+    }
+    if (request.preferred_region) {
+      parts.push(`- 선호 지역: ${request.preferred_region}`);
+    }
+    if (request.budget_limit) {
+      parts.push(`- 총 예산: ${request.budget_limit.toLocaleString()}원`);
+      parts.push(`- 현재 사용 중인 예산: ${currentBudgetUsed.toLocaleString()}원`);
+      parts.push(`- 남은 예산: ${(request.budget_limit - currentBudgetUsed).toLocaleString()}원`);
+    }
+    parts.push('');
+
+    // 후보 업체 정보
+    parts.push(`[${categoryNameMap[category]} 후보]`);
+    candidates.forEach((item, idx) => {
+      parts.push(`${idx + 1}. ID: ${item.vendor_id}`);
+      parts.push(`   이름: ${item.name}`);
+      parts.push(`   설명: ${item.content}`);
+      if (item.metadata) {
+        parts.push(`   메타데이터: ${JSON.stringify(item.metadata)}`);
+      }
+      parts.push('');
+    });
+
+    parts.push('\n===========================================');
+    parts.push('[추천 요청 - 필수 준수 사항]');
+    parts.push('===========================================');
+    parts.push('⚠️ 필수: 위 후보 목록에서 정확히 1개의 업체를 선택하세요.');
+    parts.push('⚠️ 필수: 남은 예산을 초과하지 않는 업체를 선택하세요.');
+    parts.push('⚠️ 필수: vendor_id, name, selection_reason을 모두 채워야 합니다.');
+    parts.push('');
+    parts.push('[선택 기준]');
+    parts.push('1. 남은 예산 범위 내에서 가장 합리적인 가격대의 업체를 선택하세요.');
+    parts.push('2. 가격 대비 품질과 만족도를 고려하세요.');
+    parts.push('3. 선택 이유를 명확히 설명하세요.');
+    parts.push('\n응답 형식 (반드시 아래 JSON 구조를 따라주세요):');
+    parts.push(
+      JSON.stringify(
+        {
+          vendor_id: 'uuid',
+          name: '업체명',
+          selection_reason: '선택 이유',
+        },
+        null,
+        2,
+      ),
+    );
+
+    return parts.join('\n');
   }
 }

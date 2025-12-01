@@ -37,6 +37,13 @@ export class MainPlanItemDto {
   address!: string;
 
   @ApiProperty({
+    description: '업체 썸네일 URL',
+    example: 'https://example.com/vendor-thumbnail.jpg',
+    nullable: true,
+  })
+  vendor_thumbnail_url!: string | null;
+
+  @ApiProperty({
     description: '예약일 (예약이 없으면 null)',
     example: '2025-03-15',
     nullable: true,
@@ -74,4 +81,3 @@ export class MainPlanResponseDto {
   })
   items!: MainPlanItemDto[];
 }
-

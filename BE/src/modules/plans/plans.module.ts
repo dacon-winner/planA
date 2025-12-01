@@ -7,6 +7,7 @@ import { PlanItem } from '../../entities/plan-item.entity';
 import { UsersInfo } from '../../entities/users-info.entity';
 import { Reservation } from '../../entities/reservation.entity';
 import { Vendor } from '../../entities/vendor.entity';
+import { AiModule } from '../ai/ai.module';
 
 /**
  * 플랜 모듈
@@ -15,7 +16,7 @@ import { Vendor } from '../../entities/vendor.entity';
  * - 플랜 상세 조회
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Plan, PlanItem, UsersInfo, Reservation, Vendor])],
+  imports: [TypeOrmModule.forFeature([Plan, PlanItem, UsersInfo, Reservation, Vendor]), AiModule],
   controllers: [PlansController],
   providers: [PlansService],
   exports: [PlansService],

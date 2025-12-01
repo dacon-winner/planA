@@ -6,8 +6,8 @@
  * AI 추천 요청 파라미터
  */
 export interface RecommendationRequest {
-  /** 결혼 예정일 */
-  wedding_date: Date | null;
+  /** 결혼 예정일 (Date 객체 또는 YYYY-MM-DD 형식 문자열) */
+  wedding_date: Date | string | null;
   /** 선호 지역 */
   preferred_region: string | null;
   /** 예산 제한 */
