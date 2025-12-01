@@ -18,3 +18,6 @@ export type { UserInfo } from './useUser';
 export { useReservations } from './useReservations';
 export type { ReservationInfo, ReservationListResponse } from './useReservations';
 
+export { useAiRecommendations } from './useAiRecommendations';
+export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
+

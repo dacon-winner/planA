@@ -13,6 +13,7 @@ import axios from 'axios';
 import { buildApiUrl } from '@/commons/config';
 import { useAuth } from '@/commons/providers/auth/auth.provider';
 
+
 /**
  * 예약 정보 타입 (백엔드 GetReservationResponseDto 기반)
  * TODO: 업체 정보 연동을 위해 vendor_id 및 vendor 정보 추가 필요
