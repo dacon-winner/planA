@@ -36,6 +36,17 @@ import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
 import { usePlans } from "@/commons/hooks/usePlans";
 import { usePolicies } from "@/commons/hooks/usePolicies";
+import {
+  useMainPlan,
+  CATEGORY_LABELS,
+  extractRegion,
+} from "@/commons/hooks/useMainPlan";
+import {
+  formatWeddingDate,
+  formatBudget,
+  formatRegion,
+  calculateDDay,
+} from "@/commons/utils";
 
 export default function Home() {
   const { data: plansData, isLoading, error } = usePlans();
@@ -44,6 +55,11 @@ export default function Home() {
     isLoading: isPoliciesLoading,
     error: policiesError,
   } = usePolicies();
+  const {
+    data: mainPlanData,
+    isLoading: isMainPlanLoading,
+    error: mainPlanError,
+  } = useMainPlan();
 
   // 로딩 상태
   if (isLoading) {
@@ -102,7 +118,8 @@ export default function Home() {
           {/* 상단 텍스트 섹션 */}
           <View style={styles["header-section"]}>
             <Text style={styles["header-subtitle"]} allowFontScaling={false}>
-              결혼식까지 N일 남았어요
+              결혼식까지 {calculateDDay(usersInfo?.wedding_date || null)}{" "}
+              남았어요
             </Text>
             <Text
               style={[styles["header-title"], { fontWeight: "700" }]}
@@ -110,24 +127,6 @@ export default function Home() {
             >
               {planInfo?.title || "김철수님만을 위한 플랜A"}
             </Text>
-          </View>
-
-          {/* 폼 페이지로 이동 버튼 */}
-          <View style={styles["form-button-container"]}>
-            <View style={styles["form-button"]}>
-              <Link href={URL_PATHS.FORM} asChild>
-                <Button variant="filled" size="medium">
-                  결혼 정보 입력하기
-                </Button>
-              </Link>
-            </View>
-            <View style={styles["login-button"]}>
-              <Link href={URL_PATHS.AUTH_LOGIN} asChild>
-                <Button variant="filled" size="medium">
-                  로그인 하기
-                </Button>
-              </Link>
-            </View>
           </View>
 
           {/* 중앙 정보 카드 */}
@@ -146,7 +145,10 @@ export default function Home() {
                   numberOfLines={1}
                   adjustsFontSizeToFit
                 >
-                  {usersInfo?.wedding_date || "미정"}
+                  {formatWeddingDate(usersInfo?.wedding_date || null, {
+                    includeDayOfWeek: false,
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
 
@@ -160,7 +162,9 @@ export default function Home() {
                   지역
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  {usersInfo?.preferred_region || "미정"}
+                  {formatRegion(usersInfo?.preferred_region || null, {
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
 
@@ -178,9 +182,10 @@ export default function Home() {
                   예산
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  {usersInfo?.budget_limit
-                    ? `${usersInfo.budget_limit.toLocaleString()}만원`
-                    : "미정"}
+                  {formatBudget(usersInfo?.budget_limit || null, {
+                    style: "compact",
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
             </View>
@@ -189,118 +194,111 @@ export default function Home() {
 
         {/* 하단 카드 그리드 - full width */}
         <View style={styles["card-grid"]}>
-          {/* 카드 1 - 에이비 스튜디오 */}
-          <View style={styles["vendor-card"]}>
-            <View style={styles["card-content"]}>
-              <View style={styles["card-info"]}>
-                <View style={styles["card-header"]}>
-                  <Text style={styles["card-title"]}>에이비 스튜디오</Text>
-                  <View style={styles["card-meta"]}>
-                    <Text style={styles["card-category-bold"]}>스튜디오</Text>
-                    <Text style={styles["card-location"]}>서울 강남구</Text>
-                  </View>
-                </View>
-                <View style={styles["card-status"]}>
-                  <Clock size={12} color="#524a4e" />
-                  <Text style={styles["card-status-text"]}>예약 문의 중</Text>
-                </View>
-              </View>
-              <Image
-                source={{
-                  uri: "http://localhost:3845/assets/8ebf14d458196f6acfdcfdd1afa9adc590fb20e8.png",
-                }}
-                style={styles["card-image"]}
-                resizeMode="cover"
-              />
+          {/* 로딩 상태 */}
+          {isMainPlanLoading && (
+            <View style={{ paddingVertical: 40, alignItems: "center" }}>
+              <ActivityIndicator size="large" color={colors.root.brand} />
+              <Text
+                style={{ marginTop: 12, color: colors.root.text, fontSize: 14 }}
+              >
+                업체 정보를 불러오는 중...
+              </Text>
             </View>
-          </View>
+          )}
 
-          {/* 카드 2 - 브라이드 드레스 */}
-          <View style={styles["vendor-card"]}>
-            <View style={styles["card-content"]}>
-              <View style={styles["card-info"]}>
-                <View style={styles["card-header"]}>
-                  <Text style={styles["card-title"]}>브라이드 드레스</Text>
-                  <View style={styles["card-meta"]}>
-                    <Text style={styles["card-category-bold"]}>드레스</Text>
-                    <Text style={styles["card-location"]}>서울 서초구</Text>
-                  </View>
-                </View>
-                <View style={styles["card-status"]}>
-                  <Clock size={12} color={colors.root.text} />
-                  <Text style={styles["card-status-text"]}>
-                    2025년 11월 27일 방문 예정
-                  </Text>
-                </View>
-              </View>
-              <Image
-                source={{
-                  uri: "http://localhost:3845/assets/e96f51116299bba1b4466fb0879e5d7378bef1c4.png",
-                }}
-                style={styles["card-image"]}
-                resizeMode="cover"
-              />
+          {/* 에러 상태 */}
+          {mainPlanError && !isMainPlanLoading && (
+            <View style={{ paddingVertical: 40, alignItems: "center" }}>
+              <Text style={{ color: colors.root.text, fontSize: 14 }}>
+                업체 정보를 불러오는 중 오류가 발생했습니다.
+              </Text>
             </View>
-          </View>
+          )}
 
-          {/* 카드 3 - 프롬바이어스 (회색) */}
-          <View style={styles["vendor-card"]}>
-            <View style={styles["card-content"]}>
-              <View style={styles["card-info"]}>
-                <View style={styles["card-header"]}>
-                  <Text style={styles["card-title-inactive"]}>
-                    프롬바이어스
-                  </Text>
-                  <View style={styles["card-meta"]}>
-                    <Text style={styles["card-category-inactive"]}>
-                      메이크업
-                    </Text>
-                    <Text style={styles["card-location-inactive"]}>
-                      서울 강남구
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles["card-status"]}>
-                  <Text style={styles["card-status-text-inactive"]}>
-                    업체 저장 전
-                  </Text>
-                </View>
-              </View>
-              <Image
-                source={{
-                  uri: "http://localhost:3845/assets/3e0d3efcb7266f84d34018e2a9bbc6e1f5cf69cc.png",
-                }}
-                style={styles["card-image"]}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
+          {/* 데이터 렌더링 */}
+          {!isMainPlanLoading &&
+            !mainPlanError &&
+            mainPlanData?.items?.map((item) => {
+              const hasReservation = !!item.reservation_date;
+              const region = extractRegion(item.address);
 
-          {/* 카드 4 - 타임스퀘어홀 */}
-          <View style={styles["vendor-card"]}>
-            <View style={styles["card-content"]}>
-              <View style={styles["card-info"]}>
-                <View style={styles["card-header"]}>
-                  <Text style={styles["card-title"]}>타임스퀘어홀</Text>
-                  <View style={styles["card-meta"]}>
-                    <Text style={styles["card-category-bold"]}>웨딩홀</Text>
-                    <Text style={styles["card-location"]}>서울 강남구</Text>
+              return (
+                <View key={item.plan_item_id} style={styles["vendor-card"]}>
+                  <View style={styles["card-content"]}>
+                    <View style={styles["card-info"]}>
+                      <View style={styles["card-header"]}>
+                        <Text
+                          style={
+                            hasReservation
+                              ? styles["card-title"]
+                              : styles["card-title-inactive"]
+                          }
+                        >
+                          {item.vendor_name}
+                        </Text>
+                        <View style={styles["card-meta"]}>
+                          <Text
+                            style={
+                              hasReservation
+                                ? styles["card-category-bold"]
+                                : styles["card-category-inactive"]
+                            }
+                          >
+                            {CATEGORY_LABELS[item.category] || item.category}
+                          </Text>
+                          <Text
+                            style={
+                              hasReservation
+                                ? styles["card-location"]
+                                : styles["card-location-inactive"]
+                            }
+                          >
+                            {region}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles["card-status"]}>
+                        {hasReservation ? (
+                          <>
+                            <Clock size={12} color={colors.root.text} />
+                            <Text style={styles["card-status-text"]}>
+                              {formatWeddingDate(item.reservation_date, {
+                                includeDayOfWeek: false,
+                                fallback: "미정",
+                              })}{" "}
+                              방문 예정
+                            </Text>
+                          </>
+                        ) : (
+                          <Text style={styles["card-status-text-inactive"]}>
+                            예약 문의 중
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    {/* Vendor 썸네일 이미지 */}
+                    {item.vendor_thumbnail_url && (
+                      <Image
+                        source={{ uri: item.vendor_thumbnail_url }}
+                        style={styles["card-image"]}
+                        resizeMode="cover"
+                      />
+                    )}
                   </View>
                 </View>
-                <View style={styles["card-status"]}>
-                  <Clock size={12} color={colors.root.text} />
-                  <Text style={styles["card-status-text"]}>계약 완료</Text>
-                </View>
+              );
+            })}
+
+          {/* 데이터 없음 */}
+          {!isMainPlanLoading &&
+            !mainPlanError &&
+            (!mainPlanData?.items || mainPlanData.items.length === 0) && (
+              <View style={{ paddingVertical: 40, alignItems: "center" }}>
+                <Text style={{ color: colors.root.text, fontSize: 14 }}>
+                  등록된 업체가 없습니다.
+                </Text>
               </View>
-              <Image
-                source={{
-                  uri: "http://localhost:3845/assets/5119a2164e6d4fd89fa9b492312fd60515cf25eb.png",
-                }}
-                style={styles["card-image"]}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
+            )}
         </View>
 
         {/* 정책 카드 섹션 */}
