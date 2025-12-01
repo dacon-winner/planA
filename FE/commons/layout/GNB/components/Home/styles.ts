@@ -302,4 +302,49 @@ export const styles = StyleSheet.create({
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
   },
+
+  /* 정책 카드 섹션 */
+  "policy-section": {
+    width: "100%",
+    paddingHorizontal: 24,
+    marginTop: 32,
+    marginBottom: 32,
+    gap: 16,
+    zIndex: 1,
+  },
+
+  "policy-header": {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+
+  "policy-title": {
+    fontSize: 16,
+    lineHeight: 16,
+    fontWeight: "600",
+    color: colors.foundationBlack[13], // black
+    fontFamily: "Pretendard",
+  },
+
+  "policy-more-button": {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    height: 16,
+  },
+
+  "policy-more-text": {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "400",
+    color: colors.foundationBrown[5], // #716b6e
+    fontFamily: "Pretendard",
+  },
+
+  "policy-card-container": {
+    alignItems: "center",
+    width: "100%",
+  },
 });

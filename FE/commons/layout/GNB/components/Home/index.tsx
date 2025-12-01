@@ -11,18 +11,24 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, ScrollView, Text, Image } from "react-native";
+import { View, ScrollView, Text, Image, Pressable } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Clock, Calendar, MapPin, CircleDollarSign } from "lucide-react-native";
+import {
+  Clock,
+  Calendar,
+  MapPin,
+  CircleDollarSign,
+  ArrowRight,
+} from "lucide-react-native";
 import { Link } from "expo-router";
 import { GradientBackground } from "@/commons/components/gradient-background";
 import { Button } from "@/commons/components/button";
+import { Card } from "@/commons/components/card";
 import { URL_PATHS } from "@/commons/enums/url";
 import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
 
 export default function Home() {
-
   return (
     <View style={styles["home-wrapper"]}>
       <StatusBar style="dark" translucent backgroundColor="transparent" />
@@ -234,6 +240,51 @@ export default function Home() {
                 resizeMode="cover"
               />
             </View>
+          </View>
+        </View>
+
+        {/* 정책 카드 섹션 */}
+        <View style={styles["policy-section"]}>
+          {/* 섹션 헤더 */}
+          <View style={styles["policy-header"]}>
+            <Text style={styles["policy-title"]} allowFontScaling={false}>
+              신혼부부를 위한 지원 사업
+            </Text>
+            <Pressable style={styles["policy-more-button"]}>
+              <Text style={styles["policy-more-text"]} allowFontScaling={false}>
+                더보기
+              </Text>
+              <ArrowRight
+                size={12}
+                color={colors.brown["brown-5"]}
+                strokeWidth={2}
+              />
+            </Pressable>
+          </View>
+
+          {/* 정책 카드 */}
+          <View style={styles["policy-card-container"]}>
+            <Card
+              categories={["loan", "always"]}
+              title="신혼부부 전세자금 대출"
+              description="무주택 신혼부부를 위한 저금리 전세자금 대출"
+              benefits={{
+                text: "연 1.2~2.1% 저금리 대출",
+                amount: "최대 20,000만원",
+              }}
+              details={[
+                { icon: "📋", text: "주택도시기금" },
+                {
+                  icon: "ℹ️",
+                  text: "혼인신고 후 7년 이내, 부부합산 소득 7천만원 이하",
+                },
+                { icon: "📅", text: "신청기한: 상시" },
+              ]}
+              fullDescription="무주택 세대주인 신혼부부(혼인신고일로부터 7년 이내)를 대상으로 연 1.2~2.1%의 저금리로 최대 2억원까지 전세자금을 대출해드립니다."
+              onApply={() => {
+                console.log("신청하기 클릭");
+              }}
+            />
           </View>
         </View>
       </ScrollView>
