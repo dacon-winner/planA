@@ -28,8 +28,9 @@ import { Search as SearchIcon, Crosshair, MapPin, Phone, Clock, CircleDollarSign
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { styles, vendorDetailStyles } from './styles';
 import KakaoMap, { MapMarker, KakaoMapRef } from '@/commons/components/kakao-map';
-import { useVendors } from '@/commons/hooks';
+import { useVendors, usePlans } from '@/commons/hooks';
 import { MarkerVariant } from '@/commons/components/marker';
+import { Toast } from '@/commons/components/toast-message';
 
 const CATEGORIES = [
   { id: 'ALL', label: '전체' },
@@ -75,10 +76,14 @@ export default function Search() {
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hasInitialData, setHasInitialData] = useState(false);
+  const [hasShownToast, setHasShownToast] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<KakaoMapRef>(null);
   const snapPoints = useMemo(() => ['60%', '90%'], []);
+
+  // 플랜 목록 조회 (빈 플랜 감지용)
+  const { data: planListResponse } = usePlans();
 
   // 지도 영역이 변경되면 1초 후에 API 호출 (Debounce)
   useEffect(() => {
@@ -118,6 +123,27 @@ export default function Search() {
       }, 500);
     }
   }, [isMapReady, isLoadingVendors, vendorsData, hasInitialData]);
+
+  // 빈 플랜 감지 및 토스트 메시지 표시
+  useEffect(() => {
+    if (!planListResponse?.items || hasShownToast) return;
+
+    // 빈 플랜 찾기 (plan_items가 없거나 빈 배열)
+    const emptyPlan = planListResponse.items.find((item) => {
+      const plan = item.plan as any;
+      // plan이 있고, plan_items가 없거나 빈 배열인 경우
+      return plan && (!plan.plan_items || plan.plan_items.length === 0);
+    });
+
+    if (emptyPlan) {
+      console.log('🆕 [Search] 빈 플랜 감지:', emptyPlan.plan?.title);
+      // 페이지 로드 후 약간의 딜레이 후 토스트 표시
+      setTimeout(() => {
+        Toast.success('새 플랜이 생성되었습니다. 업체를 추가해보세요!');
+        setHasShownToast(true);
+      }, 800);
+    }
+  }, [planListResponse, hasShownToast]);
 
   // 디버그 로그
   useEffect(() => {
