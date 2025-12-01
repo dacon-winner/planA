@@ -852,8 +852,9 @@ export default function PlanDetail() {
               </View>
             )}
 
-            {/* AI 추천 업체 - 항상 표시 */}
-            <View style={styles['ai-recommendations']}>
+            {/* AI 추천 업체 - 저장되지 않은 경우에만 표시 */}
+            {!isSaved && (
+              <View style={styles['ai-recommendations']}>
               <Text style={styles['ai-recommendations-title']}>
                 AI가 추천하는 다른 업체
               </Text>
@@ -889,6 +890,7 @@ export default function PlanDetail() {
                 })()}
               </ScrollView>
             </View>
+            )}
             </ScrollView>
           </View>
          
