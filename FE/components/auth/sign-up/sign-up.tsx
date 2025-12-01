@@ -202,7 +202,7 @@ export const SignUp: React.FC = () => {
                         name="gender"
                         render={({ field: { onChange, value } }) => (
                           <RadioGroup
-                            value={value}
+                            value={value || ""}
                             onChange={onChange}
                             options={genderOptions}
                             direction="horizontal"

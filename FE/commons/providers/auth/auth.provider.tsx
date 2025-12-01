@@ -52,6 +52,8 @@ interface AuthContextType {
   getUser: () => Promise<User | null>;
   /** 로그인 세션 설정 함수 */
   setAuthSession: (token: string, user: User) => Promise<void>;
+  /** Access Token 조회 함수 */
+  getAccessToken: () => Promise<string | null>;
 }
 
 /**
@@ -144,6 +146,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   /**
+   * Access Token 조회 함수
+   */
+  const getAccessToken = async (): Promise<string | null> => {
+    return await getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
+  };
+
+  /**
    * 로그인 함수 (로그인 페이지로 이동)
    */
   const login = (): void => {
@@ -217,6 +226,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth,
     getUser,
     setAuthSession,
+    getAccessToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
