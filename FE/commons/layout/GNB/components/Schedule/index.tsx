@@ -22,12 +22,14 @@ import { useModal } from "@/commons/providers/modal/modal.provider";
 import { NewPlanModalContent } from "@/commons/components/modal";
 import { getPlanDetailUrl } from "@/commons/enums/url";
 import { GradientBackground } from "@/commons/components/gradient-background";
-import { usePlans } from "@/commons/hooks";
+import { usePlans, useAIPlan } from "@/commons/hooks";
+import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
 
 export default function Schedule() {
   const { openModal } = useModal();
   const router = useRouter();
   const { data: planListResponse, isLoading, error } = usePlans();
+  const { openAIPlanGenerationModal } = useAIPlan();
 
   // API 데이터를 PlannerCard에 맞는 형식으로 변환
   const plans =
@@ -35,32 +37,13 @@ export default function Schedule() {
       const plan = item.plan;
       const usersInfo = item.users_info;
 
-      // wedding_date를 한국어 형식으로 변환
-      const formatDate = (dateString: string | null) => {
-        if (!dateString) return "날짜 미정";
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][
-          date.getDay()
-        ];
-        return `${year}년 ${month}월 ${day}일 ${dayOfWeek}요일`;
-      };
-
-      // 예산을 한국어 형식으로 변환
-      const formatBudget = (budget: number | null) => {
-        if (!budget) return "예산 미정";
-        return `${(budget / 10000).toLocaleString()}만원`;
-      };
-
       return {
         id: plan?.id || usersInfo.id,
         planName: plan?.title || "플랜",
         isAi: plan?.is_ai_generated || false,
         isRepresentative: usersInfo.is_main_plan,
-        date: formatDate(usersInfo.wedding_date),
-        location: usersInfo.preferred_region || "지역 미정",
+        date: formatWeddingDate(usersInfo.wedding_date),
+        location: formatRegion(usersInfo.preferred_region),
         budget: formatBudget(plan?.total_budget || usersInfo.budget_limit),
       };
     }) || [];
@@ -81,10 +64,9 @@ export default function Schedule() {
       <NewPlanModalContent
         onManualAdd={() => {
           console.log("직접 업체 추가");
+          // TODO: 직접 업체 추가 로직 구현
         }}
-        onAIGenerate={() => {
-          console.log("AI 플랜 생성");
-        }}
+        onAIGenerate={openAIPlanGenerationModal}
       />
     );
   };

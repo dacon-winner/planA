@@ -38,7 +38,7 @@ export const NewPlanModalContent: React.FC<NewPlanModalProps> = ({
           label: "AI 플랜 생성",
           onPress: () => {
             onAIGenerate?.();
-            closeModal();
+            // closeModal()을 호출하지 않음 - 모달 내용만 교체
           },
         },
       }}
