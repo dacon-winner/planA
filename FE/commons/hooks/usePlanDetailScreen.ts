@@ -117,6 +117,18 @@ export const parseWeddingDate = (dateString: string): Date | null => {
   }
 };
 
+/**
+ * Date 객체를 yy-mm-dd 형식으로 변환
+ * @param date Date 객체
+ * @returns yy-mm-dd 형식의 문자열 (예: "25-12-25")
+ */
+const formatDateToYYMMDD = (date: Date): string => {
+  const year = date.getFullYear().toString().slice(-2); // 마지막 2자리
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // 1-12, 2자리
+  const day = date.getDate().toString().padStart(2, "0"); // 1-31, 2자리
+  return `${year}-${month}-${day}`;
+};
+
 const DEFAULT_EMPTY_RECOMMENDATIONS: Record<VendorCategory, AiRecommendedVendor[]> = {
   스튜디오: [],
   드레스: [],
@@ -600,7 +612,7 @@ export function usePlanDetailScreen(planId?: string) {
     try {
       await createReservationMutation.mutateAsync({
         vendor_id: currentVendorId,
-        reservation_date: selectedDate.toISOString().split("T")[0],
+        reservation_date: formatDateToYYMMDD(selectedDate),
         reservation_time: selectedTime,
         plan_id: normalizedPlanId,
         category,
