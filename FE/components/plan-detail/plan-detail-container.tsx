@@ -29,7 +29,6 @@ import { usePlanDetailStore } from "@/commons/stores/usePlanDetailStore";
 import { PlanHeader } from "./plan-header";
 import { ServiceGrid } from "./service-grid";
 import { PlanLoadingState } from "./plan-loading-state";
-import { AiRecommendations } from "./ai-recommendations";
 import { PlanVendorChangeModal } from "@/commons/components/plan-detail/vendor-change-modal";
 import { showPlanToast } from "@/commons/components/plan-detail/plan-toast";
 
@@ -44,23 +43,19 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
   const {
     isLoading,
     error,
-    isAiRecommendationsLoading,
     isReservationLoading,
     finalPlanData,
     serviceCards,
     currentDetailInfo,
-    aiRecommendationsForCurrentTab,
     selectedTab,
     setSelectedTab,
     timeOptions,
     parseWeddingDate,
-    recommendationDisplayCount,
     isServiceSaved,
     handleSave,
     handleSaveConfirm,
     handleSaveCancel,
     handleViewOtherVendors,
-    handleAiRecommendationPress,
     handleReservation,
     changeVendorModals,
   } = usePlanDetailScreen(planId);
@@ -142,12 +137,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
   const handleOtherVendorsPress = useCallback(
     () => handleViewOtherVendors(expandBottomSheet),
     [handleViewOtherVendors, expandBottomSheet]
-  );
-
-  const handleRecommendationSelect = useCallback(
-    (recommendation: { vendor_id: string; name: string; price: string }) =>
-      handleAiRecommendationPress(recommendation, expandBottomSheet),
-    [handleAiRecommendationPress, expandBottomSheet]
   );
 
   // 이미지 스크롤 핸들러
@@ -495,18 +484,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                   )}
                 </View>
               )}
-
-              {/* AI 추천 업체 */}
-              <AiRecommendations
-                isLoading={isAiRecommendationsLoading}
-                recommendations={aiRecommendationsForCurrentTab}
-                currentServiceName={
-                  selectedAiRecommendation?.name ||
-                  finalPlanData.services[selectedTab].name
-                }
-                displayCount={recommendationDisplayCount}
-                onRecommendationPress={handleRecommendationSelect}
-              />
             </ScrollView>
           </View>
         </BottomSheetView>
