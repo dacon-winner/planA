@@ -25,3 +25,6 @@ export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
 
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
+
+export { useRegenerateVendor } from './useRegenerateVendor';
+export type { RegenerateVendorRequest, RegenerateVendorResponse } from './useRegenerateVendor';

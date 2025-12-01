@@ -25,6 +25,9 @@ import {
 import { colors } from "@/commons/enums/color";
 import { usePlanDetailScreen } from "@/commons/hooks/usePlanDetailScreen";
 import { usePlanDetailStore } from "@/commons/stores/usePlanDetailStore";
+import { useRegenerateVendor } from "@/commons/hooks/useRegenerateVendor";
+import { usePlanDetail } from "@/commons/hooks/usePlans";
+import { getVendorCategoryByIndex, mapApiCategoryToVendorCategory } from "@/commons/utils";
 import { PlanHeader } from "./plan-header";
 import { ServiceGrid } from "./service-grid";
 import { PlanLoadingState } from "./plan-loading-state";
@@ -71,6 +74,80 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
     isReserved,
     selectedAiRecommendation,
   } = usePlanDetailStore();
+
+  // 플랜 상세 데이터 조회 (예약 정보 확인용)
+  const { data: planDetailData } = usePlanDetail(planId);
+
+  // 업체 재생성 훅
+  const regenerateVendorMutation = useRegenerateVendor();
+
+  // 현재 선택된 탭의 예약 여부 확인
+  const hasReservation = useMemo(() => {
+    if (!planDetailData || !planDetailData.plan_items) {
+      return false;
+    }
+
+    const targetCategory = getVendorCategoryByIndex(selectedTab);
+    if (!targetCategory) {
+      return false;
+    }
+
+    const planItem = planDetailData.plan_items.find((item: any) => {
+      const normalized = mapApiCategoryToVendorCategory(item.vendor.category);
+      return normalized === targetCategory;
+    });
+
+    return planItem?.reservation !== null && planItem?.reservation !== undefined;
+  }, [planDetailData, selectedTab]);
+
+  // 현재 선택된 업체 ID
+  const currentVendorId = useMemo(() => {
+    if (!planDetailData || !planDetailData.plan_items) {
+      return null;
+    }
+
+    const targetCategory = getVendorCategoryByIndex(selectedTab);
+    if (!targetCategory) {
+      return null;
+    }
+
+    const planItem = planDetailData.plan_items.find((item: any) => {
+      const normalized = mapApiCategoryToVendorCategory(item.vendor.category);
+      return normalized === targetCategory;
+    });
+
+    return planItem?.vendor.id || null;
+  }, [planDetailData, selectedTab]);
+
+  // 업체 재생성 핸들러
+  const handleRegenerateVendor = useCallback(async () => {
+    console.log("🔄 [Regenerate] 버튼 클릭됨", {
+      planId,
+      currentVendorId,
+      hasReservation,
+    });
+
+    if (!currentVendorId) {
+      showPlanToast({
+        variant: "error",
+        message: "업체를 선택해주세요.",
+      });
+      return;
+    }
+
+    try {
+      console.log("🔄 [Regenerate] API 호출 시작", {
+        planId,
+        vendorId: currentVendorId,
+      });
+      await regenerateVendorMutation.mutateAsync({
+        planId,
+        vendorId: currentVendorId,
+      });
+    } catch {
+      // 에러는 훅 내부에서 토스트로 표시됨
+    }
+  }, [planId, currentVendorId, regenerateVendorMutation, hasReservation]);
 
   const hasSnappedToMaxRef = useRef(false);
 
@@ -208,16 +285,37 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
             <View style={{ flex: 1 }} />
             <View style={styles["detail-section-handle"]} />
             <View style={{ flex: 1, alignItems: "flex-end" }}>
-              <Pressable
-                style={{
-                  padding: 8,
-                }}
-                onPress={() => {
-                  // TODO: RotateCw 버튼 액션 구현
-                }}
-              >
-                <RotateCw size={20} color={colors.root.text} />
-              </Pressable>
+              {!hasReservation && currentVendorId ? (
+                <Pressable
+                  style={({ pressed }) => [
+                    {
+                      padding: 8,
+                      opacity: pressed ? 0.6 : 1,
+                    },
+                  ]}
+                  onPress={handleRegenerateVendor}
+                  disabled={regenerateVendorMutation.isPending}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <RotateCw 
+                    size={20} 
+                    color={
+                      regenerateVendorMutation.isPending
+                        ? colors.root.text + "80"
+                        : colors.root.text
+                    } 
+                  />
+                </Pressable>
+              ) : (
+                // 디버깅용: 버튼이 왜 안 보이는지 확인
+                __DEV__ && (
+                  <View style={{ padding: 8 }}>
+                    <Text style={{ fontSize: 10, color: colors.root.text + "50" }}>
+                      {!currentVendorId ? "no vendor" : "has reservation"}
+                    </Text>
+                  </View>
+                )
+              )}
             </View>
           </View>
 
@@ -304,7 +402,8 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                 <View style={styles["detail-info-item"]}>
                   <CircleDollarSign size={16} color={colors.root.text} />
                   <Text style={styles["detail-info-text"]}>
-                    {currentDetailInfo.service}
+                    {`${getVendorCategoryByIndex(selectedTab)} 서비스`}
+                    {/* {currentDetailInfo.service} */}
                   </Text>
                 </View>
               </View>
