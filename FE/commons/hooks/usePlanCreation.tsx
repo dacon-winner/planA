@@ -24,6 +24,15 @@ import { URL_PATHS } from "@/commons/enums/url";
 type PlanCreationMode = "ai" | "manual";
 
 /**
+ * usePlanCreation 반환 타입
+ */
+export interface UsePlanCreationReturn {
+  openAIPlanModal: () => void;
+  openManualPlanModal: () => void;
+  isCreatingPlan: boolean;
+}
+
+/**
  * 플랜 생성 관련 Hook
  * AI 플랜 생성과 직접 업체 추가 모두 지원
  *
@@ -38,7 +47,7 @@ type PlanCreationMode = "ai" | "manual";
  * // 직접 업체 추가
  * openManualPlanModal();
  */
-export const usePlanCreation = () => {
+export const usePlanCreation = (): UsePlanCreationReturn => {
   const router = useRouter();
   const { openModal, closeModal } = useModal();
   const { data: userData } = useMe();
