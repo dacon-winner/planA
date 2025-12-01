@@ -20,6 +20,7 @@ import { Button } from '@/commons/components/button';
 import { Toast } from '@/commons/components/toast-message';
 import { Calendar } from '@/commons/components/calendar';
 import { SelectButton } from '@/commons/components/select-button';
+import { ErrorModal } from '@/commons/components/modal/ErrorModal';
 import { styles, getDetailContentScrollStyle } from './styles';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo } from 'react';
@@ -39,6 +40,7 @@ export default function PlanDetail() {
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
+  const [showChangeVendorModal, setShowChangeVendorModal] = useState(false); // 업체 변경 확인 모달 표시 상태
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
   // 시간 옵션 생성 (9시부터 20시까지)
@@ -245,6 +247,18 @@ export default function PlanDetail() {
     return planData.detailInfo;
   }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
 
+  const handleSaveConfirm = () => {
+    // 실제 저장 실행
+    setIsSaved(true);
+    setShowChangeVendorModal(false);
+    Toast.success('플랜이 성공적으로 저장되었습니다.');
+  };
+
+  const handleSaveCancel = () => {
+    // 모달 닫기
+    setShowChangeVendorModal(false);
+  };
+
   const handleSave = () => {
     if (isSaved) {
       // 저장 취소하기
@@ -252,9 +266,16 @@ export default function PlanDetail() {
       setSelectedDate(null);
       setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
     } else {
-      // 저장하기
-      setIsSaved(true);
-      Toast.success('플랜이 성공적으로 저장되었습니다.');
+      // 이미 저장된 업체가 있는지 확인 (현재 선택된 탭의 서비스가 저장된 상태인지)
+      const currentService = planData.services[selectedTab];
+      if (currentService.isSelected && currentService.status !== '업체 저장 전') {
+        // 이미 저장된 업체가 있으면 모달 표시
+        setShowChangeVendorModal(true);
+      } else {
+        // 저장된 업체가 없으면 바로 저장
+        setIsSaved(true);
+        Toast.success('플랜이 성공적으로 저장되었습니다.');
+      }
     }
   };
 
@@ -742,6 +763,16 @@ export default function PlanDetail() {
         </BottomSheetView>
        
       </BottomSheet>
+
+      {/* 업체 변경 확인 모달 */}
+      {showChangeVendorModal && (
+        <ErrorModal
+          planAName={planData.planName}
+          studioName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
+          onConfirm={handleSaveConfirm}
+          onCancel={handleSaveCancel}
+        />
+      )}
     </View>
   );
 }
