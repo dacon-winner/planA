@@ -14,8 +14,10 @@ import { useModal } from '@/commons/providers/modal/modal.provider';
 export interface ErrorModalProps {
   /** 플랜 A 이름 */
   planAName?: string;
-  /** 스튜디오 이름 */
-  studioName?: string;
+  /** 서비스 타입 (스튜디오, 드레스, 메이크업, 웨딩홀) */
+  serviceType?: string;
+  /** 서비스 이름 */
+  serviceName?: string;
   /** 에러 메시지 */
   message?: string;
   /** 확인 버튼 핸들러 */
@@ -26,7 +28,8 @@ export interface ErrorModalProps {
 
 export const ErrorModal: React.FC<ErrorModalProps> = ({
   planAName = '플랜 A',
-  studioName = '에이비 스튜디오',
+  serviceType = '서비스',
+  serviceName = '선택된 서비스',
   message,
   onConfirm,
   onCancel,
@@ -35,9 +38,9 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
 
   // 브랜드 컬러가 적용된 텍스트 렌더링 헬퍼
   const renderTextWithBrandColor = React.useCallback((text: string) => {
-    const parts = text.split(new RegExp(`(${planAName}|${studioName})`, 'g'));
+    const parts = text.split(new RegExp(`(${planAName}|${serviceName})`, 'g'));
     return parts.map((part, index) => {
-      if (part === planAName || part === studioName) {
+      if (part === planAName || part === serviceName) {
         return (
           <Text key={`brand-${index}`} style={[styles['error-description'], styles['error-description-brand']]}>
             {part}
@@ -46,7 +49,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
       }
       return part;
     });
-  }, [planAName, studioName]);
+  }, [planAName, serviceName]);
 
   React.useEffect(() => {
     // 컴포넌트가 마운트되면 자동으로 모달 열기
@@ -76,10 +79,10 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
           />
           <View style={styles['error-description-container']}>
             <Text style={styles['error-description']}>
-              {renderTextWithBrandColor(`${planAName}에 스튜디오가 존재합니다.`)}
+              {renderTextWithBrandColor(`${planAName}에 ${serviceType}가 존재합니다.`)}
             </Text>
             <Text style={styles['error-description']}>
-              {renderTextWithBrandColor(`${studioName}로 변경하시겠습니까?`)}
+              {renderTextWithBrandColor(`${serviceName}로 변경하시겠습니까?`)}
             </Text>
           </View>
         </View>

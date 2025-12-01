@@ -410,31 +410,18 @@ export default function PlanDetail() {
     const isCurrentServiceSaved = savedServices[currentServiceType];
 
     if (isCurrentServiceSaved) {
-      // 저장 취소하기 - 현재 서비스의 저장 상태만 취소
+      // 이미 저장된 경우, 모달 표시 (업체 변경 확인)
+      setChangeVendorModals(prev => ({
+        ...prev,
+        [currentServiceType]: true,
+      }));
+    } else {
+      // 저장되지 않은 경우, 바로 저장
       setSavedServices(prev => ({
         ...prev,
-        [currentServiceType]: false,
+        [currentServiceType]: true,
       }));
-      setSelectedDate(null);
-      setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
-      setAiRecommendationsCount(3); // AI 추천 업체 표시 개수 초기화
-    } else {
-      // 이미 저장된 업체가 있는지 확인 (현재 선택된 탭의 서비스가 저장된 상태인지)
-      const currentService = planData.services[selectedTab];
-      if (currentService.isSelected && currentService.status !== '업체 저장 전') {
-        // 이미 저장된 업체가 있으면 모달 표시
-        setChangeVendorModals(prev => ({
-          ...prev,
-          [currentServiceType]: true,
-        }));
-      } else {
-        // 저장된 업체가 없으면 바로 저장
-        setSavedServices(prev => ({
-          ...prev,
-          [currentServiceType]: true,
-        }));
-        Toast.success('플랜이 성공적으로 저장되었습니다.');
-      }
+      Toast.success('플랜이 성공적으로 저장되었습니다.');
     }
   };
 
@@ -762,7 +749,7 @@ export default function PlanDetail() {
                   size="medium"
                   onPress={handleSave}
                 >
-                  {savedServices[planData.services[selectedTab].type] ? '저장 취소하기' : '저장하기'}
+                  {savedServices[planData.services[selectedTab].type] ? '저장 변경하기' : '저장하기'}
                 </Button>
               </View>
             </View>
@@ -947,7 +934,8 @@ export default function PlanDetail() {
       {changeVendorModals[planData.services[selectedTab].type] && (
         <ErrorModal
           planAName={planData.planName}
-          studioName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
+          serviceType={planData.services[selectedTab].type}
+          serviceName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
           onConfirm={handleSaveConfirm}
           onCancel={handleSaveCancel}
         />
