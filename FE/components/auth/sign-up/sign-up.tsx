@@ -73,7 +73,6 @@ export const SignUp: React.FC = () => {
     control,
     handleSubmit,
     formState: { errors, isValid },
-    watch,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     mode: "onChange", // 입력 시 실시간 검증

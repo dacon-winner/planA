@@ -46,6 +46,8 @@ export const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     height: "100%",
+    top: 0,
+    left: 0,
   },
 
   /**
@@ -54,7 +56,7 @@ export const styles = StyleSheet.create({
    */
   contentWrapper: {
     flex: 1,
-    marginTop: 0,
+    marginTop: 58,
     width: "100%",
   },
 
