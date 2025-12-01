@@ -834,7 +834,7 @@ export default function PlanDetail() {
                 >
                   {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
                     ?.filter((recommendation: any) =>
-                      !selectedAiRecommendation || recommendation.name !== selectedAiRecommendation.name
+                      recommendation.name !== currentDetailInfo.name
                     )
                     ?.slice(0, aiRecommendationsCount)
                     ?.map((recommendation: any, index: number) => (
