@@ -33,12 +33,6 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
 }) => {
   const { openModal, closeModal } = useModal();
 
-  // 기본 메시지 구성
-  const defaultMessageLines = [
-    `${planAName}에 스튜디오가 존재합니다.`,
-    `${studioName}로 변경하시겠습니까?`
-  ];
-
   // 브랜드 컬러가 적용된 텍스트 렌더링 헬퍼
   const renderTextWithBrandColor = React.useCallback((text: string) => {
     const parts = text.split(new RegExp(`(${planAName}|${studioName})`, 'g'));
@@ -91,7 +85,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
         </View>
       </Modal>
     );
-  }, [planAName, studioName, message, onConfirm, onCancel, openModal, closeModal, defaultMessageLines, renderTextWithBrandColor]);
+  }, [onConfirm, onCancel, openModal, closeModal, renderTextWithBrandColor]);
 
   // 이 컴포넌트는 보이지 않는 placeholder만 반환
   return <View />;
