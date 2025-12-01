@@ -60,9 +60,16 @@ export function useSetMainPlan() {
       return response.data.data;
     },
     onSuccess: (data) => {
-      // 대표 플랜 설정 성공 시 플랜 목록 캐시 무효화하여 최신 데이터 가져오기
-      console.log("🔄 [Cache] 대표 플랜 설정 성공 - 플랜 목록 캐시 무효화");
+      // 대표 플랜 설정 성공 시 관련 캐시 무효화하여 최신 데이터 가져오기
+      console.log("🔄 [Cache] 대표 플랜 설정 성공 - 캐시 무효화 시작");
+
+      // 1. 플랜 목록 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ["plans"] });
+
+      // 2. 사용자 정보 캐시 무효화 (대표 플랜 정보가 포함됨)
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+
+      console.log("✅ [Cache] 플랜 목록 및 사용자 정보 캐시 무효화 완료");
     },
   });
 }
