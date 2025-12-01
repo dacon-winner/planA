@@ -31,7 +31,12 @@ export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
   const [isHeaderCompact, setIsHeaderCompact] = useState(false); // 헤더가 컴팩트 모드인지 (0.65 기준)
-  const [isSaved, setIsSaved] = useState(false); // 저장 상태
+  const [savedServices, setSavedServices] = useState<Record<string, boolean>>({
+    '스튜디오': false,
+    '드레스': false,
+    '메이크업': false,
+    '웨딩홀': false,
+  }); // 각 서비스별 저장 상태
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 달력 선택 날짜
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
@@ -40,7 +45,12 @@ export default function PlanDetail() {
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
-  const [showChangeVendorModal, setShowChangeVendorModal] = useState(false); // 업체 변경 확인 모달 표시 상태
+  const [changeVendorModals, setChangeVendorModals] = useState<Record<string, boolean>>({
+    '스튜디오': false,
+    '드레스': false,
+    '메이크업': false,
+    '웨딩홀': false,
+  }); // 각 서비스별 업체 변경 확인 모달 표시 상태
   const [aiRecommendationsCount, setAiRecommendationsCount] = useState(3); // 표시할 AI 추천 업체 개수 (기본 3개)
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
@@ -55,10 +65,9 @@ export default function PlanDetail() {
     });
   }, []);
 
-  // 탭 변경 시 AI 추천 선택 상태 초기화
+  // 탭 변경 시 AI 추천 선택 상태 초기화 (저장 상태는 유지)
   useEffect(() => {
     setSelectedAiRecommendation(null);
-    setIsSaved(false);
     setSelectedDate(null);
     setSelectedTime(null);
     setShowTimePicker(false);
@@ -374,21 +383,38 @@ export default function PlanDetail() {
   }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
 
   const handleSaveConfirm = () => {
-    // 실제 저장 실행
-    setIsSaved(true);
-    setShowChangeVendorModal(false);
+    // 실제 저장 실행 - 현재 선택된 탭의 서비스만 저장
+    const currentServiceType = planData.services[selectedTab].type;
+    setSavedServices(prev => ({
+      ...prev,
+      [currentServiceType]: true,
+    }));
+    setChangeVendorModals(prev => ({
+      ...prev,
+      [currentServiceType]: false,
+    }));
     Toast.success('플랜이 성공적으로 저장되었습니다.');
   };
 
   const handleSaveCancel = () => {
-    // 모달 닫기
-    setShowChangeVendorModal(false);
+    // 모달 닫기 - 현재 선택된 탭의 서비스 모달만 닫기
+    const currentServiceType = planData.services[selectedTab].type;
+    setChangeVendorModals(prev => ({
+      ...prev,
+      [currentServiceType]: false,
+    }));
   };
 
   const handleSave = () => {
-    if (isSaved) {
-      // 저장 취소하기
-      setIsSaved(false);
+    const currentServiceType = planData.services[selectedTab].type;
+    const isCurrentServiceSaved = savedServices[currentServiceType];
+
+    if (isCurrentServiceSaved) {
+      // 저장 취소하기 - 현재 서비스의 저장 상태만 취소
+      setSavedServices(prev => ({
+        ...prev,
+        [currentServiceType]: false,
+      }));
       setSelectedDate(null);
       setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
       setAiRecommendationsCount(3); // AI 추천 업체 표시 개수 초기화
@@ -397,10 +423,16 @@ export default function PlanDetail() {
       const currentService = planData.services[selectedTab];
       if (currentService.isSelected && currentService.status !== '업체 저장 전') {
         // 이미 저장된 업체가 있으면 모달 표시
-        setShowChangeVendorModal(true);
+        setChangeVendorModals(prev => ({
+          ...prev,
+          [currentServiceType]: true,
+        }));
       } else {
         // 저장된 업체가 없으면 바로 저장
-        setIsSaved(true);
+        setSavedServices(prev => ({
+          ...prev,
+          [currentServiceType]: true,
+        }));
         Toast.success('플랜이 성공적으로 저장되었습니다.');
       }
     }
@@ -408,8 +440,15 @@ export default function PlanDetail() {
 
   // 서비스 상태 계산 함수
   const getServiceStatus = (serviceIndex: number) => {
+    const serviceType = planData.services[serviceIndex].type;
+    const isServiceSaved = savedServices[serviceType];
+
     // 현재 선택된 서비스가 아니면 원래 상태 반환
     if (serviceIndex !== selectedTab) {
+      // 다른 서비스의 저장 상태에 따라 상태 표시
+      if (isServiceSaved) {
+        return '저장 완료';
+      }
       return planData.services[serviceIndex].status;
     }
 
@@ -419,7 +458,7 @@ export default function PlanDetail() {
     }
 
     // 저장 완료된 경우
-    if (isSaved) {
+    if (isServiceSaved) {
       return '저장 완료';
     }
 
@@ -429,8 +468,14 @@ export default function PlanDetail() {
 
   // 서비스 상태 아이콘 계산 함수
   const getServiceStatusIcon = (serviceIndex: number) => {
-    // 현재 선택된 서비스가 아니면 원래 아이콘 반환
+    const serviceType = planData.services[serviceIndex].type;
+    const isServiceSaved = savedServices[serviceType];
+
+    // 현재 선택된 서비스가 아니면 원래 아이콘 반환 (저장 상태에 따라 다름)
     if (serviceIndex !== selectedTab) {
+      if (isServiceSaved) {
+        return 'clock' as const;
+      }
       return planData.services[serviceIndex].statusIcon;
     }
 
@@ -440,7 +485,7 @@ export default function PlanDetail() {
     }
 
     // 저장 완료된 경우
-    if (isSaved) {
+    if (isServiceSaved) {
       return 'clock' as const;
     }
 
@@ -717,13 +762,13 @@ export default function PlanDetail() {
                   size="medium"
                   onPress={handleSave}
                 >
-                  {isSaved ? '저장 취소하기' : '저장하기'}
+                  {savedServices[planData.services[selectedTab].type] ? '저장 취소하기' : '저장하기'}
                 </Button>
               </View>
             </View>
 
-            {/* 방문 예약하기 - 저장된 경우에만 표시 */}
-            {isSaved && (
+            {/* 방문 예약하기 - 현재 서비스가 저장된 경우에만 표시 */}
+            {savedServices[planData.services[selectedTab].type] && (
               <View style={styles['reservation-section']}>
                 {/* 구분선 */}
                 <View style={styles['reservation-divider']} />
@@ -852,8 +897,8 @@ export default function PlanDetail() {
               </View>
             )}
 
-            {/* AI 추천 업체 - 저장되지 않은 경우에만 표시 */}
-            {!isSaved && (
+            {/* AI 추천 업체 - 현재 서비스가 저장되지 않은 경우에만 표시 */}
+            {!savedServices[planData.services[selectedTab].type] && (
               <View style={styles['ai-recommendations']}>
               <Text style={styles['ai-recommendations-title']}>
                 AI가 추천하는 다른 업체
@@ -899,7 +944,7 @@ export default function PlanDetail() {
       </BottomSheet>
 
       {/* 업체 변경 확인 모달 */}
-      {showChangeVendorModal && (
+      {changeVendorModals[planData.services[selectedTab].type] && (
         <ErrorModal
           planAName={planData.planName}
           studioName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
