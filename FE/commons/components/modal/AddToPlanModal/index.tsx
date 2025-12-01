@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Calendar, MapPin, Wallet, ChevronDown } from 'lucide-react-native';
 import { Modal } from '../Modal';
 import { useModal } from '@/commons/providers/modal/modal.provider';
@@ -135,7 +135,7 @@ export const AddToPlanModalContent: React.FC<AddToPlanModalProps> = ({
 
           {/* 드롭다운 목록 */}
           {isDropdownOpen && (
-            <View style={styles.dropdownList}>
+            <ScrollView style={styles.dropdownList} nestedScrollEnabled>
               {isLoading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color="#FF5C8D" />
@@ -168,7 +168,7 @@ export const AddToPlanModalContent: React.FC<AddToPlanModalProps> = ({
                   <Text style={styles.emptyText}>플랜이 없습니다</Text>
                 </View>
               )}
-            </View>
+            </ScrollView>
           )}
         </View>
 
