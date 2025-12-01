@@ -42,6 +42,9 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // 폼 유효성 검사 - 이메일과 비밀번호가 모두 입력되었는지 확인
+  const isFormValid = email.trim().length > 0 && password.trim().length > 0;
+
   /**
    * 로그인 처리
    */
@@ -61,11 +64,14 @@ export const Login: React.FC = () => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? -100 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={true}
+        keyboardDismissMode="on-drag"
       >
         <ImageBackground
           source={require("@/assets/form-background.png")}
@@ -113,7 +119,12 @@ export const Login: React.FC = () => {
                 {/* 버튼 영역 */}
                 <View style={styles.buttonSection}>
                   {/* 로그인 버튼 */}
-                  <Button variant="filled" size="medium" onPress={handleLogin}>
+                  <Button
+                    variant="filled"
+                    size="medium"
+                    onPress={handleLogin}
+                    disabled={!isFormValid}
+                  >
                     로그인
                   </Button>
 
