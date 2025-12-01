@@ -7,7 +7,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { ShieldAlert } from 'lucide-react-native';
-import { Modal } from '../index';
+import { Modal } from '../Modal';
 import { styles, iconColors } from '../styles';
 import { useModal } from '@/commons/providers/modal/modal.provider';
 

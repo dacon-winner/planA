@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Modal } from '../index';
+import { Modal } from '../Modal';
 import { Input } from '@/commons/components/input';
 import { useModal } from '@/commons/providers/modal/modal.provider';
 

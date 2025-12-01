@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Calendar, MapPin, Wallet } from 'lucide-react-native';
-import { Modal } from '../index';
+import { Modal } from '../Modal';
 import { Dropdown } from '@/commons/components/dropdown';
 import { styles, iconColors } from '../styles';
 import { useModal } from '@/commons/providers/modal/modal.provider';
