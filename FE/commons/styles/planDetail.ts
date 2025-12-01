@@ -430,13 +430,12 @@ export const styles = StyleSheet.create({
   },
 
   'detail-images': {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
+    alignItems: 'center',
   },
 
   'detail-image-placeholder': {
-    width: 168,
+    width: 345,
     height: 168,
     backgroundColor: colors.black['black-5'], // #d9d9d9
     borderRadius: 0,

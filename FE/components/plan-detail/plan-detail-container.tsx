@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   Dimensions,
+  FlatList,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MapPin, Phone, Clock, CircleDollarSign } from "lucide-react-native";
@@ -222,26 +223,26 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
               {/* 이미지 섹션 */}
               <View style={styles["detail-images"]}>
-                {currentDetailInfo.images &&
-                currentDetailInfo.images.length > 0 ? (
-                  <>
-                    {currentDetailInfo.images
-                      .slice(0, 2)
-                      .map((imageUrl: string, index: number) => (
-                        <Image
-                          key={index}
-                          source={{ uri: imageUrl }}
-                          style={styles["detail-image-placeholder"]}
-                          resizeMode="cover"
-                        />
-                      ))}
-                  </>
-                ) : (
-                  <>
-                    <View style={styles["detail-image-placeholder"]} />
-                    <View style={styles["detail-image-placeholder"]} />
-                  </>
-                )}
+                <FlatList
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  data={currentDetailInfo.images && currentDetailInfo.images.length > 0
+                    ? currentDetailInfo.images
+                    : [null]} // 이미지가 없으면 null 하나를 넣어 플레이스홀더 표시
+                  keyExtractor={(_, index) => index.toString()}
+                  renderItem={({ item: imageUrl }) => (
+                    imageUrl ? (
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={styles["detail-image-placeholder"]}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles["detail-image-placeholder"]} />
+                    )
+                  )}
+                />
               </View>
 
               {/* 연락처 및 정보 */}
