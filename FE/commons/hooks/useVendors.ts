@@ -82,6 +82,26 @@ export interface VendorsResponse {
 }
 
 /**
+ * 업체 상세 조회 응답 인터페이스
+ */
+export interface VendorDetailResponse {
+  id: string;
+  category: 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
+  name: string;
+  address: string;
+  phone: string;
+  introduction: string;
+  service_items: {
+    id: string;
+    name: string;
+    price: number;
+    is_package: boolean;
+  }[];
+  vendor_images: string[] | null;
+  is_confirmed?: boolean;
+}
+
+/**
  * 업체 목록 조회 Hook
  * 
  * @param params 검색 파라미터 (category, 좌표 범위, 페이지네이션)
@@ -127,6 +147,47 @@ export function useVendors(params: VendorsParams, enabled: boolean = true) {
       return response.data.data;
     },
     enabled,
+  });
+}
+
+/**
+ * 업체 상세 조회 Hook
+ * 
+ * @param vendorId 업체 ID (UUID)
+ * @param planId 플랜 ID (선택, is_confirmed 포함 여부 결정)
+ * @param enabled 쿼리 활성화 여부 (기본: true)
+ * @returns 업체 상세 정보
+ * 
+ * @example
+ * const { data, isLoading, error } = useVendorDetail('550e8400-e29b-41d4-a716-446655440000', '123e4567-e89b-12d3-a456-426614174000');
+ */
+export function useVendorDetail(vendorId: string | null | undefined, planId?: string, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ['vendor', vendorId, planId],
+    queryFn: async () => {
+      if (!vendorId) {
+        throw new Error('업체 ID가 필요합니다.');
+      }
+
+      const queryParams: Record<string, string> = {};
+      if (planId) {
+        queryParams.plan_id = planId;
+      }
+
+      console.log('🌐 [API] 업체 상세 조회 요청:', { vendorId, planId });
+
+      const response = await client.get<{ success: boolean; data: VendorDetailResponse; timestamp: string }>(`/api/v1/vendors/${vendorId}`, { params: queryParams });
+      
+      console.log('✅ [API] 업체 상세 조회 응답:', {
+        id: response.data.data.id,
+        name: response.data.data.name,
+        category: response.data.data.category,
+      });
+
+      // 백엔드 응답 구조: { success, data: { vendor detail }, timestamp }
+      return response.data.data;
+    },
+    enabled: enabled && !!vendorId,
   });
 }
 
