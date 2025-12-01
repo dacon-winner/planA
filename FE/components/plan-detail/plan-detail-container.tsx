@@ -55,7 +55,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
     handleSave,
     handleSaveConfirm,
     handleSaveCancel,
-    handleViewOtherVendors,
     handleReservation,
     changeVendorModals,
   } = usePlanDetailScreen(planId);
@@ -132,11 +131,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
       expandBottomSheet();
     },
     [setSelectedTab, expandBottomSheet]
-  );
-
-  const handleOtherVendorsPress = useCallback(
-    () => handleViewOtherVendors(expandBottomSheet),
-    [handleViewOtherVendors, expandBottomSheet]
   );
 
   // 이미지 스크롤 핸들러
@@ -326,15 +320,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
               {/* 액션 버튼 */}
               <View style={styles["detail-actions"]}>
-                <View style={styles["detail-action-button"]}>
-                  <Button
-                    variant="outlined"
-                    size="medium"
-                    onPress={handleOtherVendorsPress}
-                  >
-                    다른 업체 보기
-                  </Button>
-                </View>
                 <View style={styles["detail-action-button"]}>
                   <Button variant="filled" size="medium" onPress={handleSave}>
                     {isServiceSaved(finalPlanData.services[selectedTab].type)
