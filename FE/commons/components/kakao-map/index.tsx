@@ -1,10 +1,10 @@
 /**
  * KakaoMap Component
- * 버전: 2.0.0 (Basic Version - 기본 지도만)
- * 생성 시각: 2025-12-01
+ * 버전: 2.1.0 (마커 표시 기능 추가)
+ * 수정 시각: 2025-12-01
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import { env } from '@/commons/config';
@@ -50,6 +50,15 @@ export default function KakaoMap({
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // markers가 변경될 때마다 WebView에 전달
+  useEffect(() => {
+    if (webViewRef.current && markers.length > 0) {
+      const message = JSON.stringify({ type: 'UPDATE_MARKERS', markers });
+      webViewRef.current.postMessage(message);
+      console.log(`📍 [KakaoMap] 마커 업데이트: ${markers.length}개`);
+    }
+  }, [markers]);
+
   const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -66,6 +75,9 @@ export default function KakaoMap({
   <script>
     // 즉시 실행으로 로그 확인
     (function() {
+      var map = null;
+      var markers = [];
+      
       function sendMessage(type, data) {
         try {
           window.ReactNativeWebView.postMessage(JSON.stringify({ type: type, data: data }));
@@ -76,6 +88,60 @@ export default function KakaoMap({
       
       sendMessage('LOG', '🔵 스크립트 시작');
       sendMessage('LOG', 'ReactNativeWebView 존재: ' + (!!window.ReactNativeWebView));
+      
+      // React Native로부터 메시지 수신
+      document.addEventListener('message', function(e) {
+        handleMessage(e.data);
+      });
+      window.addEventListener('message', function(e) {
+        handleMessage(e.data);
+      });
+      
+      function handleMessage(data) {
+        try {
+          var message = JSON.parse(data);
+          if (message.type === 'UPDATE_MARKERS') {
+            updateMarkers(message.markers);
+          }
+        } catch(e) {
+          sendMessage('ERROR', '메시지 처리 오류: ' + e.message);
+        }
+      }
+      
+      function updateMarkers(newMarkers) {
+        if (!map || !newMarkers) return;
+        
+        sendMessage('LOG', '📍 마커 업데이트 시작: ' + newMarkers.length + '개');
+        
+        // 기존 마커 제거
+        markers.forEach(function(marker) {
+          marker.setMap(null);
+        });
+        markers = [];
+        
+        // 새 마커 생성
+        newMarkers.forEach(function(markerData) {
+          try {
+            var position = new kakao.maps.LatLng(markerData.latitude, markerData.longitude);
+            var marker = new kakao.maps.Marker({
+              position: position,
+              map: map,
+              title: markerData.title
+            });
+            
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+              sendMessage('MARKER_CLICK', { id: markerData.id });
+            });
+            
+            markers.push(marker);
+          } catch(e) {
+            sendMessage('ERROR', '마커 생성 오류: ' + e.message);
+          }
+        });
+        
+        sendMessage('LOG', '✅ 마커 생성 완료: ' + markers.length + '개');
+      }
       
       // Kakao SDK를 동적으로 로드
       var script = document.createElement('script');
@@ -123,7 +189,7 @@ export default function KakaoMap({
               level: ${level}
             };
             
-            var map = new kakao.maps.Map(container, options);
+            map = new kakao.maps.Map(container, options);
             sendMessage('LOG', '✅ 지도 생성 완료!');
             sendMessage('MAP_READY', {});
             

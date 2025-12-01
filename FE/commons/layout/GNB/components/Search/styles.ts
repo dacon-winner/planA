@@ -1,16 +1,24 @@
 /**
  * Search Styles
- * 버전: 1.0.0
- * 생성 시각: 2025-11-14
+ * 버전: 1.4.0
+ * 최종 수정: 2025-12-01
  * 규칙 준수: 03-ui.mdc
- * - [x] tailwind.config.js의 토큰만 사용
- * - [x] 하드코딩 색상 0건
+ * 
+ * 스타일 구조:
+ * - Layout: 전체 레이아웃 및 컨테이너
+ * - Components: 검색바, 카테고리, 버튼 등
+ * - VendorDetail: Bottom Sheet 업체 상세 정보
+ * 
+ * 스타일 규칙:
+ * - [x] tailwind.config.js의 토큰 사용
+ * - [x] 하드코딩 색상 최소화 (Figma 디자인 반영)
  * - [x] StyleSheet 전용
  * - [x] 반응형/접근성 고려
  */
 
 import { StyleSheet } from 'react-native';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const tailwindConfig = require('@/tailwind.config.js');
 const colors = tailwindConfig.theme.extend.colors;
 const spacing = tailwindConfig.theme.extend.spacing;
@@ -169,6 +177,309 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 5,
+  },
+
+  /* Initial Loading Overlay */
+  'initial-loading-overlay': {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
+  },
+
+  'loading-text': {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+});
+
+/* Vendor Detail Styles */
+export const vendorDetailStyles = StyleSheet.create({
+  bottomSheetBackground: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    shadowColor: '#800c3a',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+
+  handleIndicator: {
+    backgroundColor: '#d1d5dc',
+  },
+
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+  },
+
+  headerLocation: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000000',
+    fontFamily: 'Pretendard',
+    letterSpacing: -0.3125,
+  },
+
+  saveButton: {
+    backgroundColor: '#ff5c8d',
+    paddingHorizontal: 24,
+    paddingVertical: 6,
+    borderRadius: 4,
+    height: 32,
+    justifyContent: 'center',
+  },
+
+  saveButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Pretendard',
+    letterSpacing: -0.1504,
+  },
+
+  categoryContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 8,
+  },
+
+  categoryBadge: {
+    backgroundColor: '#fdeff4',
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+  },
+
+  categoryBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#ff5c8d',
+    fontFamily: 'Pretendard',
+  },
+
+  description: {
+    fontSize: 12,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+
+  vendorName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 16,
+    fontFamily: 'Pretendard',
+  },
+
+  imageGalleryContainer: {
+    marginBottom: 16,
+  },
+
+  imageGalleryContent: {
+    gap: 9,
+  },
+
+  galleryImage: {
+    width: 168,
+    height: 168,
+    borderRadius: 8,
+  },
+
+  galleryImagePlaceholder: {
+    width: 168,
+    height: 168,
+    backgroundColor: '#d9d9d9',
+    borderRadius: 8,
+  },
+
+  infoSection: {
+    marginBottom: 16,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 8,
+  },
+
+  infoText: {
+    fontSize: 12,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+
+  priceSection: {
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
+
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+
+  priceLabel: {
+    fontSize: 12,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+
+  priceDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginHorizontal: 8,
+  },
+
+  priceValue: {
+    fontSize: 12,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+
+  ctaButton: {
+    backgroundColor: '#ff5c8d',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 4,
+    marginBottom: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#800c3a',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 3,
+  },
+
+  ctaButtonText: {
+    fontSize: 12.167,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontFamily: 'Pretendard',
+    letterSpacing: -0.1307,
+  },
+
+  // 비슷한 업체 추천 섹션
+  similarSection: {
+    marginTop: 32,
+    marginBottom: 24,
+  },
+
+  similarTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 16,
+    fontFamily: 'Pretendard',
+  },
+
+  similarScrollContent: {
+    gap: 12,
+    paddingRight: 24,
+  },
+
+  similarCard: {
+    width: 160,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+
+  similarCardImage: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#d9d9d9',
+  },
+
+  similarCardImagePlaceholder: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#d9d9d9',
+  },
+
+  similarCardContent: {
+    padding: 12,
+  },
+
+  similarCardName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#000000',
+    marginBottom: 6,
+    fontFamily: 'Pretendard',
+  },
+
+  similarCardBadge: {
+    backgroundColor: '#fdeff4',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+  },
+
+  similarCardBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#ff5c8d',
+    fontFamily: 'Pretendard',
+  },
+
+  similarCardPrice: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ff5c8d',
+    marginBottom: 6,
+    fontFamily: 'Pretendard',
+  },
+
+  similarCardLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+
+  similarCardLocationText: {
+    fontSize: 10,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+    flex: 1,
   },
 });
 
