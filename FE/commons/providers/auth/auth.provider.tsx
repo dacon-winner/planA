@@ -50,6 +50,8 @@ interface AuthContextType {
   checkAuth: () => Promise<boolean>;
   /** 사용자 정보 조회 함수 */
   getUser: () => Promise<User | null>;
+  /** 로그인 세션 설정 함수 */
+  setAuthSession: (token: string, user: User) => Promise<void>;
 }
 
 /**
@@ -164,6 +166,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   /**
+   * 로그인 세션 설정 함수
+   * 로그인 또는 회원가입 성공 시 호출하여 세션을 저장하고 상태를 업데이트합니다.
+   */
+  const setAuthSession = async (
+    token: string,
+    userData: User
+  ): Promise<void> => {
+    try {
+      // 1. AsyncStorage에 저장
+      await setStorageItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+      await setStorageItem(STORAGE_KEYS.USER, JSON.stringify(userData));
+
+      // 2. 상태 업데이트
+      setIsAuthenticated(true);
+      setUser(userData);
+
+      // 3. 홈 화면으로 이동 (필요 시)
+      // router.replace(URL_PATHS.HOME);
+    } catch (error) {
+      console.error("Session setup failed:", error);
+      // 에러 처리 로직 추가 가능
+    }
+  };
+
+  /**
    * 초기 인증 상태 로드
    */
   useEffect(() => {
@@ -189,6 +216,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     checkAuth,
     getUser,
+    setAuthSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
