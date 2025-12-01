@@ -41,6 +41,10 @@ export interface WeddingFormProps {
   onDateSelected?: (date: Date) => void;
   /** 폼 제출 핸들러 */
   onSubmit?: (data: WeddingFormData) => void;
+  /** 직접 업체 추가 모드 여부 */
+  isManualAddMode?: boolean;
+  /** 로딩 상태 */
+  isLoading?: boolean;
 }
 
 /**
@@ -260,6 +264,8 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
 export const WeddingForm: React.FC<WeddingFormProps> = ({
   onDateSelected,
   onSubmit,
+  isManualAddMode = false,
+  isLoading = false,
 }) => {
   // 라우터 및 URL params
   const router = useRouter();
@@ -407,8 +413,9 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   }, [isFormComplete, buttonOpacity]);
 
   /**
-   * 분석하기 버튼 클릭 핸들러
-   * 폼 데이터를 전달하고 로딩 화면으로 이동
+   * 분석하기/저장하기 버튼 클릭 핸들러
+   * - AI 플랜 생성 모드: 로딩 화면으로 이동
+   * - 직접 업체 추가 모드: 부모 컴포넌트(FormPage)의 onSubmit 호출
    */
   const handleAnalyze = () => {
     // 데이터 변환 로직
@@ -417,7 +424,12 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       : "";
 
     const budgetNum = formData.budget
-      ? parseInt(formData.budget.replace(/,/g, "").replace("만원", "")) * 10000
+      ? parseInt(
+          formData.budget
+            .replace(/,/g, "")
+            .replace("만원", "")
+            .replace(" 이상", "")
+        ) * 10000
       : 0;
 
     console.log("Form data to be sent:", {
@@ -431,16 +443,23 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       onSubmit(formData);
     }
 
-    // 로딩 화면으로 이동하며 데이터 전달
-    router.push({
-      pathname: URL_PATHS.FORM_LOADING,
-      params: {
-        wedding_date: weddingDateStr,
-        preferred_region: formData.region,
-        budget_limit: budgetNum.toString(), // URL 파라미터는 문자열로 전달
-      },
-    });
+    // 직접 업체 추가 모드가 아닌 경우에만 로딩 화면으로 이동
+    if (!isManualAddMode) {
+      // AI 플랜 생성: 로딩 화면으로 이동하며 데이터 전달
+      router.push({
+        pathname: URL_PATHS.FORM_LOADING,
+        params: {
+          wedding_date: weddingDateStr,
+          preferred_region: formData.region,
+          budget_limit: budgetNum.toString(), // URL 파라미터는 문자열로 전달
+        },
+      });
+    }
+    // 직접 업체 추가 모드는 부모 컴포넌트(FormPage)의 onSubmit에서 처리
   };
+
+  // 버튼 텍스트 결정
+  const buttonText = isManualAddMode ? "저장하기" : "분석하기";
 
   return (
     <View style={styles.container}>
@@ -519,15 +538,20 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
         </View>
       </ScrollView>
 
-      {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
+      {/* 분석하기/저장하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
       {isFormComplete && (
         <Animated.View
           style={[styles.analyzeButtonWrapper, { opacity: buttonOpacity }]}
         >
           <SafeAreaView>
             <View style={styles.analyzeButtonContainer}>
-              <Button variant="filled" size="large" onPress={handleAnalyze}>
-                분석하기
+              <Button
+                variant="filled"
+                size="large"
+                onPress={handleAnalyze}
+                disabled={isLoading}
+              >
+                {isLoading ? "생성 중..." : buttonText}
               </Button>
             </View>
           </SafeAreaView>
