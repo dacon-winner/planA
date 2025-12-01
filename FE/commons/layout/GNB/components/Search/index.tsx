@@ -53,9 +53,10 @@ import KakaoMap, {
   MapMarker,
   KakaoMapRef,
 } from "@/commons/components/kakao-map";
-import { useVendors, useVendorDetail } from "@/commons/hooks";
+import { useVendors, useVendorDetail, useAddVendorToPlan } from "@/commons/hooks";
 import { MarkerVariant } from "@/commons/components/marker";
 import { Toast } from "@/commons/components/toast-message";
+import { AddToPlanModal } from "@/commons/components/modal";
 
 const CATEGORIES = [
   { id: "ALL", label: "전체" },
@@ -104,6 +105,7 @@ export default function Search() {
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hasInitialData, setHasInitialData] = useState(false);
+  const [showAddToPlanModal, setShowAddToPlanModal] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<KakaoMapRef>(null);
@@ -146,6 +148,22 @@ export default function Search() {
     undefined,
     !!selectedVendor?.id
   );
+
+  // 플랜에 업체 추가/교체
+  const { mutate: addVendorToPlan, isPending: isAddingVendor } = useAddVendorToPlan({
+    onSuccess: (data) => {
+      const message =
+        data.action === "added"
+          ? `${selectedVendor.name}이(가) 플랜에 추가되었습니다`
+          : `기존 업체가 ${selectedVendor.name}(으)로 교체되었습니다`;
+      Toast.success(message);
+      setShowAddToPlanModal(false);
+      bottomSheetRef.current?.close();
+    },
+    onError: (error) => {
+      Toast.error(error.message || "업체 추가에 실패했습니다");
+    },
+  });
 
   // 초기 로딩 완료 체크
   useEffect(() => {
@@ -271,6 +289,26 @@ export default function Search() {
     }
   };
 
+  // 저장하기 버튼 핸들러
+  const handleSaveVendor = () => {
+    setShowAddToPlanModal(true);
+  };
+
+  // 플랜 선택 확인 핸들러
+  const handleConfirmAddToPlan = (planId: string) => {
+    if (selectedVendor) {
+      addVendorToPlan({
+        planId,
+        vendorId: selectedVendor.id,
+      });
+    }
+  };
+
+  // 플랜 선택 취소 핸들러
+  const handleCancelAddToPlan = () => {
+    setShowAddToPlanModal(false);
+  };
+
   return (
     <View style={styles["search-wrapper"]}>
       <SafeAreaView style={styles["search-safe-area"]} edges={["top"]}>
@@ -379,8 +417,14 @@ export default function Search() {
                   {selectedVendor.address?.split(" ").slice(0, 3).join(" ")}
                 </Text>
               </View>
-              <TouchableOpacity style={vendorDetailStyles.saveButton}>
-                <Text style={vendorDetailStyles.saveButtonText}>저장하기</Text>
+              <TouchableOpacity
+                style={vendorDetailStyles.saveButton}
+                onPress={handleSaveVendor}
+                disabled={isAddingVendor}
+              >
+                <Text style={vendorDetailStyles.saveButtonText}>
+                  {isAddingVendor ? "저장 중..." : "저장하기"}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -583,6 +627,14 @@ export default function Search() {
           </BottomSheetScrollView>
         </BottomSheet>
       )}
+
+      {/* 플랜에 추가 모달 */}
+      <AddToPlanModal
+        visible={showAddToPlanModal}
+        vendorName={selectedVendor?.name || ""}
+        onConfirm={handleConfirmAddToPlan}
+        onCancel={handleCancelAddToPlan}
+      />
     </View>
   );
 }
