@@ -10,7 +10,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { buildApiUrl, env } from '@/commons/config';
+import { buildApiUrl } from '@/commons/config';
+import { useAuth } from '@/commons/providers/auth/auth.provider';
 
 /**
  * 플랜 정보 타입
@@ -58,15 +59,22 @@ export interface PlanListResponse {
  * const { data, isLoading, error } = usePlans();
  */
 export function usePlans(enabled: boolean = true) {
+  const { getAccessToken } = useAuth();
+
   return useQuery({
     queryKey: ['plans'],
     queryFn: async () => {
       const url = buildApiUrl('/api/v1/plans');
       console.log('🌐 [API] 플랜 목록 요청');
 
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        throw new Error('Access token이 없습니다. 로그인이 필요합니다.');
+      }
+
       const response = await axios.get<{ success: boolean; data: PlanListResponse }>(url, {
         headers: {
-          Authorization: `Bearer ${env.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -92,15 +100,22 @@ export function usePlans(enabled: boolean = true) {
  * const { data, isLoading, error } = usePlanDetail('plan-id');
  */
 export function usePlanDetail(planId: string, enabled: boolean = true) {
+  const { getAccessToken } = useAuth();
+
   return useQuery({
     queryKey: ['plan', planId],
     queryFn: async () => {
       const url = buildApiUrl(`/api/v1/plans/${planId}`);
       console.log('🌐 [API] 플랜 상세 요청:', planId);
 
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        throw new Error('Access token이 없습니다. 로그인이 필요합니다.');
+      }
+
       const response = await axios.get<{ success: boolean; data: any }>(url, {
         headers: {
-          Authorization: `Bearer ${env.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 

@@ -6,7 +6,7 @@
 스웨거 문서 http://10.50.1.33:3000/api-docs#/%ED%94%8C%EB%9E%9C%20(Plans)/PlansController_getPlanDetail를 기준으로 api 연동해서 자세히 보기 버튼 클릭시 url plans/[id]로 이동해서 정보 가져올것.
 
 API 요청 시 Authorization: Bearer {access_token} 헤더를 추가할 것.
-EXPO_PUBLIC_ACCESS_TOKEN 환경 변수를 access token으로 사용할 것.
+로그인 후 받은 access_token을 사용하여 API 요청할 것.
 
 사용할 MCP경로) https://www.figma.com/design/ts4rknjsqv0LEfLMbSlL5E/plan-A---FE?node-id=4100-84&m=dev
 
