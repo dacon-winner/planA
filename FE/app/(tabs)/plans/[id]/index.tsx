@@ -429,55 +429,92 @@ export default function PlanDetail() {
   const getServiceStatus = (serviceIndex: number) => {
     const serviceType = planData.services[serviceIndex].type;
     const isServiceSaved = savedServices[serviceType];
+    const currentService = planData.services[serviceIndex];
 
     // 현재 선택된 서비스가 아니면 원래 상태 반환
     if (serviceIndex !== selectedTab) {
       // 다른 서비스의 저장 상태에 따라 상태 표시
       if (isServiceSaved) {
-        return '저장 완료';
+        return '업체 저장됨';
       }
-      return planData.services[serviceIndex].status;
+      return '업체 저장 전';
     }
 
-    // 예약 확정된 경우
+    // 계약 완료 상태
+    if (currentService.status === '계약 완료') {
+      return '계약 완료';
+    }
+
+    // 방문 예정 상태 (status에 '방문 예정'이 포함된 경우)
+    if (currentService.status.includes('방문 예정')) {
+      return '방문 예정';
+    }
+
+    // 예약 확정된 경우 (방문 예정)
     if (isReserved && selectedDate && selectedTime) {
-      return `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 방문 예정`;
+      return '방문 예정';
+    }
+
+    // 날짜 지정된 상태 (시간은 선택되지 않은 경우)
+    if (selectedDate && !selectedTime) {
+      return '날짜 지정됨';
     }
 
     // 저장 완료된 경우
     if (isServiceSaved) {
-      return '저장 완료';
+      return '업체 저장됨';
     }
 
-    // 기본 상태
-    return planData.services[serviceIndex].status;
+    // 예약 문의 중인 상태
+    if (currentService.status === '예약 문의 중') {
+      return '예약 문의 중';
+    }
+
+    // 기본 상태 (업체 저장 전)
+    return '업체 저장 전';
   };
 
   // 서비스 상태 아이콘 계산 함수
   const getServiceStatusIcon = (serviceIndex: number) => {
     const serviceType = planData.services[serviceIndex].type;
     const isServiceSaved = savedServices[serviceType];
+    const currentService = planData.services[serviceIndex];
 
     // 현재 선택된 서비스가 아니면 원래 아이콘 반환 (저장 상태에 따라 다름)
     if (serviceIndex !== selectedTab) {
       if (isServiceSaved) {
         return 'clock' as const;
       }
-      return planData.services[serviceIndex].statusIcon;
+      return null; // 업체 저장 전은 아이콘 없음
     }
 
-    // 예약 확정된 경우
-    if (isReserved && selectedDate && selectedTime) {
+    // 계약 완료 상태
+    if (currentService.status === '계약 완료') {
       return 'clockCheck' as const;
     }
 
-    // 저장 완료된 경우
+    // 방문 예정 상태 (status에 '방문 예정'이 포함되거나 예약 확정된 경우)
+    if (currentService.status.includes('방문 예정') || (isReserved && selectedDate && selectedTime)) {
+      return 'clockCheck' as const;
+    }
+
+    // 날짜 지정된 상태 (시간은 선택되지 않은 경우)
+    if (selectedDate && !selectedTime) {
+      return 'calendar' as const;
+    }
+
+    // 업체 저장됨 상태
     if (isServiceSaved) {
       return 'clock' as const;
     }
 
-    // 기본 아이콘
-    return planData.services[serviceIndex].statusIcon;
+    // 예약 문의 중인 상태
+    if (currentService.status === '예약 문의 중') {
+      return 'clock' as const;
+    }
+
+    // 업체 저장 전 상태
+    return null;
   };
 
 
@@ -496,6 +533,8 @@ export default function PlanDetail() {
         return <Clock size={12} color={iconColor} />;
       case 'clockCheck':
         return <ClockCheck size={12} color={iconColor} />;
+      case 'calendar':
+        return <CalendarIcon size={12} color={iconColor} />;
       default:
         return null;
     }
