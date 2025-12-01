@@ -107,8 +107,6 @@ export default function Search() {
   const [debouncedMapBounds, setDebouncedMapBounds] = useState(mapBounds);
   const [isMapReady, setIsMapReady] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  const [hasInitialData, setHasInitialData] = useState(false);
   const [showAddToPlanModal, setShowAddToPlanModal] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -170,17 +168,8 @@ export default function Search() {
       },
     });
 
-  // 초기 로딩 완료 체크
-  useEffect(() => {
-    if (isMapReady && !isLoadingVendors && vendorsData && !hasInitialData) {
-      console.log("✅ [Search] 초기 로딩 완료");
-      setHasInitialData(true);
-      // 약간의 딜레이 후 화면 표시 (마커가 그려지는 시간 확보)
-      setTimeout(() => {
-        setInitialLoadComplete(true);
-      }, 500);
-    }
-  }, [isMapReady, isLoadingVendors, vendorsData, hasInitialData]);
+  // 초기 로딩 완료 여부 계산 (상태가 아닌 계산값으로 변경)
+  const initialLoadComplete = isMapReady && !isLoadingVendors && !!vendorsData;
 
   // 새 플랜 생성 후 토스트 메시지 표시
   useEffect(() => {
@@ -198,16 +187,18 @@ export default function Search() {
 
   // 디버그 로그
   useEffect(() => {
-    console.log("🗺️ [Search] Map Ready:", isMapReady);
-    console.log("📍 [Search] Map Bounds:", mapBounds);
-    console.log("🏷️ [Search] Selected Category:", selectedCategory);
-    console.log(
-      "📦 [Search] Total Vendors:",
-      vendorsData?.vendors?.length || 0
-    );
-    console.log("⏳ [Search] Loading Vendors:", isLoadingVendors);
-    console.log("🎨 [Search] Initial Load Complete:", initialLoadComplete);
-    if (error) console.error("❌ [Search] Error:", error);
+    if (__DEV__) {
+      console.log("🗺️ [Search] Map Ready:", isMapReady);
+      console.log("📍 [Search] Map Bounds:", mapBounds);
+      console.log("🏷️ [Search] Selected Category:", selectedCategory);
+      console.log(
+        "📦 [Search] Total Vendors:",
+        vendorsData?.vendors?.length || 0
+      );
+      console.log("⏳ [Search] Loading Vendors:", isLoadingVendors);
+      console.log("🎨 [Search] Initial Load Complete:", initialLoadComplete);
+      if (error) console.error("❌ [Search] Error:", error);
+    }
   }, [
     isMapReady,
     mapBounds,
