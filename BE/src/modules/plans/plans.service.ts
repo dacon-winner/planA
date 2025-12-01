@@ -1,11 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Plan } from '../../entities/plan.entity';
 import { PlanItem, ItemSource } from '../../entities/plan-item.entity';
 import { UsersInfo } from '../../entities/users-info.entity';
 import { Reservation } from '../../entities/reservation.entity';
-import { VendorCategory } from '../../entities/vendor.entity';
+import { Vendor, VendorCategory } from '../../entities/vendor.entity';
 import { VendorCombinationRecommendation } from '../ai/interfaces';
 import {
   PlanListResponseDto,
@@ -14,6 +14,8 @@ import {
   SetMainPlanResponseDto,
   UpdatePlanTitleResponseDto,
   CreatePlanResponseDto,
+  AddPlanVendorResponseDto,
+  DeletePlanResponseDto,
 } from './dto';
 
 /**
@@ -33,6 +35,8 @@ export class PlansService {
     private readonly usersInfoRepository: Repository<UsersInfo>,
     @InjectRepository(Reservation)
     private readonly reservationRepository: Repository<Reservation>,
+    @InjectRepository(Vendor)
+    private readonly vendorRepository: Repository<Vendor>,
   ) {}
 
   /**
@@ -482,6 +486,176 @@ export class PlansService {
 
     return {
       message: '빈 플랜 생성 성공',
+    };
+  }
+
+  /**
+   * 플랜에 업체 추가 또는 교체
+   * @description 같은 카테고리의 업체가 있으면 교체, 없으면 추가합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param planId - 플랜 ID
+   * @param vendorId - 추가/교체할 업체 ID
+   * @returns 작업 결과 (추가/교체 여부 및 플랜 아이템 정보)
+   *
+   * @throws NotFoundException - 플랜, 업체를 찾을 수 없거나 권한이 없는 경우
+   */
+  async addOrUpdatePlanVendor(
+    userId: string,
+    planId: string,
+    vendorId: string,
+  ): Promise<AddPlanVendorResponseDto> {
+    this.logger.log(
+      `플랜 업체 추가/수정 시작: userId=${userId}, planId=${planId}, vendorId=${vendorId}`,
+    );
+
+    // 1. 플랜 조회 및 소유권 확인
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`플랜을 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    if (plan.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 플랜이 아닙니다. (planId: ${planId})`);
+    }
+
+    // 2. 업체 조회 및 카테고리 확인
+    const vendor = await this.vendorRepository.findOne({
+      where: { id: vendorId },
+    });
+
+    if (!vendor) {
+      throw new NotFoundException(`업체를 찾을 수 없습니다. (vendorId: ${vendorId})`);
+    }
+
+    const vendorCategory = vendor.category;
+    this.logger.log(`업체 카테고리: ${vendorCategory}`);
+
+    // 3. 같은 카테고리의 기존 plan_item 조회
+    const planItems = await this.planItemRepository.find({
+      where: { plan_id: planId },
+      relations: ['vendor'],
+    });
+
+    const existingItemWithSameCategory = planItems.find(
+      (item) => item.vendor.category === vendorCategory,
+    );
+
+    let action: 'added' | 'replaced';
+    let planItem: PlanItem;
+
+    if (existingItemWithSameCategory) {
+      // 4-A. 교체 (UPDATE)
+      const oldVendorId = existingItemWithSameCategory.vendor_id;
+
+      // 🔍 예약 여부 확인
+      const hasReservation = await this.reservationRepository.findOne({
+        where: {
+          plan_id: planId,
+          vendor_id: oldVendorId,
+        },
+      });
+
+      if (hasReservation) {
+        throw new BadRequestException(
+          '예약이 있는 업체는 변경할 수 없습니다. 먼저 예약을 취소해주세요.',
+        );
+      }
+
+      this.logger.log(`기존 ${vendorCategory} 업체를 교체합니다. (기존 ID: ${oldVendorId})`);
+
+      existingItemWithSameCategory.vendor_id = vendorId;
+      existingItemWithSameCategory.source = ItemSource.USER_SELECT;
+      existingItemWithSameCategory.service_item_id = null; // 서비스 아이템 리셋
+
+      planItem = await this.planItemRepository.save(existingItemWithSameCategory);
+      action = 'replaced';
+    } else {
+      // 4-B. 추가 (INSERT)
+      this.logger.log(`새로운 ${vendorCategory} 업체를 추가합니다.`);
+
+      // order_index 계산 (기존 최대값 + 1)
+      const maxOrderIndex =
+        planItems.length > 0 ? Math.max(...planItems.map((item) => item.order_index)) : -1;
+
+      const newItem = this.planItemRepository.create({
+        plan_id: planId,
+        vendor_id: vendorId,
+        source: ItemSource.USER_SELECT,
+        order_index: maxOrderIndex + 1,
+        is_confirmed: false,
+      });
+
+      planItem = await this.planItemRepository.save(newItem);
+      action = 'added';
+    }
+
+    // 5. 업체 정보와 함께 조회
+    const planItemWithVendor = await this.planItemRepository.findOne({
+      where: { id: planItem.id },
+      relations: ['vendor'],
+    });
+
+    if (!planItemWithVendor || !planItemWithVendor.vendor) {
+      throw new NotFoundException('플랜 아이템 정보를 찾을 수 없습니다.');
+    }
+
+    this.logger.log(
+      `플랜 업체 ${action === 'added' ? '추가' : '교체'} 완료: planItemId=${planItem.id}`,
+    );
+
+    return {
+      message:
+        action === 'added' ? '플랜에 업체가 추가되었습니다.' : '플랜의 업체가 교체되었습니다.',
+      action,
+      planItem: {
+        id: planItemWithVendor.id,
+        vendor: {
+          id: planItemWithVendor.vendor.id,
+          name: planItemWithVendor.vendor.name,
+          category: this.getCategoryInKorean(planItemWithVendor.vendor.category),
+        },
+      },
+    };
+  }
+
+  /**
+   * 플랜 삭제 (Soft Delete)
+   * @description 플랜을 소프트 삭제합니다. deleted_at만 설정하여 데이터는 보존합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param planId - 플랜 ID
+   * @returns 삭제 완료 메시지
+   *
+   * @throws NotFoundException - 플랜을 찾을 수 없거나 권한이 없는 경우
+   */
+  async deletePlan(userId: string, planId: string): Promise<DeletePlanResponseDto> {
+    this.logger.log(`플랜 삭제 시작: userId=${userId}, planId=${planId}`);
+
+    // 1. 플랜 조회 및 소유권 확인
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`플랜을 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    if (plan.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 플랜이 아닙니다. (planId: ${planId})`);
+    }
+
+    // 2. Soft Delete (deleted_at 설정)
+    await this.planRepository.softDelete({ id: planId });
+
+    this.logger.log(`플랜 삭제 완료: planId=${planId}`);
+
+    return {
+      message: '플랜이 삭제되었습니다.',
+      planId,
     };
   }
 }

@@ -5,3 +5,6 @@ export * from './update-plan-title.dto';
 export * from './update-plan-title-response.dto';
 export * from './create-plan.dto';
 export * from './create-plan-response.dto';
+export * from './add-plan-vendor.dto';
+export * from './add-plan-vendor-response.dto';
+export * from './delete-plan-response.dto';

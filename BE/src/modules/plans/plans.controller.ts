@@ -9,6 +9,9 @@ import {
   UpdatePlanTitleResponseDto,
   CreatePlanDto,
   CreatePlanResponseDto,
+  AddPlanVendorDto,
+  AddPlanVendorResponseDto,
+  DeletePlanResponseDto,
 } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -327,5 +330,167 @@ export class PlansController {
     @Body() updatePlanTitleDto: UpdatePlanTitleDto,
   ): Promise<UpdatePlanTitleResponseDto> {
     return this.plansService.updatePlanTitle(userId, planId, updatePlanTitleDto.title);
+  }
+
+  /**
+   * 플랜에 업체 추가/교체 API
+   * @description 플랜에 업체를 추가하거나 같은 카테고리의 업체를 교체합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param planId - 플랜 ID
+   * @param addPlanVendorDto - 추가/교체할 업체 ID
+   * @returns 작업 결과 (추가/교체 여부 및 플랜 아이템 정보)
+   *
+   * @example
+   * POST /api/v1/plans/550e8400-e29b-41d4-a716-446655440000/vendors
+   * Body: { "vendorId": "550e8400-e29b-41d4-a716-446655440002" }
+   *
+   * // 응답 예시 (추가)
+   * {
+   *   "message": "플랜에 업체가 추가되었습니다.",
+   *   "action": "added",
+   *   "planItem": {
+   *     "id": "plan-item-uuid",
+   *     "vendor": {
+   *       "id": "vendor-uuid",
+   *       "name": "더 스튜디오",
+   *       "category": "스튜디오"
+   *     }
+   *   }
+   * }
+   *
+   * // 응답 예시 (교체)
+   * {
+   *   "message": "플랜의 업체가 교체되었습니다.",
+   *   "action": "replaced",
+   *   "planItem": {
+   *     "id": "plan-item-uuid",
+   *     "vendor": {
+   *       "id": "vendor-uuid",
+   *       "name": "새로운 스튜디오",
+   *       "category": "스튜디오"
+   *     }
+   *   }
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 플랜 또는 업체를 찾을 수 없음
+   */
+  @Post(':id/vendors')
+  @ApiOperation({
+    summary: '플랜에 업체 추가/교체',
+    description:
+      '플랜에 업체를 추가하거나 같은 카테고리의 업체를 교체합니다.\n\n' +
+      '**동작 방식:**\n' +
+      '- 플랜에 같은 카테고리의 업체가 **없으면** → 새로 추가 (action: "added")\n' +
+      '- 플랜에 같은 카테고리의 업체가 **있으면** → 기존 업체를 교체 (action: "replaced")\n\n' +
+      '**카테고리:**\n' +
+      '- STUDIO: 스튜디오\n' +
+      '- DRESS: 드레스\n' +
+      '- MAKEUP: 헤어/메이크업\n' +
+      '- VENUE: 웨딩홀\n\n' +
+      '**예시:**\n' +
+      '- 플랜에 스튜디오 A가 있는 상태에서 스튜디오 B를 추가 → A를 B로 교체\n' +
+      '- 플랜에 스튜디오가 없는 상태에서 스튜디오 A를 추가 → A 추가\n' +
+      '- 플랜에 스튜디오 A가 있는 상태에서 드레스 B를 추가 → B 추가 (카테고리가 다름)\n\n' +
+      '**주의사항:**\n' +
+      '- 예약이 있는 업체는 변경할 수 없습니다.\n' +
+      '- 업체를 변경하려면 먼저 해당 업체의 예약을 취소해야 합니다.\n' +
+      '- 이는 데이터 일관성과 사용자 경험을 보호하기 위함입니다.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '플랜 ID',
+    type: String,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '업체 추가/교체 성공',
+    type: AddPlanVendorResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '예약이 있는 업체는 변경할 수 없음',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '플랜 또는 업체를 찾을 수 없거나 권한이 없음',
+  })
+  async addVendor(
+    @CurrentUser('id') userId: string,
+    @Param('id') planId: string,
+    @Body() addPlanVendorDto: AddPlanVendorDto,
+  ): Promise<AddPlanVendorResponseDto> {
+    return this.plansService.addOrUpdatePlanVendor(userId, planId, addPlanVendorDto.vendorId);
+  }
+
+  /**
+   * 플랜 삭제 API (Soft Delete)
+   * @description 플랜을 소프트 삭제합니다. 실제 데이터는 삭제되지 않고 deleted_at이 설정됩니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param planId - 플랜 ID
+   * @returns 삭제 완료 메시지
+   *
+   * @example
+   * POST /api/v1/plans/550e8400-e29b-41d4-a716-446655440000/delete
+   *
+   * // 응답 예시
+   * {
+   *   "message": "플랜이 삭제되었습니다.",
+   *   "planId": "550e8400-e29b-41d4-a716-446655440000"
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 플랜을 찾을 수 없거나 권한이 없음
+   */
+  @Post(':id/delete')
+  @ApiOperation({
+    summary: '플랜 삭제 (Soft Delete)',
+    description:
+      '플랜을 소프트 삭제합니다.\n\n' +
+      '**Soft Delete 방식:**\n' +
+      '- 실제 데이터는 삭제되지 않습니다.\n' +
+      '- deleted_at 컬럼에 현재 시각이 설정됩니다.\n' +
+      '- 이후 플랜 조회 시 자동으로 제외됩니다.\n\n' +
+      '**보존되는 데이터:**\n' +
+      '- plan 테이블: deleted_at만 설정됨\n' +
+      '- plan_items: 그대로 유지\n' +
+      '- reservations: plan_id 그대로 유지\n' +
+      '- users_info: 그대로 유지\n\n' +
+      '**장점:**\n' +
+      '- 데이터 복구 가능\n' +
+      '- 예약 정보와 플랜의 연결 관계 유지\n' +
+      '- 통계 및 분석 가능',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '플랜 ID',
+    type: String,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '플랜 삭제 성공',
+    type: DeletePlanResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '플랜을 찾을 수 없거나 권한이 없음',
+  })
+  async deletePlan(
+    @CurrentUser('id') userId: string,
+    @Param('id') planId: string,
+  ): Promise<DeletePlanResponseDto> {
+    return this.plansService.deletePlan(userId, planId);
   }
 }
