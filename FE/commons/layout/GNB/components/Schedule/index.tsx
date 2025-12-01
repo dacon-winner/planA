@@ -14,7 +14,8 @@
 
 import { View, Text, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { styles } from "./styles";
 import { PlannerCard } from "@/components/schedule/planner-card";
 import { AddNewPlanCard } from "@/components/schedule/add-new-plan-card";
@@ -28,8 +29,16 @@ import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
 export default function Schedule() {
   const { openModal } = useModal();
   const router = useRouter();
-  const { data: planListResponse, isLoading, error } = usePlans();
+  const { data: planListResponse, isLoading, error, refetch } = usePlans();
   const { openAIPlanGenerationModal } = useAIPlan();
+
+  // 페이지가 포커스될 때마다 플랜 목록 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      console.log("📍 [Schedule] 페이지 포커스 - 플랜 목록 새로고침");
+      refetch();
+    }, [refetch])
+  );
 
   // API 데이터를 PlannerCard에 맞는 형식으로 변환
   const plans =
