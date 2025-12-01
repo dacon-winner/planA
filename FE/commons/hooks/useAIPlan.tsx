@@ -40,8 +40,20 @@ export const useAIPlan = () => {
         }}
         onEdit={() => {
           console.log("수정하기 - 폼 페이지로 이동");
-          // TODO: Phase 2에서 구현
+          
+          // 모달 닫기
           closeModal();
+
+          // 폼 페이지로 이동하면서 기존 사용자 데이터 전달 (수정 모드)
+          router.push({
+            pathname: URL_PATHS.FORM,
+            params: {
+              wedding_date: userData?.wedding_date?.toString() || "",
+              preferred_region: userData?.preferred_region || "",
+              budget_limit: userData?.budget_limit?.toString() || "",
+              isEdit: "true", // 수정 모드 플래그
+            },
+          } as any);
         }}
       />
     );
