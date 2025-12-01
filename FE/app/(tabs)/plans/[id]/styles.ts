@@ -540,10 +540,10 @@ export const styles = StyleSheet.create({
     letterSpacing:
       parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
       parseInt(fontSize['mobile-xs'][0]),
-    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    fontWeight: '700', // Bold - 더 굵게 표시
     color: colors.root.text, // #524a4e
     fontFamily: 'Pretendard',
-    textAlign: 'center',
+    textAlign: 'left', // 왼쪽 정렬
   },
 
   'ai-recommendation-price': {
@@ -552,10 +552,10 @@ export const styles = StyleSheet.create({
     letterSpacing:
       parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
       parseInt(fontSize['mobile-xs'][0]),
-    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    fontWeight: '400', // Regular - 얇게 표시
     color: colors.black['black-13'], // #666666
     fontFamily: 'Pretendard',
-    textAlign: 'center',
+    textAlign: 'left', // 왼쪽 정렬
   },
 
   /* Calendar Section */

@@ -694,12 +694,12 @@ export default function PlanDetail() {
               </View>
             </View>
 
-            {/* AI 추천 업체 또는 방문 예약하기 */}
-            {isSaved ? (
+            {/* 방문 예약하기 - 저장된 경우에만 표시 */}
+            {isSaved && (
               <View style={styles['reservation-section']}>
                 {/* 구분선 */}
                 <View style={styles['reservation-divider']} />
-                
+
                 {/* 방문 예약하기 제목 */}
                 <Text style={styles['reservation-title']}>
                   방문 예약하기
@@ -822,41 +822,42 @@ export default function PlanDetail() {
                   </View>
                 )}
               </View>
-            ) : (
-              <View style={styles['ai-recommendations']}>
-                <Text style={styles['ai-recommendations-title']}>
-                  AI가 추천하는 다른 업체
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles['ai-recommendations-images']}
-                >
-                  {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
-                    ?.filter((recommendation: any) =>
-                      recommendation.name !== currentDetailInfo.name
-                    )
-                    ?.slice(0, aiRecommendationsCount)
-                    ?.map((recommendation: any, index: number) => (
-                    <Pressable
-                      key={index}
-                      style={styles['ai-recommendation-item']}
-                      onPress={() => handleAiRecommendationPress(recommendation)}
-                    >
-                      <View style={styles['ai-recommendation-image']} />
-                      <View style={styles['ai-recommendation-text-container']}>
-                        <Text style={styles['ai-recommendation-name']}>
-                          {recommendation.name}
-                        </Text>
-                        <Text style={styles['ai-recommendation-price']}>
-                          {recommendation.price}
-                        </Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
             )}
+
+            {/* AI 추천 업체 - 항상 표시 */}
+            <View style={styles['ai-recommendations']}>
+              <Text style={styles['ai-recommendations-title']}>
+                AI가 추천하는 다른 업체
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles['ai-recommendations-images']}
+              >
+                {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
+                  ?.filter((recommendation: any) =>
+                    recommendation.name !== currentDetailInfo.name
+                  )
+                  ?.slice(0, aiRecommendationsCount)
+                  ?.map((recommendation: any, index: number) => (
+                  <Pressable
+                    key={index}
+                    style={styles['ai-recommendation-item']}
+                    onPress={() => handleAiRecommendationPress(recommendation)}
+                  >
+                    <View style={styles['ai-recommendation-image']} />
+                    <View style={styles['ai-recommendation-text-container']}>
+                      <Text style={styles['ai-recommendation-name']}>
+                        {recommendation.name}
+                      </Text>
+                      <Text style={styles['ai-recommendation-price']}>
+                        {recommendation.price}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
             </ScrollView>
           </View>
          
