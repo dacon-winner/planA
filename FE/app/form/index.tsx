@@ -52,7 +52,10 @@ export default function FormPage() {
         {
           onSuccess: () => {
             console.log("✅ [Form] 빈 플랜 생성 성공 - Search로 이동");
-            router.push(URL_PATHS.SEARCH);
+            router.push({
+              pathname: URL_PATHS.SEARCH,
+              params: { showNewPlanToast: "true" },
+            } as any);
           },
           onError: (error) => {
             console.error("❌ [Form] 빈 플랜 생성 실패:", error);

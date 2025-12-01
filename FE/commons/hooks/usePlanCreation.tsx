@@ -88,7 +88,10 @@ export const usePlanCreation = () => {
               {
                 onSuccess: () => {
                   console.log("✅ 빈 플랜 생성 성공 - Search 페이지로 이동");
-                  router.push(URL_PATHS.SEARCH);
+                  router.push({
+                    pathname: URL_PATHS.SEARCH,
+                    params: { showNewPlanToast: "true" },
+                  } as any);
                 },
                 onError: (error) => {
                   console.error("❌ 빈 플랜 생성 실패:", error);
