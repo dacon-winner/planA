@@ -29,6 +29,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { styles, vendorDetailStyles } from './styles';
 import KakaoMap, { MapMarker } from '@/commons/components/kakao-map';
 import { useVendors } from '@/commons/hooks';
+import { MarkerVariant } from '@/commons/components/marker';
 
 const CATEGORIES = [
   { id: 'ALL', label: '전체' },
@@ -39,6 +40,26 @@ const CATEGORIES = [
 ] as const;
 
 type Category = typeof CATEGORIES[number]['id'];
+
+/**
+ * 카테고리를 MarkerVariant으로 변환하는 헬퍼 함수
+ * @param category - 백엔드 카테고리 ('VENUE', 'STUDIO', 'DRESS', 'MAKEUP')
+ * @returns MarkerVariant ('hotel', 'camera', 'shirt', 'palette')
+ */
+function mapCategoryToMarkerVariant(category: string): MarkerVariant | undefined {
+  switch (category) {
+    case 'VENUE':
+      return 'hotel';
+    case 'STUDIO':
+      return 'camera';
+    case 'DRESS':
+      return 'shirt';
+    case 'MAKEUP':
+      return 'palette';
+    default:
+      return undefined;
+  }
+}
 
 export default function Search() {
   const [selectedCategory, setSelectedCategory] = useState<Category>('ALL');
@@ -117,14 +138,14 @@ export default function Search() {
       const minPrice = vendor.service_items && vendor.service_items.length > 0
         ? Math.min(...vendor.service_items.map(item => item.price))
         : undefined;
-      
+
       return {
         id: vendor.id,
         latitude: vendor.latitude,
         longitude: vendor.longitude,
         title: vendor.name,
         content: vendor.address,
-        category: vendor.category !== 'ALL' ? vendor.category : undefined,
+        category: mapCategoryToMarkerVariant(vendor.category),
         price: minPrice,
         vendorName: vendor.name,
       };
@@ -190,8 +211,8 @@ export default function Search() {
 
           {/* 지도 (배경) */}
           <KakaoMap
-            latitude={37.5240}
-            longitude={127.0430}
+            latitude={37.5247}
+            longitude={127.0404}
             level={5}
             markers={markers}
             onMapReady={handleMapReady}
