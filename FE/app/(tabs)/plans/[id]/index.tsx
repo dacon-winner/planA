@@ -127,6 +127,23 @@ export default function PlanDetail() {
   // TODO: 실제 데이터로 교체 필요 (planId 기반으로 API 호출)
   // 현재는 planId를 사용하지 않지만, 나중에 API 호출 시 사용 예정
   void planId;
+
+  // 결혼 예정일 파싱 함수
+  const parseWeddingDate = (dateString: string): Date | null => {
+    try {
+      // "2026년 3월 28일 토요일" 형태에서 연도, 월, 일을 추출
+      const match = dateString.match(/(\d{4})년\s+(\d{1,2})월\s+(\d{1,2})일/);
+      if (match) {
+        const [, year, month, day] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+      return null;
+    } catch (error) {
+      console.error('결혼 예정일 파싱 실패:', error);
+      return null;
+    }
+  };
+
   const planData = {
     planName: '김철수님만을 위한 플랜A',
     daysLeft: 'N',
@@ -429,55 +446,92 @@ export default function PlanDetail() {
   const getServiceStatus = (serviceIndex: number) => {
     const serviceType = planData.services[serviceIndex].type;
     const isServiceSaved = savedServices[serviceType];
+    const currentService = planData.services[serviceIndex];
 
     // 현재 선택된 서비스가 아니면 원래 상태 반환
     if (serviceIndex !== selectedTab) {
       // 다른 서비스의 저장 상태에 따라 상태 표시
       if (isServiceSaved) {
-        return '저장 완료';
+        return '업체 저장됨';
       }
-      return planData.services[serviceIndex].status;
+      return '업체 저장 전';
     }
 
-    // 예약 확정된 경우
+    // 계약 완료 상태
+    if (currentService.status === '계약 완료') {
+      return '계약 완료';
+    }
+
+    // 방문 예정 상태 (status에 '방문 예정'이 포함된 경우)
+    if (currentService.status.includes('방문 예정')) {
+      return '방문 예정';
+    }
+
+    // 예약 확정된 경우 (방문 예정)
     if (isReserved && selectedDate && selectedTime) {
-      return `${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 방문 예정`;
+      return '방문 예정';
+    }
+
+    // 날짜 지정된 상태 (시간은 선택되지 않은 경우)
+    if (selectedDate && !selectedTime) {
+      return '날짜 지정됨';
     }
 
     // 저장 완료된 경우
     if (isServiceSaved) {
-      return '저장 완료';
+      return '업체 저장됨';
     }
 
-    // 기본 상태
-    return planData.services[serviceIndex].status;
+    // 예약 문의 중인 상태
+    if (currentService.status === '예약 문의 중') {
+      return '예약 문의 중';
+    }
+
+    // 기본 상태 (업체 저장 전)
+    return '업체 저장 전';
   };
 
   // 서비스 상태 아이콘 계산 함수
   const getServiceStatusIcon = (serviceIndex: number) => {
     const serviceType = planData.services[serviceIndex].type;
     const isServiceSaved = savedServices[serviceType];
+    const currentService = planData.services[serviceIndex];
 
     // 현재 선택된 서비스가 아니면 원래 아이콘 반환 (저장 상태에 따라 다름)
     if (serviceIndex !== selectedTab) {
       if (isServiceSaved) {
         return 'clock' as const;
       }
-      return planData.services[serviceIndex].statusIcon;
+      return null; // 업체 저장 전은 아이콘 없음
     }
 
-    // 예약 확정된 경우
-    if (isReserved && selectedDate && selectedTime) {
+    // 계약 완료 상태
+    if (currentService.status === '계약 완료') {
       return 'clockCheck' as const;
     }
 
-    // 저장 완료된 경우
+    // 방문 예정 상태 (status에 '방문 예정'이 포함되거나 예약 확정된 경우)
+    if (currentService.status.includes('방문 예정') || (isReserved && selectedDate && selectedTime)) {
+      return 'clockCheck' as const;
+    }
+
+    // 날짜 지정된 상태 (시간은 선택되지 않은 경우)
+    if (selectedDate && !selectedTime) {
+      return 'calendar' as const;
+    }
+
+    // 업체 저장됨 상태
     if (isServiceSaved) {
       return 'clock' as const;
     }
 
-    // 기본 아이콘
-    return planData.services[serviceIndex].statusIcon;
+    // 예약 문의 중인 상태
+    if (currentService.status === '예약 문의 중') {
+      return 'clock' as const;
+    }
+
+    // 업체 저장 전 상태
+    return null;
   };
 
 
@@ -496,6 +550,8 @@ export default function PlanDetail() {
         return <Clock size={12} color={iconColor} />;
       case 'clockCheck':
         return <ClockCheck size={12} color={iconColor} />;
+      case 'calendar':
+        return <CalendarIcon size={12} color={iconColor} />;
       default:
         return null;
     }
@@ -555,18 +611,18 @@ export default function PlanDetail() {
             {/* Top Left - 스튜디오 */}
             <Pressable
               onPress={() => handleServiceItemPress(0)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], !savedServices['스튜디오'] && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], getServiceStatus(0) === '업체 저장 전' && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !savedServices['스튜디오'] && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], getServiceStatus(0) === '업체 저장 전' && styles['service-grid-type-inactive']]}>
                 {planData.services[0].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !savedServices['스튜디오'] && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], getServiceStatus(0) === '업체 저장 전' && styles['service-grid-name-inactive']]}>
                   {planData.services[0].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, savedServices['스튜디오'])}
-                  <Text style={[styles['service-grid-status-text'], !savedServices['스튜디오'] && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, getServiceStatus(0) !== '업체 저장 전')}
+                  <Text style={[styles['service-grid-status-text'], getServiceStatus(0) === '업체 저장 전' && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(0)}
                   </Text>
                 </View>
@@ -576,18 +632,18 @@ export default function PlanDetail() {
             {/* Top Right - 드레스 */}
             <Pressable
               onPress={() => handleServiceItemPress(1)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], !savedServices['드레스'] && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], getServiceStatus(1) === '업체 저장 전' && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !savedServices['드레스'] && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], getServiceStatus(1) === '업체 저장 전' && styles['service-grid-type-inactive']]}>
                 {planData.services[1].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !savedServices['드레스'] && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], getServiceStatus(1) === '업체 저장 전' && styles['service-grid-name-inactive']]}>
                   {planData.services[1].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, savedServices['드레스'])}
-                  <Text style={[styles['service-grid-status-text'], !savedServices['드레스'] && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, getServiceStatus(1) !== '업체 저장 전')}
+                  <Text style={[styles['service-grid-status-text'], getServiceStatus(1) === '업체 저장 전' && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(1)}
                   </Text>
                 </View>
@@ -597,18 +653,18 @@ export default function PlanDetail() {
             {/* Bottom Left - 메이크업 */}
             <Pressable
               onPress={() => handleServiceItemPress(2)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], !savedServices['메이크업'] && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], getServiceStatus(2) === '업체 저장 전' && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !savedServices['메이크업'] && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], getServiceStatus(2) === '업체 저장 전' && styles['service-grid-type-inactive']]}>
                 {planData.services[2].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !savedServices['메이크업'] && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], getServiceStatus(2) === '업체 저장 전' && styles['service-grid-name-inactive']]}>
                   {planData.services[2].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, savedServices['메이크업'])}
-                  <Text style={[styles['service-grid-status-text'], !savedServices['메이크업'] && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, getServiceStatus(2) !== '업체 저장 전')}
+                  <Text style={[styles['service-grid-status-text'], getServiceStatus(2) === '업체 저장 전' && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(2)}
                   </Text>
                 </View>
@@ -618,18 +674,18 @@ export default function PlanDetail() {
             {/* Bottom Right - 웨딩홀 */}
             <Pressable
               onPress={() => handleServiceItemPress(3)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], !savedServices['웨딩홀'] && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], getServiceStatus(3) === '업체 저장 전' && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !savedServices['웨딩홀'] && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], getServiceStatus(3) === '업체 저장 전' && styles['service-grid-type-inactive']]}>
                 {planData.services[3].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !savedServices['웨딩홀'] && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], getServiceStatus(3) === '업체 저장 전' && styles['service-grid-name-inactive']]}>
                   {planData.services[3].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, savedServices['웨딩홀'])}
-                  <Text style={[styles['service-grid-status-text'], !savedServices['웨딩홀'] && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, getServiceStatus(3) !== '업체 저장 전')}
+                  <Text style={[styles['service-grid-status-text'], getServiceStatus(3) === '업체 저장 전' && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(3)}
                   </Text>
                 </View>
@@ -836,6 +892,13 @@ export default function PlanDetail() {
                         <Calendar
                           selectedDate={selectedDate}
                           onDateSelect={(date) => {
+                            // 결혼 예정일 이후 날짜 선택 시 에러 메시지 표시
+                            const weddingDate = parseWeddingDate(planData.date);
+                            if (weddingDate && date > weddingDate) {
+                              Toast.error('결혼 예정일보다 예약일이 늦습니다.');
+                              return;
+                            }
+
                             // 날짜가 변경되면 시간 초기화
                             if (selectedDate && date.getTime() !== selectedDate.getTime()) {
                               setSelectedTime(null);
@@ -844,6 +907,7 @@ export default function PlanDetail() {
                             setShowTimePicker(true); // 날짜 선택 시 자동으로 시간 선택 버튼 표시
                           }}
                           subtitle="날짜를 선택하세요"
+                          weddingDate={parseWeddingDate(planData.date)}
                         />
                       </View>
                     )}
