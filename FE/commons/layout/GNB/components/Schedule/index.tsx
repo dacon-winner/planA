@@ -12,7 +12,7 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useCallback } from "react";
@@ -23,7 +23,7 @@ import { useModal } from "@/commons/providers/modal/modal.provider";
 import { NewPlanModalContent } from "@/commons/components/modal";
 import { getPlanDetailUrl } from "@/commons/enums/url";
 import { GradientBackground } from "@/commons/components/gradient-background";
-import { usePlans, useAIPlan } from "@/commons/hooks";
+import { usePlans, useAIPlan, useSetMainPlan } from "@/commons/hooks";
 import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
 
 export default function Schedule() {
@@ -31,6 +31,7 @@ export default function Schedule() {
   const router = useRouter();
   const { data: planListResponse, isLoading, error, refetch } = usePlans();
   const { openAIPlanGenerationModal } = useAIPlan();
+  const { mutate: setMainPlan, isPending: isSettingMainPlan } = useSetMainPlan();
 
   // 페이지가 포커스될 때마다 플랜 목록 새로고침
   useFocusEffect(
@@ -57,9 +58,45 @@ export default function Schedule() {
       };
     }) || [];
 
-  const handleSetRepresentative = (planName: string) => {
-    // TODO: 대표 플랜 설정 로직 구현
-    console.log(`대표 플랜 설정: ${planName}`);
+  const handleSetRepresentative = (planId: string, planName: string, isAlreadyMain: boolean) => {
+    // 이미 대표 플랜인 경우 - disabled로 처리되므로 이 코드는 실행되지 않음
+    // 하지만 안전을 위해 체크 로직은 유지
+    if (isAlreadyMain) {
+      return;
+    }
+
+    // 대표 플랜 설정 확인
+    Alert.alert(
+      "대표 플랜 설정",
+      `"${planName}"을(를) 대표 플랜으로 설정하시겠습니까?`,
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "설정",
+          onPress: () => {
+            setMainPlan(
+              { planId },
+              {
+                onSuccess: (data) => {
+                  console.log("✅ 대표 플랜 설정 성공:", data);
+                  Alert.alert("완료", "대표 플랜이 설정되었습니다.");
+                },
+                onError: (error) => {
+                  console.error("❌ 대표 플랜 설정 실패:", error);
+                  Alert.alert(
+                    "오류",
+                    "대표 플랜 설정에 실패했습니다.\n다시 시도해주세요."
+                  );
+                },
+              }
+            );
+          },
+        },
+      ]
+    );
   };
 
   const handleViewDetails = (planId: string) => {
@@ -155,7 +192,7 @@ export default function Schedule() {
               date={plan.date}
               location={plan.location}
               budget={plan.budget}
-              onSetRepresentative={() => handleSetRepresentative(plan.planName)}
+              onSetRepresentative={() => handleSetRepresentative(plan.id, plan.planName, plan.isRepresentative)}
               onViewDetails={() => handleViewDetails(plan.id)}
             />
           ))

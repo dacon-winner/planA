@@ -20,3 +20,6 @@ export type { ReservationInfo, ReservationListResponse } from './useReservations
 
 export { useAIPlan } from './useAIPlan.tsx';
 
+export { useSetMainPlan } from './useMainPlan';
+export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
+

@@ -102,8 +102,9 @@ export const PlannerCard: React.FC<PlannerCardProps> = ({
               variant="filled"
               size="small"
               onPress={onSetRepresentative}
+              disabled={isRepresentative}
             >
-              대표 플랜 설정
+              {isRepresentative ? "현재 대표 플랜" : "대표 플랜 설정"}
             </Button>
           </View>
           <View style={styles['planner-card-button-wrapper']}>
