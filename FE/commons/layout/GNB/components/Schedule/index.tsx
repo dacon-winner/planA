@@ -12,9 +12,10 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import { styles } from "./styles";
 import { PlannerCard } from "@/components/schedule/planner-card";
 import { AddNewPlanCard } from "@/components/schedule/add-new-plan-card";
@@ -22,49 +23,80 @@ import { useModal } from "@/commons/providers/modal/modal.provider";
 import { NewPlanModalContent } from "@/commons/components/modal";
 import { getPlanDetailUrl } from "@/commons/enums/url";
 import { GradientBackground } from "@/commons/components/gradient-background";
-import { usePlans } from "@/commons/hooks";
+import { usePlans, useAIPlan, useSetMainPlan } from "@/commons/hooks";
+import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
 
 export default function Schedule() {
   const { openModal } = useModal();
   const router = useRouter();
-  const { data: planListResponse, isLoading, error } = usePlans();
+  const { data: planListResponse, isLoading, error, refetch } = usePlans();
+  const { openAIPlanGenerationModal } = useAIPlan();
+  const { mutate: setMainPlan, isPending: isSettingMainPlan } = useSetMainPlan();
+
+  // 페이지가 포커스될 때마다 플랜 목록 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      console.log("📍 [Schedule] 페이지 포커스 - 플랜 목록 새로고침");
+      refetch();
+    }, [refetch])
+  );
 
   // API 데이터를 PlannerCard에 맞는 형식으로 변환
-  const plans = planListResponse?.items?.map((item) => {
-    const plan = item.plan;
-    const usersInfo = item.users_info;
+  const plans =
+    planListResponse?.items?.map((item) => {
+      const plan = item.plan;
+      const usersInfo = item.users_info;
 
-    // wedding_date를 한국어 형식으로 변환
-    const formatDate = (dateString: string | null) => {
-      if (!dateString) return "날짜 미정";
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const dayOfWeek = ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
-      return `${year}년 ${month}월 ${day}일 ${dayOfWeek}요일`;
-    };
+      return {
+        id: plan?.id || usersInfo.id,
+        planName: plan?.title || "플랜",
+        isAi: plan?.is_ai_generated || false,
+        isRepresentative: usersInfo.is_main_plan,
+        date: formatWeddingDate(usersInfo.wedding_date),
+        location: formatRegion(usersInfo.preferred_region),
+        budget: formatBudget(plan?.total_budget || usersInfo.budget_limit),
+      };
+    }) || [];
 
-    // 예산을 한국어 형식으로 변환
-    const formatBudget = (budget: number | null) => {
-      if (!budget) return "예산 미정";
-      return `${(budget / 10000).toLocaleString()}만원`;
-    };
+  const handleSetRepresentative = (planId: string, planName: string, isAlreadyMain: boolean) => {
+    // 이미 대표 플랜인 경우 - disabled로 처리되므로 이 코드는 실행되지 않음
+    // 하지만 안전을 위해 체크 로직은 유지
+    if (isAlreadyMain) {
+      return;
+    }
 
-    return {
-      id: plan?.id || usersInfo.id,
-      planName: plan?.title || "플랜",
-      isAi: plan?.is_ai_generated || false,
-      isRepresentative: usersInfo.is_main_plan,
-      date: formatDate(usersInfo.wedding_date),
-      location: usersInfo.preferred_region || "지역 미정",
-      budget: formatBudget(plan?.total_budget || usersInfo.budget_limit),
-    };
-  }) || [];
-
-  const handleSetRepresentative = (planName: string) => {
-    // TODO: 대표 플랜 설정 로직 구현
-    console.log(`대표 플랜 설정: ${planName}`);
+    // 대표 플랜 설정 확인
+    Alert.alert(
+      "대표 플랜 설정",
+      `"${planName}"을(를) 대표 플랜으로 설정하시겠습니까?`,
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "설정",
+          onPress: () => {
+            setMainPlan(
+              { planId },
+              {
+                onSuccess: (data) => {
+                  console.log("✅ 대표 플랜 설정 성공:", data);
+                  Alert.alert("완료", "대표 플랜이 설정되었습니다.");
+                },
+                onError: (error) => {
+                  console.error("❌ 대표 플랜 설정 실패:", error);
+                  Alert.alert(
+                    "오류",
+                    "대표 플랜 설정에 실패했습니다.\n다시 시도해주세요."
+                  );
+                },
+              }
+            );
+          },
+        },
+      ]
+    );
   };
 
   const handleViewDetails = (planId: string) => {
@@ -78,10 +110,9 @@ export default function Schedule() {
       <NewPlanModalContent
         onManualAdd={() => {
           console.log("직접 업체 추가");
+          // TODO: 직접 업체 추가 로직 구현
         }}
-        onAIGenerate={(planName: string) => {
-          console.log("AI 플랜 생성:", planName);
-        }}
+        onAIGenerate={openAIPlanGenerationModal}
       />
     );
   };
@@ -121,8 +152,8 @@ export default function Schedule() {
               <Text style={styles["schedule-header-subtitle"]}>오류 발생</Text>
             </View>
           </View>
-          <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ color: 'red', textAlign: 'center' }}>
+          <View style={{ padding: 20, alignItems: "center" }}>
+            <Text style={{ color: "red", textAlign: "center" }}>
               플랜 목록을 불러오는 중 오류가 발생했습니다.
             </Text>
           </View>
@@ -145,9 +176,7 @@ export default function Schedule() {
         {/* Header with Gradient */}
         <View style={styles["schedule-header"]}>
           <View style={styles["header-section"]}>
-            <Text style={styles["schedule-header-title"]}>
-              나의 플랜 관리
-            </Text>
+            <Text style={styles["schedule-header-title"]}>나의 플랜 관리</Text>
             <Text style={styles["schedule-header-subtitle"]}>D-0일</Text>
           </View>
         </View>
@@ -163,15 +192,13 @@ export default function Schedule() {
               date={plan.date}
               location={plan.location}
               budget={plan.budget}
-              onSetRepresentative={() =>
-                handleSetRepresentative(plan.planName)
-              }
+              onSetRepresentative={() => handleSetRepresentative(plan.id, plan.planName, plan.isRepresentative)}
               onViewDetails={() => handleViewDetails(plan.id)}
             />
           ))
         ) : (
-          <View style={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ textAlign: 'center', color: '#666' }}>
+          <View style={{ padding: 20, alignItems: "center" }}>
+            <Text style={{ textAlign: "center", color: "#666" }}>
               생성된 플랜이 없습니다.
             </Text>
           </View>

@@ -131,6 +131,10 @@ export function usePlans(enabled: boolean = true) {
       return response.data.data;
     },
     enabled,
+    // 페이지 진입 시 항상 최신 데이터 가져오기
+    refetchOnMount: "always",
+    // 데이터를 즉시 stale 상태로 처리
+    staleTime: 0,
   });
 }
 

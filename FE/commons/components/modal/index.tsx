@@ -28,4 +28,4 @@ export { Modal } from './Modal';
 export { PlanAddModal } from './PlanAddModal';
 export { ErrorModal } from './ErrorModal';
 export { NewPlanModal, NewPlanModalContent } from './NewPlanModal';
-export { EditModal } from './EditModal';
+export { EditModal, EditModalContent } from './EditModal';

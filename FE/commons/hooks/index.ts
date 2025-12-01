@@ -18,6 +18,10 @@ export type { UserInfo } from './useUser';
 export { useReservations } from './useReservations';
 export type { ReservationInfo, ReservationListResponse } from './useReservations';
 
+export { useAIPlan } from './useAIPlan.tsx';
+
+export { useSetMainPlan } from './useMainPlan';
+export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
+
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
-

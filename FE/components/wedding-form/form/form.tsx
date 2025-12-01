@@ -21,7 +21,7 @@ import {
   SafeAreaView,
   Animated,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import {
   StepperWithContext,
   useStepperContext,
@@ -261,19 +261,34 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   onDateSelected,
   onSubmit,
 }) => {
-  // 라우터
+  // 라우터 및 URL params
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  // 폼 데이터 상태
+  // URL params에서 수정 모드 여부 확인
+  const isEditMode = params.isEdit === "true";
+
+  // params에서 초기 데이터 파싱
+  const initialDate = params.wedding_date
+    ? new Date(params.wedding_date as string)
+    : null;
+  const initialRegion = (params.preferred_region as string) || null;
+  const initialBudget = params.budget_limit
+    ? `${(Number(params.budget_limit) / 10000).toLocaleString()}만원`
+    : null;
+
+  // 폼 데이터 상태 - 수정 모드일 경우 초기값 설정
   const [formData, setFormData] = useState<WeddingFormData>({
-    weddingDate: null,
-    region: null,
-    budget: null,
+    weddingDate: initialDate,
+    region: initialRegion,
+    budget: initialBudget,
   });
 
-  // Stepper 상태 - formData 기반으로 계산
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  // Stepper 상태 - 수정 모드일 경우 모든 스텝 완료 상태로 시작
+  const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>(
+    isEditMode ? [0, 1, 2] : []
+  );
 
   // 분석하기 버튼 애니메이션
   const buttonOpacity = useRef(new Animated.Value(0)).current;
