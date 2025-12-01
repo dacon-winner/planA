@@ -329,12 +329,11 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                 </View>
               </View>
 
-              {/* 방문 예약하기 - 현재 서비스가 저장된 경우에만 표시 */}
-              {isServiceSaved(finalPlanData.services[selectedTab].type) && (
-                <View style={styles["reservation-section"]}>
-                  <View style={styles["reservation-divider"]} />
+              {/* 방문 예약하기 */}
+              <View style={styles["reservation-section"]}>
+                <View style={styles["reservation-divider"]} />
 
-                  <Text style={styles["reservation-title"]}>방문 예약하기</Text>
+                <Text style={styles["reservation-title"]}>방문 예약하기</Text>
 
                   {/* 날짜/시간 선택 UI */}
                   <View style={styles["datetime-picker-container"]}>
@@ -467,8 +466,7 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                       </View>
                     </View>
                   )}
-                </View>
-              )}
+              </View>
             </ScrollView>
           </View>
         </BottomSheetView>
