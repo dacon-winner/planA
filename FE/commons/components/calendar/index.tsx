@@ -95,7 +95,7 @@ export const DayCell: React.FC<DayCellProps> = ({
   };
 
   const handlePress = () => {
-    // disabled 상태일 때는 클릭 불가
+    // disabled 상태일 때는 클릭 불가하지만, 결혼 예정일 이후 날짜는 에러 메시지 표시
     if (dateData.state === "disabled") {
       return;
     }

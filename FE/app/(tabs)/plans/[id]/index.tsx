@@ -892,6 +892,13 @@ export default function PlanDetail() {
                         <Calendar
                           selectedDate={selectedDate}
                           onDateSelect={(date) => {
+                            // 결혼 예정일 이후 날짜 선택 시 에러 메시지 표시
+                            const weddingDate = parseWeddingDate(planData.date);
+                            if (weddingDate && date > weddingDate) {
+                              Toast.error('결혼 예정일보다 예약일이 늦습니다.');
+                              return;
+                            }
+
                             // 날짜가 변경되면 시간 초기화
                             if (selectedDate && date.getTime() !== selectedDate.getTime()) {
                               setSelectedTime(null);
