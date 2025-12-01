@@ -23,6 +23,10 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary[400],
   },
 
+  'search-safe-area': {
+    flex: 1,
+  },
+
   'search-container': {
     flex: 1,
     backgroundColor: colors.secondary[50],

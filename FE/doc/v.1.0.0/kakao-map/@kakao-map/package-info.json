@@ -1,0 +1,69 @@
+{
+  "name": "@kakao-map",
+  "version": "1.0.0",
+  "description": "카카오맵 WebView 기반 지도 컴포넌트 (Plan A 프로젝트용)",
+  "compatibility": {
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "expo": "~54.0.23",
+    "typescript": "~5.9.2"
+  },
+  "requiredDependencies": {
+    "react-native-webview": {
+      "version": "^13.12.4",
+      "reason": "Expo SDK 54 호환, React Native 0.81.5 지원",
+      "install": "npx expo install react-native-webview",
+      "documentation": "https://github.com/react-native-webview/react-native-webview"
+    }
+  },
+  "optionalDependencies": {
+    "@react-native-async-storage/async-storage": {
+      "version": "2.2.0",
+      "reason": "지도 설정 저장용 (이미 프로젝트에 설치됨)",
+      "status": "installed"
+    },
+    "expo-location": {
+      "version": "~18.0.5",
+      "reason": "현재 위치 기능 사용시 필요",
+      "install": "npx expo install expo-location",
+      "optional": true
+    }
+  },
+  "externalAPIs": {
+    "kakao-maps-web-api": {
+      "version": "latest",
+      "apiKey": "JavaScript 키 필요",
+      "documentation": "https://apis.map.kakao.com/web/documentation/",
+      "register": "https://developers.kakao.com/"
+    }
+  },
+  "technicalApproach": "WebView",
+  "reason": [
+    "카카오 공식 React Native SDK 미제공",
+    "Expo 관리형 워크플로우 호환성",
+    "빠른 기능 업데이트 및 유지보수",
+    "네이티브 모듈 없이 구현 가능"
+  ],
+  "features": [
+    "지도 표시 (Pan, Zoom)",
+    "마커 추가/제거",
+    "위치 검색",
+    "현재 위치 표시",
+    "지도 타입 변경",
+    "터치 이벤트 처리",
+    "TypeScript 완벽 지원"
+  ],
+  "limitations": [
+    "WebView 사용으로 인한 약간의 성능 저하 가능",
+    "복잡한 인터랙션은 postMessage를 통해 처리 필요",
+    "네이티브 제스처와의 완벽한 통합 어려움"
+  ],
+  "author": {
+    "name": "김동언",
+    "email": "rlaehddhs12@gmail.com",
+    "date": "2025.12.01"
+  },
+  "project": "Plan A - 웨딩 플래닝 모바일 앱",
+  "license": "Private"
+}
+
