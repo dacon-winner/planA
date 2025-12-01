@@ -555,18 +555,18 @@ export default function PlanDetail() {
             {/* Top Left - 스튜디오 */}
             <Pressable
               onPress={() => handleServiceItemPress(0)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], !planData.services[0].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], !savedServices['스튜디오'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[0].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['스튜디오'] && styles['service-grid-type-inactive']]}>
                 {planData.services[0].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[0].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['스튜디오'] && styles['service-grid-name-inactive']]}>
                   {planData.services[0].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, planData.services[0].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[0].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, savedServices['스튜디오'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['스튜디오'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(0)}
                   </Text>
                 </View>
@@ -576,18 +576,18 @@ export default function PlanDetail() {
             {/* Top Right - 드레스 */}
             <Pressable
               onPress={() => handleServiceItemPress(1)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], !planData.services[1].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], !savedServices['드레스'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[1].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['드레스'] && styles['service-grid-type-inactive']]}>
                 {planData.services[1].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[1].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['드레스'] && styles['service-grid-name-inactive']]}>
                   {planData.services[1].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, planData.services[1].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[1].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, savedServices['드레스'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['드레스'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(1)}
                   </Text>
                 </View>
@@ -597,18 +597,18 @@ export default function PlanDetail() {
             {/* Bottom Left - 메이크업 */}
             <Pressable
               onPress={() => handleServiceItemPress(2)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], !planData.services[2].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], !savedServices['메이크업'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[2].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['메이크업'] && styles['service-grid-type-inactive']]}>
                 {planData.services[2].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[2].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['메이크업'] && styles['service-grid-name-inactive']]}>
                   {planData.services[2].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, planData.services[2].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[2].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, savedServices['메이크업'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['메이크업'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(2)}
                   </Text>
                 </View>
@@ -618,18 +618,18 @@ export default function PlanDetail() {
             {/* Bottom Right - 웨딩홀 */}
             <Pressable
               onPress={() => handleServiceItemPress(3)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], !planData.services[3].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], !savedServices['웨딩홀'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[3].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['웨딩홀'] && styles['service-grid-type-inactive']]}>
                 {planData.services[3].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[3].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['웨딩홀'] && styles['service-grid-name-inactive']]}>
                   {planData.services[3].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, planData.services[3].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[3].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, savedServices['웨딩홀'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['웨딩홀'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(3)}
                   </Text>
                 </View>
