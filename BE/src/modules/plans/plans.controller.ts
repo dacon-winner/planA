@@ -1,5 +1,12 @@
-import { Controller, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Controller, Get, Param, Post, Body, UseGuards, Query } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { PlansService } from './plans.service';
 import {
   PlanListResponseDto,
@@ -12,7 +19,9 @@ import {
   AddPlanVendorDto,
   AddPlanVendorResponseDto,
   DeletePlanResponseDto,
+  MainPlanResponseDto,
 } from './dto';
+import { RegenerateVendorResponseDto } from '../ai/dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators';
@@ -133,6 +142,89 @@ export class PlansController {
   })
   async getPlans(@CurrentUser('id') userId: string): Promise<PlanListResponseDto> {
     return this.plansService.getPlanList(userId);
+  }
+
+  /**
+   * 메인 플랜 조회 API
+   * @description 사용자의 메인 플랜(is_main_plan=true)의 업체 정보를 조회합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @returns 메인 플랜 정보 및 포함된 업체 목록
+   *
+   * @example
+   * GET /api/v1/plans/main
+   *
+   * // 응답 예시
+   * {
+   *   "success": true,
+   *   "data": {
+   *     "plan_id": "550e8400-e29b-41d4-a716-446655440000",
+   *     "plan_title": "나의 웨딩",
+   *     "wedding_date": "2025-06-15",
+   *     "items": [
+   *       {
+   *         "plan_item_id": "uuid",
+   *         "vendor_id": "uuid",
+   *         "vendor_name": "○○웨딩홀",
+   *         "category": "VENUE",
+   *         "address": "서울시 강남구 ...",
+   *         "reservation_date": "2025-03-15"
+   *       },
+   *       {
+   *         "plan_item_id": "uuid",
+   *         "vendor_id": "uuid",
+   *         "vendor_name": "××스튜디오",
+   *         "category": "STUDIO",
+   *         "address": "서울시 서초구 ...",
+   *         "reservation_date": null
+   *       }
+   *     ]
+   *   }
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 메인 플랜을 찾을 수 없음
+   */
+  @Get('main')
+  @ApiOperation({
+    summary: '메인 플랜 조회',
+    description:
+      '사용자의 메인 플랜 정보를 조회합니다.\n\n' +
+      '**데이터 조회 흐름:**\n' +
+      '1. JWT 토큰에서 user_id 추출\n' +
+      '2. users_info 테이블에서 is_main_plan=true인 레코드 조회\n' +
+      '3. plan 테이블에서 해당 users_info_id로 플랜 조회\n' +
+      '4. plan_item 테이블에서 plan_id로 모든 아이템 조회\n' +
+      '5. 각 아이템의 vendor 정보 조회 (name, category, address)\n' +
+      '6. 각 vendor에 대한 reservation 조회 (있는 경우만)\n\n' +
+      '**반환 필드:**\n' +
+      '- plan_id: 플랜 UUID\n' +
+      '- plan_title: 플랜 제목\n' +
+      '- wedding_date: 결혼 예정일\n' +
+      '- items: 플랜에 포함된 업체 목록\n' +
+      '  - plan_item_id: 플랜 아이템 UUID\n' +
+      '  - vendor_id: 업체 UUID\n' +
+      '  - vendor_name: 업체명\n' +
+      '  - category: 업체 카테고리 (VENUE, STUDIO, DRESS, MAKEUP)\n' +
+      '  - address: 업체 주소\n' +
+      '  - reservation_date: 예약일 (nullable)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '메인 플랜 조회 성공',
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    type: MainPlanResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '메인 플랜을 찾을 수 없음',
+  })
+  async getMainPlan(@CurrentUser('id') userId: string): Promise<MainPlanResponseDto> {
+    return this.plansService.getMainPlan(userId);
   }
 
   /**
@@ -427,6 +519,112 @@ export class PlansController {
     @Body() addPlanVendorDto: AddPlanVendorDto,
   ): Promise<AddPlanVendorResponseDto> {
     return this.plansService.addOrUpdatePlanVendor(userId, planId, addPlanVendorDto.vendorId);
+  }
+
+  /**
+   * 플랜 업체 AI 재추천 API
+   * @description 플랜에 포함된 특정 업체를 AI가 다시 추천한 업체로 교체합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param planId - 플랜 ID (쿼리 파라미터)
+   * @param vendorId - 교체할 업체 ID (쿼리 파라미터)
+   * @returns 교체 결과 (기존 업체, 새 업체 정보)
+   *
+   * @example
+   * POST /api/v1/plans/regenerate-vendor?planId=550e8400-e29b-41d4-a716-446655440000&vendorId=550e8400-e29b-41d4-a716-446655440002
+   * Content-Type: application/json
+   * Body: {}
+   *
+   * // 응답 예시
+   * {
+   *   "message": "업체가 성공적으로 교체되었습니다.",
+   *   "data": {
+   *     "plan_item_id": "plan-item-uuid",
+   *     "old_vendor": {
+   *       "id": "old-vendor-uuid",
+   *       "name": "기존 스튜디오",
+   *       "category": "스튜디오"
+   *     },
+   *     "new_vendor": {
+   *       "id": "new-vendor-uuid",
+   *       "name": "새로운 스튜디오",
+   *       "category": "스튜디오",
+   *       "selection_reason": "예산 범위 내에서 가장 합리적인 가격대의 업체로..."
+   *     }
+   *   }
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 플랜 또는 업체를 찾을 수 없음
+   * @throws 400 Bad Request - 예약이 있는 업체이거나 추천 불가능한 경우
+   */
+  @Post('regenerate-vendor')
+  @ApiOperation({
+    summary: '플랜 업체 AI 재추천',
+    description:
+      '플랜에 포함된 특정 업체를 AI가 다시 추천한 업체로 교체합니다.\n\n' +
+      '**동작 방식:**\n' +
+      '1. planId로 플랜 조회 (users_info 포함)\n' +
+      '2. vendorId가 플랜에 포함되어 있는지 확인\n' +
+      '3. 예약 여부 확인 (예약이 있으면 교체 불가)\n' +
+      '4. 현재 플랜의 다른 업체들 조회\n' +
+      '5. 현재 총 예산 계산 (교체 대상 제외)\n' +
+      '6. AI에게 해당 카테고리의 다른 업체 추천 요청\n' +
+      '   - users_info의 wedding_date, preferred_region, budget_limit 활용\n' +
+      '   - 이미 플랜에 포함된 업체들은 제외\n' +
+      '   - 총 예산을 초과하지 않는 업체만 후보로 선정\n' +
+      '7. plan_item 업데이트 (vendor_id, selection_reason)\n\n' +
+      '**제약 조건:**\n' +
+      '- 예약이 있는 업체는 교체할 수 없습니다\n' +
+      '- 해당 카테고리의 다른 업체가 없으면 교체 불가\n' +
+      '- 예산 범위를 초과하는 업체만 남았다면 교체 불가\n\n' +
+      '**AI 추천 기준:**\n' +
+      '- 남은 예산 범위 내의 업체\n' +
+      '- 선호 지역과 가까운 업체 우선\n' +
+      '- 가격 대비 품질이 좋은 업체',
+  })
+  @ApiQuery({
+    name: 'planId',
+    description: '플랜 ID',
+    type: String,
+    required: true,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiQuery({
+    name: 'vendorId',
+    description: '교체할 업체 ID',
+    type: String,
+    required: true,
+    example: '550e8400-e29b-41d4-a716-446655440002',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '업체 재추천 성공',
+    type: RegenerateVendorResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '예약이 있는 업체이거나 추천 불가능한 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '플랜 또는 업체를 찾을 수 없거나 권한이 없음',
+  })
+  async regenerateVendor(
+    @CurrentUser('id') userId: string,
+    @Query('planId') planId: string,
+    @Query('vendorId') vendorId: string,
+  ): Promise<RegenerateVendorResponseDto> {
+    const result = await this.plansService.regenerateVendor(userId, planId, vendorId);
+
+    return {
+      message: '업체가 성공적으로 교체되었습니다.',
+      data: result,
+    };
   }
 
   /**

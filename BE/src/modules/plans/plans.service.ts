@@ -7,6 +7,7 @@ import { UsersInfo } from '../../entities/users-info.entity';
 import { Reservation } from '../../entities/reservation.entity';
 import { Vendor, VendorCategory } from '../../entities/vendor.entity';
 import { VendorCombinationRecommendation } from '../ai/interfaces';
+import { AiService } from '../ai/ai.service';
 import {
   PlanListResponseDto,
   PlanListItemDto,
@@ -16,6 +17,8 @@ import {
   CreatePlanResponseDto,
   AddPlanVendorResponseDto,
   DeletePlanResponseDto,
+  MainPlanResponseDto,
+  MainPlanItemDto,
 } from './dto';
 
 /**
@@ -37,6 +40,7 @@ export class PlansService {
     private readonly reservationRepository: Repository<Reservation>,
     @InjectRepository(Vendor)
     private readonly vendorRepository: Repository<Vendor>,
+    private readonly aiService: AiService,
   ) {}
 
   /**
@@ -300,7 +304,7 @@ export class PlansService {
         const reservation = reservationMap.get(item.vendor_id);
         if (reservation) {
           reservationInfo = {
-            reservation_date: reservation.reservation_date.toISOString().split('T')[0],
+            reservation_date: this.formatDate(reservation.reservation_date)!,
             reservation_time: reservation.reservation_time,
           };
         }
@@ -657,5 +661,320 @@ export class PlansService {
       message: '플랜이 삭제되었습니다.',
       planId,
     };
+  }
+
+  /**
+   * 메인 플랜 조회
+   * @description 사용자의 메인 플랜(is_main_plan=true)의 업체 정보를 조회합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @returns 메인 플랜 정보 및 포함된 업체 목록
+   *
+   * @throws NotFoundException - 메인 플랜을 찾을 수 없는 경우
+   *
+   * 데이터 조회 흐름:
+   * 1. users_info 테이블에서 user_id와 is_main_plan=true 조건으로 조회
+   * 2. 해당 users_info_id로 plan 테이블 조회
+   * 3. plan_id로 plan_item 테이블 조회
+   * 4. plan_item의 vendor_id로 vendor 정보 조회
+   * 5. 각 vendor와 plan에 대한 reservation 조회
+   */
+  async getMainPlan(userId: string): Promise<MainPlanResponseDto> {
+    this.logger.log(`메인 플랜 조회 시작: userId=${userId}`);
+
+    // 1. users_info에서 is_main_plan=true인 레코드 조회
+    const mainUsersInfo = await this.usersInfoRepository.findOne({
+      where: {
+        user_id: userId,
+        is_main_plan: true,
+      },
+    });
+
+    if (!mainUsersInfo) {
+      throw new NotFoundException('메인 플랜이 설정되지 않았습니다.');
+    }
+
+    this.logger.log(`메인 users_info 조회 완료: usersInfoId=${mainUsersInfo.id}`);
+
+    // 2. 해당 users_info_id로 plan 조회
+    const plan = await this.planRepository.findOne({
+      where: {
+        users_info_id: mainUsersInfo.id,
+      },
+    });
+
+    if (!plan) {
+      throw new NotFoundException('메인 플랜을 찾을 수 없습니다.');
+    }
+
+    this.logger.log(`메인 플랜 조회 완료: planId=${plan.id}`);
+
+    // 3. plan_id로 plan_items 조회 (vendor 정보 포함)
+    const planItems = await this.planItemRepository.find({
+      where: {
+        plan_id: plan.id,
+      },
+      relations: ['vendor'],
+      order: { order_index: 'ASC' },
+    });
+
+    this.logger.log(`플랜 아이템 조회 완료: ${planItems.length}개`);
+
+    // 4. 각 vendor에 대한 reservation 조회
+    const items: MainPlanItemDto[] = [];
+
+    for (const planItem of planItems) {
+      // 해당 vendor와 plan에 대한 예약 조회
+      const reservation = await this.reservationRepository.findOne({
+        where: {
+          vendor_id: planItem.vendor_id,
+          plan_id: plan.id,
+        },
+      });
+
+      items.push({
+        plan_item_id: planItem.id,
+        vendor_id: planItem.vendor.id,
+        vendor_name: planItem.vendor.name,
+        category: planItem.vendor.category,
+        address: planItem.vendor.address,
+        vendor_thumbnail_url: planItem.vendor.thumbnail_url ?? null,
+        reservation_date: reservation ? this.formatDate(reservation.reservation_date) : null,
+      });
+    }
+
+    this.logger.log(`메인 플랜 조회 완료: userId=${userId}, planId=${plan.id}`);
+
+    // 5. 응답 데이터 구성
+    return {
+      plan_id: plan.id,
+      plan_title: plan.title,
+      wedding_date: this.formatDate(mainUsersInfo.wedding_date),
+      items,
+    };
+  }
+
+  /**
+   * 플랜 업체 재생성 (AI 추천)
+   * @description 플랜에 포함된 특정 업체를 AI 추천으로 교체합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param planId - 플랜 ID
+   * @param vendorId - 교체할 업체 ID
+   * @returns 교체 결과 (기존 업체, 새 업체 정보)
+   *
+   * @throws NotFoundException - 플랜, 업체를 찾을 수 없거나 권한이 없는 경우
+   * @throws BadRequestException - 예약이 있는 업체이거나 추천 불가능한 경우
+   */
+  async regenerateVendor(
+    userId: string,
+    planId: string,
+    vendorId: string,
+  ): Promise<{
+    plan_item_id: string;
+    old_vendor: {
+      id: string;
+      name: string;
+      category: string;
+    };
+    new_vendor: {
+      id: string;
+      name: string;
+      category: string;
+      selection_reason: string;
+    };
+  }> {
+    this.logger.log(
+      `플랜 업체 재생성 시작: userId=${userId}, planId=${planId}, vendorId=${vendorId}`,
+    );
+
+    // 1. 플랜 조회 및 소유권 확인
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+      relations: ['users_info'],
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`플랜을 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    if (plan.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 플랜이 아닙니다. (planId: ${planId})`);
+    }
+
+    if (!plan.users_info) {
+      throw new NotFoundException(`플랜의 사용자 정보를 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    // 2. 업체 조회 및 플랜 포함 여부 확인
+    const vendor = await this.vendorRepository.findOne({
+      where: { id: vendorId },
+    });
+
+    if (!vendor) {
+      throw new NotFoundException(`업체를 찾을 수 없습니다. (vendorId: ${vendorId})`);
+    }
+
+    // 3. 해당 업체가 플랜에 포함되어 있는지 확인
+    const planItem = await this.planItemRepository.findOne({
+      where: {
+        plan_id: planId,
+        vendor_id: vendorId,
+      },
+    });
+
+    if (!planItem) {
+      throw new BadRequestException('해당 업체는 플랜에 포함되어 있지 않습니다.');
+    }
+
+    // 4. 예약 여부 확인
+    const hasReservation = await this.reservationRepository.findOne({
+      where: {
+        plan_id: planId,
+        vendor_id: vendorId,
+      },
+    });
+
+    if (hasReservation) {
+      throw new BadRequestException(
+        '예약이 있는 업체는 변경할 수 없습니다. 먼저 예약을 취소해주세요.',
+      );
+    }
+
+    // 5. 현재 플랜의 모든 업체 조회 (교체 대상 제외)
+    const allPlanItems = await this.planItemRepository.find({
+      where: { plan_id: planId },
+      relations: ['vendor'],
+    });
+
+    // 6. 현재 총 예산 계산 (교체 대상 제외)
+    const currentBudgetUsed = await this.calculateCurrentBudget(allPlanItems, vendorId);
+
+    this.logger.log(`현재 사용 중인 예산 (교체 대상 제외): ${currentBudgetUsed}원`);
+
+    // 7. 제외할 업체 ID 목록 (현재 플랜에 포함된 모든 업체)
+    const excludeVendorIds = allPlanItems.map((item) => item.vendor_id);
+
+    // 8. AI 추천 요청
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const recommendation: {
+      vendor_id: string;
+      name: string;
+      selection_reason: string;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    } | null = await this.aiService.recommendSingleVendor(
+      vendor.category as 'STUDIO' | 'DRESS' | 'MAKEUP' | 'VENUE',
+      {
+        wedding_date: plan.users_info.wedding_date,
+        preferred_region: plan.users_info.preferred_region,
+        budget_limit: plan.users_info.budget_limit,
+      },
+      excludeVendorIds,
+      currentBudgetUsed,
+      userId,
+    );
+
+    if (!recommendation) {
+      throw new BadRequestException('예산 내에서 추천 가능한 업체가 없습니다.');
+    }
+
+    // 9. 업체 교체
+    const oldVendorInfo = {
+      id: vendor.id,
+      name: vendor.name,
+      category: vendor.category,
+    };
+
+    // null이 아님을 확인한 후 안전하게 접근
+    const newVendorId: string = recommendation.vendor_id;
+    const newSelectionReason: string = recommendation.selection_reason;
+
+    planItem.vendor_id = newVendorId;
+    planItem.source = ItemSource.AI_RECOMMEND;
+    planItem.selection_reason = newSelectionReason;
+    planItem.service_item_id = null; // 서비스 아이템 리셋
+
+    await this.planItemRepository.save(planItem);
+
+    this.logger.log(`플랜 업체 재생성 완료: planItemId=${planItem.id}`);
+
+    // 10. 새 업체 정보 조회
+    const newVendor = await this.vendorRepository.findOne({
+      where: { id: newVendorId },
+    });
+
+    if (!newVendor) {
+      throw new NotFoundException('새 업체 정보를 찾을 수 없습니다.');
+    }
+
+    return {
+      plan_item_id: planItem.id,
+      old_vendor: {
+        id: oldVendorInfo.id,
+        name: oldVendorInfo.name,
+        category: this.getCategoryInKorean(oldVendorInfo.category),
+      },
+      new_vendor: {
+        id: newVendor.id,
+        name: newVendor.name,
+        category: this.getCategoryInKorean(newVendor.category),
+        selection_reason: newSelectionReason,
+      },
+    };
+  }
+
+  /**
+   * 현재 플랜의 총 예산 계산 (특정 업체 제외)
+   * @param planItems - 플랜 아이템 목록
+   * @param excludeVendorId - 제외할 업체 ID
+   * @returns 현재 사용 중인 예산
+   */
+  private async calculateCurrentBudget(
+    planItems: PlanItem[],
+    excludeVendorId: string,
+  ): Promise<number> {
+    let totalBudget = 0;
+
+    for (const item of planItems) {
+      // 제외할 업체는 계산에서 제외
+      if (item.vendor_id === excludeVendorId) {
+        continue;
+      }
+
+      // service_item이 있으면 해당 가격 사용
+      if (item.service_item_id) {
+        const serviceItem = await this.planItemRepository
+          .createQueryBuilder('plan_item')
+          .leftJoinAndSelect('plan_item.service_item', 'service_item')
+          .where('plan_item.id = :id', { id: item.id })
+          .getOne();
+
+        if (serviceItem?.service_item?.price) {
+          totalBudget += serviceItem.service_item.price;
+          continue;
+        }
+      }
+
+      // service_item이 없으면 ai_resource의 metadata.price_min 사용
+      const aiResource = await this.planItemRepository
+        .createQueryBuilder('plan_item')
+        .leftJoinAndSelect('plan_item.vendor', 'vendor')
+        .leftJoinAndSelect('vendor.ai_resources', 'ai_resource')
+        .where('plan_item.id = :id', { id: item.id })
+        .getOne();
+
+      if (aiResource?.vendor) {
+        // ai_resources가 있고 metadata에 price_min이 있으면 사용
+        const aiResources = aiResource.vendor.ai_resources;
+        if (aiResources && aiResources.length > 0) {
+          const priceMin = aiResources[0].metadata?.price_min as number | undefined;
+          if (priceMin) {
+            totalBudget += Number(priceMin);
+          }
+        }
+      }
+    }
+
+    return totalBudget;
   }
 }
