@@ -56,6 +56,38 @@ export const styles = StyleSheet.create({
     paddingBottom: 100,
   },
 
+  'loading-state-container': {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: parseInt(spacing.lg),
+    gap: parseInt(spacing.xs),
+  },
+
+  'loading-state-text': {
+    fontSize: parseInt(fontSize['mobile-2xl'][0]),
+    lineHeight: parseInt(fontSize['mobile-2xl'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-2xl'][1].letterSpacing) *
+      parseInt(fontSize['mobile-2xl'][0]),
+    fontWeight: fontSize['mobile-2xl'][1].fontWeight,
+    color: colors.root.text,
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'loading-state-error': {
+    fontSize: parseInt(fontSize['mobile-l'][0]),
+    lineHeight: parseInt(fontSize['mobile-l'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-l'][1].letterSpacing) *
+      parseInt(fontSize['mobile-l'][0]),
+    fontWeight: fontSize['mobile-l'][1].fontWeight,
+    color: colors.brown['brown-3'],
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
   /* Header Section */
   'header-section': {
     paddingHorizontal: parseInt(spacing.lg),

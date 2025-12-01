@@ -10,8 +10,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { client } from "@/commons/api/client";
 import { useAuth } from "@/commons/providers/auth/auth.provider";
-import { useRouter } from "expo-router";
-import { URL_PATHS } from "@/commons/enums/url";
+import { User } from "@/commons/types/user";
+import { env } from "@/commons/config";
 
 // 회원가입 요청 데이터 타입
 export interface SignUpPayload {
@@ -32,14 +32,7 @@ interface ApiResponse<T> {
 // 회원가입 응답 데이터 타입
 export interface AuthResponseData {
   access_token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    gender: string;
-    phone: string;
-    [key: string]: any;
-  };
+  user: User;
 }
 
 /**
@@ -47,7 +40,6 @@ export interface AuthResponseData {
  */
 export function useSignUp() {
   const { setAuthSession } = useAuth();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: async (payload: SignUpPayload) => {
@@ -58,11 +50,15 @@ export function useSignUp() {
       return response.data.data; // .data.data로 실제 데이터 추출
     },
     onSuccess: async (data) => {
-      console.log("✅ [SignUp API 응답 원본]:", data);
+      if (__DEV__ && env.debugMode) {
+        console.log("✅ [SignUp API 응답 원본]:", data);
+      }
 
       // 데이터 구조 안전하게 확인
       if (data && data.user && data.user.email) {
-        console.log("✅ 회원가입 성공:", data.user.email);
+        if (__DEV__ && env.debugMode) {
+          console.log("✅ 회원가입 성공:", data.user.email);
+        }
       } else {
         console.warn("⚠️ [SignUp] 예상치 못한 응답 구조:", data);
       }
@@ -73,10 +69,12 @@ export function useSignUp() {
       }
     },
     onError: (error: any) => {
-      console.error("❌ 회원가입 요청 실패:", error);
-      if (error.response) {
-        console.error("   - Status:", error.response.status);
-        console.error("   - Data:", error.response.data);
+      if (__DEV__ && env.debugMode) {
+        console.error("❌ 회원가입 요청 실패:", error);
+        if (error.response) {
+          console.error("   - Status:", error.response.status);
+          console.error("   - Data:", error.response.data);
+        }
       }
     },
   });
@@ -97,10 +95,14 @@ export function useLogin() {
       return response.data.data; // .data.data로 실제 데이터 추출
     },
     onSuccess: async (data) => {
-      console.log("✅ [Login API 응답 원본]:", data);
+      if (__DEV__ && env.debugMode) {
+        console.log("✅ [Login API 응답 원본]:", data);
+      }
 
       if (data && data.user && data.user.email) {
-        console.log("✅ 로그인 성공:", data.user.email);
+        if (__DEV__ && env.debugMode) {
+          console.log("✅ 로그인 성공:", data.user.email);
+        }
       } else {
         console.warn("⚠️ [Login] 예상치 못한 응답 구조:", data);
       }
@@ -110,10 +112,12 @@ export function useLogin() {
       }
     },
     onError: (error: any) => {
-      console.error("❌ 로그인 요청 실패:", error);
-      if (error.response) {
-        console.error("   - Status:", error.response.status);
-        console.error("   - Data:", error.response.data);
+      if (__DEV__ && env.debugMode) {
+        console.error("❌ 로그인 요청 실패:", error);
+        if (error.response) {
+          console.error("   - Status:", error.response.status);
+          console.error("   - Data:", error.response.data);
+        }
       }
     },
   });

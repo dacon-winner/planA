@@ -31,6 +31,8 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLogin } from "@/commons/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { env } from "@/commons/config";
 
 // 유효성 검사 스키마 정의
 const loginSchema = z.object({
@@ -95,6 +97,37 @@ export const Login: React.FC = () => {
    */
   const handleSignUp = () => {
     router.push(URL_PATHS.AUTH_SIGNUP);
+  };
+
+  /**
+   * [개발 전용] AsyncStorage 초기화
+   */
+  const handleClearStorage = async () => {
+    if (!__DEV__) return;
+
+    Alert.alert(
+      "개발 도구",
+      "AsyncStorage를 초기화하시겠습니까?\n(로그인 정보, 플랜 데이터 등 모든 데이터가 삭제됩니다)",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "초기화",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              Alert.alert("완료", "AsyncStorage가 초기화되었습니다.\n앱을 재시작해주세요.");
+            } catch (error) {
+              Alert.alert("오류", "초기화 중 오류가 발생했습니다.");
+              console.error("AsyncStorage clear error:", error);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -208,6 +241,32 @@ export const Login: React.FC = () => {
                     </Text>
                     <Text style={styles.signUpTextBold}>회원가입</Text>
                   </Pressable>
+
+                  {/* [개발 전용] AsyncStorage 초기화 버튼 */}
+                  {__DEV__ && env.debugMode && (
+                    <Pressable
+                      style={{
+                        marginTop: 16,
+                        padding: 12,
+                        backgroundColor: "rgba(255, 0, 0, 0.1)",
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: "rgba(255, 0, 0, 0.3)",
+                      }}
+                      onPress={handleClearStorage}
+                    >
+                      <Text
+                        style={{
+                          color: "#ff0000",
+                          fontSize: 12,
+                          textAlign: "center",
+                          fontWeight: "600",
+                        }}
+                      >
+                        🔧 개발 도구: AsyncStorage 초기화
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
               </View>
             </BlurView>

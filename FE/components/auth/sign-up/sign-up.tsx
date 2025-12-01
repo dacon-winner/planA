@@ -31,6 +31,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSignUp } from "@/commons/hooks/useAuth";
 import { useRouter } from "expo-router"; // useRouter import 추가 필요
+import { getApiErrorMessage } from "@/commons/utils";
+import { InputErrorText } from "./input-error";
 
 // 유효성 검사 스키마 정의
 const signUpSchema = z
@@ -102,18 +104,15 @@ export const SignUp: React.FC = () => {
       },
       {
         onSuccess: () => {
-          console.log("✅ [SignUp] 회원가입 성공, 홈으로 이동합니다.");
-          router.replace(URL_PATHS.HOME);
+          console.log("✅ [SignUp] 회원가입 성공, 폼 작성 페이지로 이동합니다.");
+          router.replace(URL_PATHS.FORM);
         },
-        onError: (error: any) => {
-          if (error.response?.status === 409) {
-            Alert.alert("회원가입 실패", "이미 사용 중인 이메일입니다.");
-          } else {
-            Alert.alert(
-              "회원가입 실패",
-              "일시적인 오류가 발생했습니다. 다시 시도해주세요."
-            );
-          }
+        onError: (error) => {
+          const message = getApiErrorMessage(
+            error,
+            "일시적인 오류가 발생했습니다. 다시 시도해주세요."
+          );
+          Alert.alert("회원가입 실패", message);
         },
       }
     );
@@ -130,15 +129,15 @@ export const SignUp: React.FC = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? -100 : 0}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        automaticallyAdjustKeyboardInsets={true}
-        keyboardDismissMode="on-drag"
+        keyboardDismissMode="interactive"
+        bounces={false}
       >
         <ImageBackground
           source={require("@/assets/form-background.png")}
@@ -178,17 +177,7 @@ export const SignUp: React.FC = () => {
                             autoComplete="name"
                             size="medium"
                           />
-                          {errors.name && (
-                            <Text
-                              style={{
-                                color: "red",
-                                fontSize: 12,
-                                marginTop: 4,
-                              }}
-                            >
-                              {errors.name.message}
-                            </Text>
-                          )}
+                          <InputErrorText message={errors.name?.message} />
                         </View>
                       )}
                     />
@@ -226,17 +215,7 @@ export const SignUp: React.FC = () => {
                             autoComplete="email"
                             size="medium"
                           />
-                          {errors.email && (
-                            <Text
-                              style={{
-                                color: "red",
-                                fontSize: 12,
-                                marginTop: 4,
-                              }}
-                            >
-                              {errors.email.message}
-                            </Text>
-                          )}
+                          <InputErrorText message={errors.email?.message} />
                         </View>
                       )}
                     />
@@ -257,17 +236,7 @@ export const SignUp: React.FC = () => {
                             autoComplete="password"
                             size="medium"
                           />
-                          {errors.password && (
-                            <Text
-                              style={{
-                                color: "red",
-                                fontSize: 12,
-                                marginTop: 4,
-                              }}
-                            >
-                              {errors.password.message}
-                            </Text>
-                          )}
+                          <InputErrorText message={errors.password?.message} />
                         </View>
                       )}
                     />
@@ -288,17 +257,9 @@ export const SignUp: React.FC = () => {
                             autoComplete="password"
                             size="medium"
                           />
-                          {errors.passwordConfirm && (
-                            <Text
-                              style={{
-                                color: "red",
-                                fontSize: 12,
-                                marginTop: 4,
-                              }}
-                            >
-                              {errors.passwordConfirm.message}
-                            </Text>
-                          )}
+                          <InputErrorText
+                            message={errors.passwordConfirm?.message}
+                          />
                         </View>
                       )}
                     />
@@ -318,17 +279,7 @@ export const SignUp: React.FC = () => {
                             autoComplete="tel"
                             size="medium"
                           />
-                          {errors.phone && (
-                            <Text
-                              style={{
-                                color: "red",
-                                fontSize: 12,
-                                marginTop: 4,
-                              }}
-                            >
-                              {errors.phone.message}
-                            </Text>
-                          )}
+                          <InputErrorText message={errors.phone?.message} />
                         </View>
                       )}
                     />

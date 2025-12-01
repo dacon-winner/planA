@@ -1,0 +1,489 @@
+import React, { useRef, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Image,
+  Pressable,
+  Dimensions,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { MapPin, Phone, Clock, CircleDollarSign } from "lucide-react-native";
+import BottomSheet, {
+  BottomSheetView,
+  useBottomSheet,
+} from "@gorhom/bottom-sheet";
+import { useAnimatedReaction, runOnJS } from "react-native-reanimated";
+import { ContentSwitcher } from "@/commons/components/content-switcher";
+import { Button } from "@/commons/components/button";
+import { Calendar } from "@/commons/components/calendar";
+import { SelectButton } from "@/commons/components/select-button";
+import {
+  styles,
+  getDetailContentScrollStyle,
+} from "@/commons/styles/planDetail";
+import { colors } from "@/commons/enums/color";
+import { usePlanDetailScreen } from "@/commons/hooks/usePlanDetailScreen";
+import { usePlanDetailStore } from "@/commons/stores/usePlanDetailStore";
+import { PlanHeader } from "./plan-header";
+import { ServiceGrid } from "./service-grid";
+import { PlanLoadingState } from "./plan-loading-state";
+import { AiRecommendations } from "./ai-recommendations";
+import { PlanVendorChangeModal } from "@/commons/components/plan-detail/vendor-change-modal";
+import { showPlanToast } from "@/commons/components/plan-detail/plan-toast";
+
+interface PlanDetailContainerProps {
+  planId: string;
+}
+
+export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
+  planId,
+}) => {
+  // 훅에서 필요한 데이터와 액션만 가져오기
+  const {
+    isLoading,
+    error,
+    isAiRecommendationsLoading,
+    isReservationLoading,
+    finalPlanData,
+    serviceCards,
+    currentDetailInfo,
+    aiRecommendationsForCurrentTab,
+    selectedTab,
+    setSelectedTab,
+    timeOptions,
+    parseWeddingDate,
+    recommendationDisplayCount,
+    isServiceSaved,
+    handleSave,
+    handleSaveConfirm,
+    handleSaveCancel,
+    handleViewOtherVendors,
+    handleAiRecommendationPress,
+    handleReservation,
+    changeVendorModals,
+  } = usePlanDetailScreen(planId);
+
+  // Zustand 스토어에서 UI 상태 가져오기
+  const {
+    isHeaderCompact,
+    setIsHeaderCompact,
+    selectedDate,
+    setSelectedDate,
+    selectedTime,
+    setSelectedTime,
+    showTimePicker,
+    setShowTimePicker,
+    isReserved,
+    selectedAiRecommendation,
+  } = usePlanDetailStore();
+
+  const hasSnappedToMaxRef = useRef(false);
+
+  // Bottom Sheet 설정
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const screenHeight = useMemo(() => Dimensions.get("window").height, []);
+  const snapPoints = useMemo(
+    () => [screenHeight * 0.35, screenHeight * 0.7],
+    [screenHeight]
+  );
+
+  // 헤더 상태 업데이트
+  const updateHeaderState = useCallback(
+    (currentHeight: number) => {
+      setIsHeaderCompact(currentHeight > screenHeight * 0.65);
+    },
+    [screenHeight, setIsHeaderCompact]
+  );
+
+  const handleSheetChanges = useCallback(
+    (index: number) => {
+      updateHeaderState(snapPoints[index]);
+      hasSnappedToMaxRef.current = index === 1;
+    },
+    [snapPoints, updateHeaderState]
+  );
+
+  // BottomSheet 내부 컴포넌트에서 animatedPosition 추적
+  const BottomSheetContentWrapper = () => {
+    const { animatedPosition } = useBottomSheet();
+
+    // animatedPosition 변경 시 헤더 상태 업데이트
+    useAnimatedReaction(
+      () => animatedPosition.value,
+      (currentPosition) => {
+        const currentHeight = screenHeight - currentPosition;
+        runOnJS(updateHeaderState)(currentHeight);
+      },
+      [screenHeight, updateHeaderState]
+    );
+
+    return null;
+  };
+
+  const expandBottomSheet = useCallback(() => {
+    bottomSheetRef.current?.snapToIndex(1);
+  }, []);
+
+  const handleServiceItemPress = useCallback(
+    (serviceIndex: number) => {
+      setSelectedTab(serviceIndex);
+      expandBottomSheet();
+    },
+    [setSelectedTab, expandBottomSheet]
+  );
+
+  const handleOtherVendorsPress = useCallback(
+    () => handleViewOtherVendors(expandBottomSheet),
+    [handleViewOtherVendors, expandBottomSheet]
+  );
+
+  const handleRecommendationSelect = useCallback(
+    (recommendation: { vendor_id: string; name: string; price: string }) =>
+      handleAiRecommendationPress(recommendation, expandBottomSheet),
+    [handleAiRecommendationPress, expandBottomSheet]
+  );
+
+  // 로딩/에러/데이터 없음 상태 처리
+  if (isLoading || error || !finalPlanData) {
+    return <PlanLoadingState isLoading={isLoading} error={error} />;
+  }
+
+  return (
+    <View style={styles["plan-detail-wrapper"]}>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+
+      {/* 배경 그라데이션 */}
+      <Image
+        source={require("@/assets/Gradient.png")}
+        style={styles["background-gradient"]}
+      />
+
+      <SafeAreaView style={styles["safe-area"]}>
+        <ScrollView
+          style={styles["plan-detail-scroll"]}
+          contentContainerStyle={styles["plan-detail-scroll-container"]}
+        >
+          <PlanHeader
+            planName={finalPlanData.planName}
+            daysLeft={finalPlanData.daysLeft}
+            date={finalPlanData.date}
+            location={finalPlanData.location}
+            budget={finalPlanData.budget}
+            isCompact={isHeaderCompact}
+          />
+
+          <ServiceGrid
+            services={serviceCards}
+            onSelect={handleServiceItemPress}
+          />
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* 상세 정보 섹션 (Bottom Sheet) */}
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        onChange={handleSheetChanges}
+        enablePanDownToClose={false}
+        enableOverDrag={false}
+        enableDynamicSizing={false}
+        enableContentPanningGesture={true}
+        handleComponent={null}
+        backgroundStyle={styles["bottom-sheet-background"]}
+      >
+        <BottomSheetView style={styles["bottom-sheet-content"]}>
+          <BottomSheetContentWrapper />
+
+          {/* Bottom Sheet Handle */}
+          <View style={styles["detail-section-header"]}>
+            <View style={styles["detail-section-handle"]} />
+          </View>
+
+          {/* Content Switcher */}
+          <View style={styles["content-switcher-wrapper"]}>
+            <ContentSwitcher
+              selectedIndex={selectedTab}
+              onSelectionChange={setSelectedTab}
+            />
+          </View>
+
+          {/* 상세 정보 컨텐츠 - 스크롤 가능 */}
+          <View style={getDetailContentScrollStyle(screenHeight)}>
+            <ScrollView
+              contentContainerStyle={styles["detail-content"]}
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles["detail-name"]}>
+                {currentDetailInfo.name}
+              </Text>
+
+              {/* 이미지 섹션 */}
+              <View style={styles["detail-images"]}>
+                {currentDetailInfo.images &&
+                currentDetailInfo.images.length > 0 ? (
+                  <>
+                    {currentDetailInfo.images
+                      .slice(0, 2)
+                      .map((imageUrl: string, index: number) => (
+                        <Image
+                          key={index}
+                          source={{ uri: imageUrl }}
+                          style={styles["detail-image-placeholder"]}
+                          resizeMode="cover"
+                        />
+                      ))}
+                  </>
+                ) : (
+                  <>
+                    <View style={styles["detail-image-placeholder"]} />
+                    <View style={styles["detail-image-placeholder"]} />
+                  </>
+                )}
+              </View>
+
+              {/* 연락처 및 정보 */}
+              <View style={styles["detail-info-list"]}>
+                <View style={styles["detail-info-item"]}>
+                  <MapPin size={16} color={colors.root.text} />
+                  <Text style={styles["detail-info-text"]}>
+                    {currentDetailInfo.address}
+                  </Text>
+                </View>
+                <View style={styles["detail-info-item"]}>
+                  <Phone size={16} color={colors.root.text} />
+                  <Text style={styles["detail-info-text"]}>
+                    {currentDetailInfo.phone}
+                  </Text>
+                </View>
+                <View style={styles["detail-info-item"]}>
+                  <Clock size={16} color={colors.root.text} />
+                  <Text style={styles["detail-info-text"]}>
+                    {currentDetailInfo.hours}
+                  </Text>
+                </View>
+                <View style={styles["detail-info-item"]}>
+                  <CircleDollarSign size={16} color={colors.root.text} />
+                  <Text style={styles["detail-info-text"]}>
+                    {currentDetailInfo.service}
+                  </Text>
+                </View>
+              </View>
+
+              {/* 가격 정보 */}
+              <View style={styles["detail-prices"]}>
+                {currentDetailInfo.prices.map((price, index) => (
+                  <View key={index} style={styles["detail-price-row"]}>
+                    <Text style={styles["detail-price-level"]}>
+                      {price.level}
+                    </Text>
+                    <View style={styles["detail-price-dots"]}>
+                      {Array.from({ length: 40 }).map((_, dotIndex) => (
+                        <View
+                          key={dotIndex}
+                          style={styles["detail-price-dot"]}
+                        />
+                      ))}
+                    </View>
+                    <Text style={styles["detail-price-amount"]}>
+                      {price.price}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* 액션 버튼 */}
+              <View style={styles["detail-actions"]}>
+                <View style={styles["detail-action-button"]}>
+                  <Button
+                    variant="outlined"
+                    size="medium"
+                    onPress={handleOtherVendorsPress}
+                  >
+                    다른 업체 보기
+                  </Button>
+                </View>
+                <View style={styles["detail-action-button"]}>
+                  <Button variant="filled" size="medium" onPress={handleSave}>
+                    {isServiceSaved(finalPlanData.services[selectedTab].type)
+                      ? "저장 변경하기"
+                      : "저장하기"}
+                  </Button>
+                </View>
+              </View>
+
+              {/* 방문 예약하기 - 현재 서비스가 저장된 경우에만 표시 */}
+              {isServiceSaved(finalPlanData.services[selectedTab].type) && (
+                <View style={styles["reservation-section"]}>
+                  <View style={styles["reservation-divider"]} />
+
+                  <Text style={styles["reservation-title"]}>방문 예약하기</Text>
+
+                  {/* 날짜/시간 선택 UI */}
+                  <View style={styles["datetime-picker-container"]}>
+                    <Pressable
+                      style={styles["datetime-picker-item"]}
+                      onPress={() => setShowTimePicker(false)}
+                    >
+                      <Text style={styles["datetime-picker-label"]}>날짜</Text>
+                      <Text style={styles["datetime-picker-value"]}>
+                        {selectedDate
+                          ? `${selectedDate.getFullYear()}년 ${
+                              selectedDate.getMonth() + 1
+                            }월 ${selectedDate.getDate()}일`
+                          : "-"}
+                      </Text>
+                    </Pressable>
+
+                    <View style={styles["datetime-picker-divider"]} />
+
+                    <Pressable
+                      style={styles["datetime-picker-item"]}
+                      disabled={!selectedDate}
+                      onPress={() => {
+                        if (selectedDate) {
+                          setShowTimePicker(true);
+                        }
+                      }}
+                    >
+                      <Text style={styles["datetime-picker-label"]}>시간</Text>
+                      <Text style={styles["datetime-picker-value"]}>
+                        {selectedTime || "-"}
+                      </Text>
+                    </Pressable>
+                  </View>
+
+                  {/* 달력 또는 시간 선택 버튼 그리드 */}
+                  {!isReserved && (
+                    <>
+                      {showTimePicker && selectedDate ? (
+                        <View style={styles["time-picker-container"]}>
+                          <View style={styles["time-picker-grid"]}>
+                            {timeOptions.map((option) => {
+                              const isSelected = selectedTime === option.value;
+                              return (
+                                <View
+                                  key={option.value}
+                                  style={styles["time-picker-button-wrapper"]}
+                                >
+                                  <SelectButton
+                                    state={isSelected ? "selected" : "default"}
+                                    label={option.label}
+                                    size="small"
+                                    icon={
+                                      <Clock
+                                        size={20}
+                                        color={
+                                          isSelected
+                                            ? colors.red["red-9"]
+                                            : colors.brown["brown-2"]
+                                        }
+                                      />
+                                    }
+                                    onSelect={() =>
+                                      setSelectedTime(option.value)
+                                    }
+                                  />
+                                </View>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles["calendar-section"]}>
+                          <Calendar
+                            selectedDate={selectedDate}
+                            onDateSelect={(date) => {
+                              const weddingDate = parseWeddingDate(
+                                finalPlanData.date
+                              );
+                              if (weddingDate && date > weddingDate) {
+                                showPlanToast({
+                                  variant: "error",
+                                  message: "결혼 예정일보다 예약일이 늦습니다.",
+                                });
+                                return;
+                              }
+
+                              if (
+                                selectedDate &&
+                                date.getTime() !== selectedDate.getTime()
+                              ) {
+                                setSelectedTime(null);
+                              }
+                              setSelectedDate(date);
+                              setShowTimePicker(true);
+                            }}
+                            subtitle="날짜를 선택하세요"
+                            weddingDate={parseWeddingDate(finalPlanData.date)}
+                          />
+                        </View>
+                      )}
+                    </>
+                  )}
+
+                  {/* 예약 버튼 */}
+                  {!isReserved && (
+                    <View style={styles["reservation-actions"]}>
+                      <View style={styles["reservation-action-button"]}>
+                        <Button
+                          variant="outlined"
+                          size="medium"
+                          onPress={() => {
+                            // TODO: 취소 로직 구현
+                          }}
+                        >
+                          취소
+                        </Button>
+                      </View>
+                      <View style={styles["reservation-action-button"]}>
+                        <Button
+                          variant="filled"
+                          size="medium"
+                          disabled={
+                            !selectedDate || !selectedTime || isReservationLoading
+                          }
+                          onPress={handleReservation}
+                        >
+                          예약 신청
+                        </Button>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              {/* AI 추천 업체 */}
+              <AiRecommendations
+                isLoading={isAiRecommendationsLoading}
+                recommendations={aiRecommendationsForCurrentTab}
+                currentServiceName={
+                  selectedAiRecommendation?.name ||
+                  finalPlanData.services[selectedTab].name
+                }
+                displayCount={recommendationDisplayCount}
+                onRecommendationPress={handleRecommendationSelect}
+              />
+            </ScrollView>
+          </View>
+        </BottomSheetView>
+      </BottomSheet>
+
+      {/* 업체 변경 확인 모달 */}
+      <PlanVendorChangeModal
+        visible={changeVendorModals[finalPlanData.services[selectedTab].type]}
+        planName={finalPlanData.planName}
+        serviceType={finalPlanData.services[selectedTab].type}
+        serviceName={
+          selectedAiRecommendation?.name ||
+          finalPlanData.services[selectedTab].name
+        }
+        onConfirm={handleSaveConfirm}
+        onCancel={handleSaveCancel}
+      />
+    </View>
+  );
+};
+

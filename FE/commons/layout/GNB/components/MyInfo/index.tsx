@@ -12,7 +12,7 @@
  */
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
   Phone,
@@ -23,7 +23,8 @@ import {
   User,
   CalendarClock,
   Bell,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react-native';
 import { styles } from './styles';
 import { MY_INFO_CONTENT } from '@/commons/enums/gnb';
@@ -32,22 +33,9 @@ import { GradientBackground } from '@/commons/components/gradient-background';
 import { Button } from '@/commons/components/button';
 import { colors } from '@/commons/enums/color';
 import { useMe, usePlans, useReservations } from '@/commons/hooks';
+import { useAuth } from '@/commons/providers/auth/auth.provider';
 
 // 임시 데이터 (추후 API로 대체)
-const userInfo = {
-  name: '김동언',
-  weddingInfo: '김철수 님의 웨딩 정보',
-  phone: '010-1111-1234',
-  date: '2026년 3월 28일 토요일',
-  location: '서울특별시 강남구',
-  budget: '5,000만원',
-};
-
-const stats = {
-  planCount: 1,
-  reservationCount: 0,
-};
-
 const upcomingSchedules = [
   {
     date: '1월 6일',
@@ -91,6 +79,7 @@ export default function MyInfo() {
   const { data: userData, isLoading: userLoading } = useMe();
   const { data: plansData } = usePlans();
   const { data: reservationsData } = useReservations();
+  const { logout } = useAuth();
 
   const [notifications, setNotifications] = useState(
     notificationSettings.reduce((acc, item) => {
@@ -162,6 +151,29 @@ export default function MyInfo() {
       ...prev,
       [id]: newState,
     }));
+  };
+
+  /**
+   * 로그아웃 처리
+   */
+  const handleLogout = () => {
+    Alert.alert(
+      '로그아웃',
+      '정말 로그아웃 하시겠습니까?',
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '로그아웃',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -315,6 +327,19 @@ export default function MyInfo() {
                 </React.Fragment>
               ))}
             </View>
+          </View>
+
+          {/* 로그아웃 버튼 */}
+          <View style={styles['logout-section']}>
+            <Button
+              variant="outlined"
+              size="medium"
+              icon={true}
+              iconComponent={<LogOut size={20} color={colors.root.brand} />}
+              onPress={handleLogout}
+            >
+              로그아웃
+            </Button>
           </View>
       </ScrollView>
     </View>

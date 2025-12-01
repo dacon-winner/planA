@@ -11,9 +11,10 @@
  */
 
 import { StyleSheet, Platform, StatusBar } from 'react-native';
+import { colors } from '@/commons/enums/color';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const tailwindConfig = require('@/tailwind.config.js');
-const colors = tailwindConfig.theme.extend.colors;
 const spacing = tailwindConfig.theme.extend.spacing;
 const fontSize = tailwindConfig.theme.extend.fontSize;
 
@@ -26,7 +27,7 @@ export const styles = StyleSheet.create({
    * ======================================== */
   'myinfo-wrapper': {
     flex: 1,
-    backgroundColor: colors.foundationBlack[1],
+    backgroundColor: colors.black['black-1'],
   },
 
   'content-scroll': {
@@ -60,7 +61,7 @@ export const styles = StyleSheet.create({
     lineHeight: parseInt(fontSize['mobile-3xl-semibold'][1].lineHeight),
     letterSpacing: parseFloat(fontSize['mobile-3xl-semibold'][1].letterSpacing) * parseInt(fontSize['mobile-3xl-semibold'][0]),
     fontWeight: fontSize['mobile-3xl-semibold'][1].fontWeight,
-    color: colors.foundationBlack[13],
+    color: colors.black['black-13'],
     fontFamily: 'Pretendard',
   },
 
@@ -77,7 +78,7 @@ export const styles = StyleSheet.create({
    * USER CARD STYLES
    * ======================================== */
   'user-card': {
-    backgroundColor: colors.foundationBlack[1],
+    backgroundColor: colors.black['black-1'],
     borderWidth: 1,
     borderColor: `rgba(82, 74, 78, 0.1)`,
     borderRadius: parseInt(spacing.sm),
@@ -110,7 +111,7 @@ export const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 9999,
-    backgroundColor: colors.foundationRed[1],
+    backgroundColor: colors.red['red-1'],
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -179,7 +180,7 @@ export const styles = StyleSheet.create({
 
   'stat-card': {
     flex: 1,
-    backgroundColor: colors.foundationBlack[1],
+    backgroundColor: colors.black['black-1'],
     borderWidth: 1,
     borderColor: `rgba(82, 74, 78, 0.1)`,
     borderRadius: parseInt(spacing.sm),
@@ -231,7 +232,7 @@ export const styles = StyleSheet.create({
    * SCHEDULE CARD STYLES
    * ======================================== */
   'schedule-card': {
-    backgroundColor: colors.secondary[50],
+    backgroundColor: colors.secondary['secondary-50'],
     borderWidth: 1,
     borderColor: `rgba(82, 74, 78, 0.1)`,
     borderRadius: parseInt(spacing.sm),
@@ -321,7 +322,7 @@ export const styles = StyleSheet.create({
     lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
     letterSpacing: parseFloat(fontSize['mobile-xs'][1].letterSpacing) * parseInt(fontSize['mobile-xs'][0]),
     fontWeight: fontSize['mobile-xs'][1].fontWeight,
-    color: colors.foundationBrown[4],
+    color: colors.brown['brown-4'],
     fontFamily: 'Pretendard',
   },
 
@@ -329,7 +330,7 @@ export const styles = StyleSheet.create({
    * NOTIFICATION CARD STYLES
    * ======================================== */
   'notification-card': {
-    backgroundColor: colors.foundationBlack[1],
+    backgroundColor: colors.black['black-1'],
     borderWidth: 1,
     borderColor: `rgba(82, 74, 78, 0.1)`,
     borderRadius: parseInt(spacing.sm),
@@ -397,5 +398,12 @@ export const styles = StyleSheet.create({
   'notification-divider': {
     height: 1,
     backgroundColor: `rgba(82, 74, 78, 0.1)`,
+  },
+
+  // 로그아웃 섹션
+  'logout-section': {
+    paddingHorizontal: parseInt(spacing.lg),
+    paddingTop: parseInt(spacing.lg),
+    paddingBottom: parseInt(spacing.xl),
   },
 });

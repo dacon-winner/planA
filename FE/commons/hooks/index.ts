@@ -18,7 +18,7 @@ export type { UserInfo } from './useUser';
 export { useReservations } from './useReservations';
 export type { ReservationInfo, ReservationListResponse } from './useReservations';
 
-export { useAIPlan } from './useAIPlan.tsx';
+export { useAIPlan } from './useAIPlan';
 
 export { useSetMainPlan } from './useMainPlan';
 export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';

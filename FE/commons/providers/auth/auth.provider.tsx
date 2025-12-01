@@ -16,11 +16,16 @@ import {
   useEffect,
   useState,
   useRef,
+  useMemo,
+  useCallback,
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URL_PATHS } from "../../enums/url";
-import { client } from "../../api/client";
+import { User } from "@/commons/types/user";
+import { resolveInitialPlanRoute } from "@/commons/services/plan-navigation";
+import { AxiosError } from "axios";
+import { env } from "@/commons/config";
 
 /**
  * AsyncStorage 키 상수
@@ -30,13 +35,6 @@ const STORAGE_KEYS = {
   USER: "user",
   INIT_FLAG: "authInitialized", // 초기화 완료 플래그
 } as const;
-
-/**
- * 사용자 정보 타입
- */
-export interface User {
-  [key: string]: unknown;
-}
 
 /**
  * AuthContext 타입
@@ -128,20 +126,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [user, setUser] = useState<User | null>(null);
-  const hasInitialized = useRef(false); // 초기화 완료 플래그
+  const hasInitialized = useRef(false);
 
   /**
    * 로그인 상태 확인 함수
    */
-  const checkAuth = async (): Promise<boolean> => {
+  const checkAuth = useCallback(async (): Promise<boolean> => {
     const accessToken = await getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
     return accessToken !== null && accessToken !== "";
-  };
+  }, []);
 
   /**
    * 사용자 정보 조회 함수
    */
-  const getUser = async (): Promise<User | null> => {
+  const getUser = useCallback(async (): Promise<User | null> => {
     const userStr = await getStorageItem(STORAGE_KEYS.USER);
     if (userStr) {
       try {
@@ -151,49 +149,60 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     }
     return null;
-  };
+  }, []);
 
   /**
    * Access Token 조회 함수
    */
-  const getAccessToken = async (): Promise<string | null> => {
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
     return await getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
-  };
+  }, []);
 
   /**
    * 로그인 함수 (로그인 페이지로 이동)
    */
-  const login = (): void => {
+  const login = useCallback((): void => {
     router.push(URL_PATHS.AUTH_LOGIN);
-  };
+  }, [router]);
 
   /**
    * 로그아웃 함수
    */
-  const logout = async (): Promise<void> => {
-    // AsyncStorage에서 모든 인증 정보 제거
-    await removeStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
-    await removeStorageItem(STORAGE_KEYS.USER);
-    await removeStorageItem(STORAGE_KEYS.INIT_FLAG); // 초기화 플래그도 제거
-    // 상태 업데이트
-    setIsAuthenticated(false);
-    setUser(null);
-    // 로그인 페이지로 이동
-    router.push(URL_PATHS.AUTH_LOGIN);
-  };
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      // AsyncStorage에서 모든 인증 정보 제거
+      await AsyncStorage.multiRemove([
+        STORAGE_KEYS.ACCESS_TOKEN,
+        STORAGE_KEYS.USER,
+        STORAGE_KEYS.INIT_FLAG,
+      ]);
+      
+      // 상태 업데이트
+      setIsAuthenticated(false);
+      setUser(null);
+      
+      // 로그인 페이지로 이동
+      router.push(URL_PATHS.AUTH_LOGIN);
+    } catch (error) {
+      console.error("Logout error:", error);
+      // 에러가 발생해도 로그인 페이지로 이동
+      router.push(URL_PATHS.AUTH_LOGIN);
+    }
+  }, [router]);
 
   /**
    * 로그인 세션 설정 함수
    * 로그인 또는 회원가입 성공 시 호출하여 세션을 저장하고 상태를 업데이트합니다.
    */
-  const setAuthSession = async (
+  const setAuthSession = useCallback(async (
     token: string,
     userData: User
   ): Promise<void> => {
     try {
-      // 1. AsyncStorage에 저장
+      // 1. AsyncStorage에 저장 (초기화 플래그도 함께 설정)
       await setStorageItem(STORAGE_KEYS.ACCESS_TOKEN, token);
       await setStorageItem(STORAGE_KEYS.USER, JSON.stringify(userData));
+      await setStorageItem(STORAGE_KEYS.INIT_FLAG, "true");
 
       // 2. 상태 업데이트
       setIsAuthenticated(true);
@@ -205,7 +214,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error("Session setup failed:", error);
       // 에러 처리 로직 추가 가능
     }
-  };
+  }, []);
 
   /**
    * 초기 인증 상태 로드 및 자동 라우팅
@@ -218,29 +227,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
      * 3. 없으면 → Login
      */
     const initializeAuth = async (): Promise<void> => {
+      // 이미 초기화되었으면 실행하지 않음
+      if (hasInitialized.current) {
+        return;
+      }
+
       try {
         // AsyncStorage에서 초기화 플래그 확인
         const initFlag = await getStorageItem(STORAGE_KEYS.INIT_FLAG);
         if (initFlag === "true") {
-          console.log("⚠️ [AuthProvider] 이미 초기화됨, 상태만 복원");
+          if (__DEV__ && env.debugMode) {
+            console.log("⚠️ [AuthProvider] 이미 초기화됨, 상태만 복원");
+          }
           const authStatus = await checkAuth();
           const userData = await getUser();
           setIsAuthenticated(authStatus);
           setUser(userData);
           setIsLoading(false);
+          
+          // 토큰이 없으면 로그인 화면으로 이동
+          if (!authStatus) {
+            if (__DEV__ && env.debugMode) {
+              console.log("❌ [AuthProvider] 초기화 플래그는 있지만 토큰 없음 → 로그인 화면으로 이동");
+            }
+            await removeStorageItem(STORAGE_KEYS.INIT_FLAG);
+            router.replace(URL_PATHS.AUTH_LOGIN);
+          }
+          hasInitialized.current = true;
           return;
         }
 
-        console.log("🔐 [AuthProvider] 초기 인증 상태 확인 시작...");
-        
-        // 초기화 플래그 설정
-        await setStorageItem(STORAGE_KEYS.INIT_FLAG, "true");
+        if (__DEV__ && env.debugMode) {
+          console.log("🔐 [AuthProvider] 초기 인증 상태 확인 시작...");
+        }
         
         const accessToken = await getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
         const userData = await getUser();
 
+        // 토큰이 없으면 바로 로그인 화면으로 이동 (초기화 플래그 설정 안 함)
         if (!accessToken) {
-          console.log("❌ [AuthProvider] 토큰 없음 → 로그인 화면으로 이동");
+          if (__DEV__ && env.debugMode) {
+            console.log("❌ [AuthProvider] 토큰 없음 → 로그인 화면으로 이동");
+          }
           setIsAuthenticated(false);
           setUser(null);
           setIsLoading(false);
@@ -248,36 +276,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
-        console.log("✅ [AuthProvider] 토큰 존재 → 플랜 확인 중...");
+        // 토큰이 있을 때만 초기화 플래그 설정
+        await setStorageItem(STORAGE_KEYS.INIT_FLAG, "true");
+
+        if (__DEV__ && env.debugMode) {
+          console.log("✅ [AuthProvider] 토큰 존재 → 플랜 확인 중...");
+        }
         setIsAuthenticated(true);
         setUser(userData);
 
         try {
-          // 플랜 목록 조회
-          const response = await client.get<{
-            success: boolean;
-            data: { items: Array<{ plan: { id: string } | null }> };
-          }>("/api/v1/plans");
+          const targetRoute = await resolveInitialPlanRoute();
+          router.replace(targetRoute);
+        } catch (planError) {
+          const status = (planError as AxiosError).response?.status;
 
-          const plans = response.data.data.items.filter(
-            (item) => item.plan !== null
-          );
-
-          console.log(`📊 [AuthProvider] 플랜 개수: ${plans.length}`);
-
-          if (plans.length > 0) {
-            console.log("✅ [AuthProvider] 플랜 있음 → Home으로 이동");
-            router.replace(URL_PATHS.HOME);
-          } else {
-            console.log("📝 [AuthProvider] 플랜 없음 → Form으로 이동");
-            router.replace(URL_PATHS.FORM);
-          }
-        } catch (planError: any) {
-          console.error("❌ [AuthProvider] 플랜 조회 실패:", planError);
-          
-          // 401 에러면 토큰이 만료된 것 (재발급도 실패)
-          if (planError.response?.status === 401) {
-            console.log("🔄 [AuthProvider] 토큰 만료 → 로그아웃 처리");
+          if (status === 401) {
+            if (__DEV__ && env.debugMode) {
+              console.log("🔄 [AuthProvider] 토큰 만료 → 로그아웃 처리");
+            }
+            // 토큰 만료 시 모든 데이터 초기화
             await removeStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
             await removeStorageItem(STORAGE_KEYS.USER);
             await removeStorageItem(STORAGE_KEYS.INIT_FLAG);
@@ -285,23 +303,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setUser(null);
             router.replace(URL_PATHS.AUTH_LOGIN);
           } else {
-            // 기타 에러는 일단 Home으로 보냄
-            console.log("⚠️ [AuthProvider] 플랜 조회 에러 → Home으로 이동");
+            if (__DEV__ && env.debugMode) {
+              console.log("⚠️ [AuthProvider] 플랜 조회 에러 → Home으로 이동");
+            }
             router.replace(URL_PATHS.HOME);
           }
         }
       } catch (error) {
-        console.error("❌ [AuthProvider] 초기화 에러:", error);
+        if (__DEV__ && env.debugMode) {
+          console.error("❌ [AuthProvider] 초기화 에러:", error);
+        }
+        // 에러 발생 시 초기화 플래그도 제거
+        await removeStorageItem(STORAGE_KEYS.INIT_FLAG);
         router.replace(URL_PATHS.AUTH_LOGIN);
       } finally {
+        hasInitialized.current = true;
         setIsLoading(false);
       }
     };
-
     initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const value: AuthContextType = {
+  const value: AuthContextType = useMemo(() => ({
     isAuthenticated,
     isLoading,
     user,
@@ -311,12 +335,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     getUser,
     setAuthSession,
     getAccessToken,
-  };
-
-  // 초기 로딩 중에는 빈 화면 표시 (또는 스플래시)
-  if (isLoading) {
-    return null;
-  }
+  }), [isAuthenticated, isLoading, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

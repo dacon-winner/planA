@@ -50,17 +50,6 @@ export function useAiRecommendations(vendorId: string | null, enabled: boolean =
 
   const isEnabled = enabled && !!vendorId;
 
-  // iOS에서도 확인 가능한 로깅
-  console.log('🔍 [useAiRecommendations] vendorId:', vendorId, 'enabled:', enabled, 'isEnabled:', isEnabled);
-  if (__DEV__) {
-    console.warn('🔍 [useAiRecommendations] Debug - vendorId:', vendorId, 'isEnabled:', isEnabled);
-  }
-
-  // vendorId 변경 시 로깅
-  useEffect(() => {
-    console.log('🔄 [useAiRecommendations] vendorId changed:', vendorId, 'isEnabled:', isEnabled);
-  }, [vendorId, isEnabled]);
-
   return useQuery({
     queryKey: ['ai-recommendations', vendorId],
     queryFn: async () => {
@@ -68,7 +57,9 @@ export function useAiRecommendations(vendorId: string | null, enabled: boolean =
         throw new Error('업체 ID가 필요합니다.');
       }
 
-      console.log('🌐 [API] AI 추천 업체 목록 요청:', vendorId);
+      if (__DEV__) {
+        console.log('🌐 [API] AI 추천 업체 목록 요청:', vendorId);
+      }
 
       // 실제 API 연동 (현재 업체 기반 AI 추천)
       const url = buildApiUrl(`/api/v1/vendors/${vendorId}/ai-recommendations`);
@@ -82,35 +73,19 @@ export function useAiRecommendations(vendorId: string | null, enabled: boolean =
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      console.log('✅ [API] AI 추천 업체 목록 응답:', {
-        vendorId,
-        rawResponse: response.data,
-        recommendations: response.data.data.recommendations,
-        overallReason: response.data.data.overall_reason,
-        recommendationsType: typeof response.data.data.recommendations,
-        recommendationsLength: Array.isArray(response.data.data.recommendations) ? response.data.data.recommendations.length : 'not array',
-      });
-
-      // aiRecommendationsData 자체 로깅
-      console.log('🎯 [API] aiRecommendationsData:', response.data.data);
-
-      // 데이터가 실제로 있는지 확인
-      if (response.data.data.recommendations && Array.isArray(response.data.data.recommendations) && response.data.data.recommendations.length > 0) {
-        console.log('✅ [API] AI 추천 데이터가 성공적으로 불러와졌습니다!', {
+      if (__DEV__) {
+        console.log('✅ [API] AI 추천 업체 목록 응답:', {
           vendorId,
-          totalItems: response.data.data.recommendations.length,
-          categories: [...new Set(response.data.data.recommendations.map(item => item.category))],
-          overallReason: response.data.data.overall_reason
+          count: response.data.data.recommendations?.length || 0,
         });
-      } else {
-        console.log('⚠️ [API] AI 추천 데이터가 빈 값입니다.', { vendorId });
       }
 
       return response.data.data;
     },
     enabled: isEnabled,
-    // 캐싱 문제 방지 - 항상 최신 데이터 가져오기
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
+    refetchOnMount: false, // 마운트 시 재요청 방지
   });
 }

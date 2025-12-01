@@ -131,10 +131,10 @@ export function usePlans(enabled: boolean = true) {
       return response.data.data;
     },
     enabled,
-    // 페이지 진입 시 항상 최신 데이터 가져오기
-    refetchOnMount: "always",
-    // 데이터를 즉시 stale 상태로 처리
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
+    refetchOnMount: false, // 마운트 시 재요청 방지
   });
 }
 
@@ -173,8 +173,9 @@ export function usePlanDetail(planId: string, enabled: boolean = true) {
       return response.data.data;
     },
     enabled: enabled && !!planId,
-    // 캐싱 문제 방지 - 항상 최신 데이터 가져오기
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
+    refetchOnMount: false, // 마운트 시 재요청 방지
   });
 }

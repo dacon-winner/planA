@@ -10,7 +10,7 @@
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { buildApiUrl } from "@/commons/config";
+import { buildApiUrl, env } from "@/commons/config";
 
 /**
  * AsyncStorage 키 상수
@@ -43,9 +43,11 @@ client.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log(
-      `🌐 [API Request] ${config.method?.toUpperCase()} ${config.url}`
-    );
+    if (__DEV__ && env.debugMode) {
+      console.log(
+        `🌐 [API Request] ${config.method?.toUpperCase()} ${config.url}`
+      );
+    }
     return config;
   },
   (error) => {
@@ -83,21 +85,37 @@ const processQueue = (error: AxiosError | null = null) => {
  */
 client.interceptors.response.use(
   (response) => {
-    console.log(
-      `✅ [API Response] ${response.config.url} - ${response.status}`
-    );
+    if (__DEV__ && env.debugMode) {
+      console.log(
+        `✅ [API Response] ${response.config.url} - ${response.status}`
+      );
+    }
     return response;
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
+      _skipRefresh?: boolean;
     };
 
     // 401 에러가 아니거나, 이미 재시도한 요청이면 그냥 에러 반환
     if (error.response?.status !== 401 || originalRequest._retry) {
-      console.error(
-        `❌ [API Error] ${error.config?.url} - ${error.response?.status}`
-      );
+      if (__DEV__ && env.debugMode) {
+        console.error(
+          `❌ [API Error] ${error.config?.url} - ${error.response?.status}`
+        );
+      }
+      return Promise.reject(error);
+    }
+
+    // refresh 요청 자체가 실패한 경우 또는 skipRefresh 플래그가 있는 경우
+    if (
+      originalRequest._skipRefresh ||
+      originalRequest.url?.includes("/auth/refresh")
+    ) {
+      if (__DEV__ && env.debugMode) {
+        console.log("⚠️ [Token Refresh] Refresh 스킵 (이미 refresh 요청이거나 skipRefresh 플래그)");
+      }
       return Promise.reject(error);
     }
 
@@ -119,7 +137,9 @@ client.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      console.log("🔄 [Token Refresh] 토큰 재발급 시작...");
+      if (__DEV__ && env.debugMode) {
+        console.log("🔄 [Token Refresh] 토큰 재발급 시작...");
+      }
 
       // 주의: refresh API는 client가 아닌 기본 axios 사용 (무한루프 방지)
       const { data } = await axios.post(
@@ -140,7 +160,9 @@ client.interceptors.response.use(
       // 새 토큰 저장
       await AsyncStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newAccessToken);
 
-      console.log("✅ [Token Refresh] 토큰 재발급 성공");
+      if (__DEV__ && env.debugMode) {
+        console.log("✅ [Token Refresh] 토큰 재발급 성공");
+      }
 
       // 대기 중인 요청들 처리
       processQueue(null);
@@ -151,12 +173,14 @@ client.interceptors.response.use(
       }
       return client(originalRequest);
     } catch (refreshError) {
-      console.error("❌ [Token Refresh] 토큰 재발급 실패:", refreshError);
+      if (__DEV__ && env.debugMode) {
+        console.log("⚠️ [Token Refresh] 토큰 재발급 실패 - 로그아웃 처리");
+      }
 
       // 대기 중인 요청들 에러 처리
       processQueue(refreshError as AxiosError);
 
-      // 로그아웃 처리
+      // 로그아웃 처리 (조용히)
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.ACCESS_TOKEN,
         STORAGE_KEYS.USER,

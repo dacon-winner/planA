@@ -14,6 +14,8 @@ import {
   useEffect,
   useState,
   useRef,
+  useMemo,
+  useCallback,
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -143,14 +145,14 @@ export function PlanStateProvider({ children }: PlanStateProviderProps) {
   /**
    * 특정 플랜의 상태 조회
    */
-  const getPlanState = (planId: string): PlanState => {
+  const getPlanState = useCallback((planId: string): PlanState => {
     return planStates[planId] || createDefaultPlanState();
-  };
+  }, [planStates]);
 
   /**
    * 특정 플랜의 카테고리 상태 업데이트
    */
-  const updateVendorState = async (
+  const updateVendorState = useCallback(async (
     planId: string,
     category: VendorCategory,
     vendorId: string | null,
@@ -161,46 +163,50 @@ export function PlanStateProvider({ children }: PlanStateProviderProps) {
       status
     });
 
-    const newPlanStates = { ...planStates };
-    if (!newPlanStates[planId]) {
-      newPlanStates[planId] = createDefaultPlanState();
-    }
+    setPlanStates(prevStates => {
+      const newPlanStates = { ...prevStates };
+      if (!newPlanStates[planId]) {
+        newPlanStates[planId] = createDefaultPlanState();
+      }
 
-    newPlanStates[planId][category] = { vendorId, status };
-    setPlanStates(newPlanStates);
-    await setStoredPlanStates(newPlanStates);
-  };
+      newPlanStates[planId][category] = { vendorId, status };
+      setStoredPlanStates(newPlanStates);
+      return newPlanStates;
+    });
+  }, []);
 
   /**
    * 특정 플랜의 카테고리 상태 초기화 (업체 저장전)
    */
-  const resetVendorState = async (
+  const resetVendorState = useCallback(async (
     planId: string,
     category: VendorCategory
   ): Promise<void> => {
     console.log(`🔄 [PlanState] ${planId}의 ${category} 상태 초기화`);
     await updateVendorState(planId, category, null, '업체 저장전');
-  };
+  }, [updateVendorState]);
 
   /**
    * 플랜 상태 초기화
    */
-  const resetPlanState = async (planId: string): Promise<void> => {
+  const resetPlanState = useCallback(async (planId: string): Promise<void> => {
     console.log(`🔄 [PlanState] ${planId} 플랜 상태 초기화`);
-    const newPlanStates = { ...planStates };
-    newPlanStates[planId] = createDefaultPlanState();
-    setPlanStates(newPlanStates);
-    await setStoredPlanStates(newPlanStates);
-  };
+    setPlanStates(prevStates => {
+      const newPlanStates = { ...prevStates };
+      newPlanStates[planId] = createDefaultPlanState();
+      setStoredPlanStates(newPlanStates);
+      return newPlanStates;
+    });
+  }, []);
 
   /**
    * 모든 플랜 상태 초기화
    */
-  const resetAllPlanStates = async (): Promise<void> => {
+  const resetAllPlanStates = useCallback(async (): Promise<void> => {
     console.log(`🔄 [PlanState] 모든 플랜 상태 초기화`);
     setPlanStates({});
     await setStoredPlanStates({});
-  };
+  }, []);
 
   /**
    * 초기 플랜 상태 로드
@@ -210,10 +216,14 @@ export function PlanStateProvider({ children }: PlanStateProviderProps) {
       if (hasInitialized.current) return;
 
       try {
-        console.log("📦 [PlanState] 플랜 상태 초기화 시작...");
+        if (__DEV__) {
+          console.log("📦 [PlanState] 플랜 상태 초기화 시작...");
+        }
         const storedStates = await getStoredPlanStates();
         setPlanStates(storedStates);
-        console.log("✅ [PlanState] 플랜 상태 로드 완료:", storedStates);
+        if (__DEV__) {
+          console.log("✅ [PlanState] 플랜 상태 로드 완료:", storedStates);
+        }
       } catch (error) {
         console.error("❌ [PlanState] 플랜 상태 초기화 실패:", error);
       } finally {
@@ -224,14 +234,14 @@ export function PlanStateProvider({ children }: PlanStateProviderProps) {
     initializePlanStates();
   }, []);
 
-  const value: PlanStateContextType = {
+  const value: PlanStateContextType = useMemo(() => ({
     planStates,
     getPlanState,
     updateVendorState,
     resetVendorState,
     resetPlanState,
     resetAllPlanStates,
-  };
+  }), [planStates, getPlanState, updateVendorState, resetVendorState, resetPlanState, resetAllPlanStates]);
 
   return (
     <PlanStateContext.Provider value={value}>

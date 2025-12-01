@@ -12,7 +12,7 @@
  */
 
 import { StyleSheet, Dimensions } from "react-native";
-import { brownColors, blackColors } from "@/commons/enums/color";
+import { brownColors, blackColors, redColors } from "@/commons/enums/color";
 
 const { height } = Dimensions.get("window");
 
@@ -156,5 +156,16 @@ export const styles = StyleSheet.create({
    */
   buttonSection: {
     gap: 16,
+  },
+
+  /**
+   * 폼 에러 텍스트
+   */
+  errorText: {
+    marginTop: 4,
+    fontFamily: "Pretendard-Regular",
+    fontSize: 12,
+    lineHeight: 14,
+    color: redColors["red-7"],
   },
 });

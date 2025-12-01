@@ -11,7 +11,7 @@
  * - [x] 시맨틱 구조 유지
  */
 
-import { View, ScrollView, Text, Image, Pressable } from "react-native";
+import { View, ScrollView, Text, Image, Pressable, ActivityIndicator } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import {
   Clock,
@@ -27,6 +27,7 @@ import { Card, type CardProps } from "@/commons/components/card";
 import { URL_PATHS } from "@/commons/enums/url";
 import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
+import { usePlans } from "@/commons/hooks/usePlans";
 
 // 정책 카드 데이터
 const POLICY_DATA: Omit<CardProps, "onApply" | "onPress">[] = [
@@ -124,6 +125,36 @@ const POLICY_DATA: Omit<CardProps, "onApply" | "onPress">[] = [
 ];
 
 export default function Home() {
+  const { data: plansData, isLoading, error } = usePlans();
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <View style={[styles["home-wrapper"], { justifyContent: "center", alignItems: "center" }]}>
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <GradientBackground zIndex={0} />
+        <ActivityIndicator size="large" color={colors.root.brand} />
+        <Text style={{ marginTop: 16, color: colors.root.text }}>로딩 중...</Text>
+      </View>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <View style={[styles["home-wrapper"], { justifyContent: "center", alignItems: "center" }]}>
+        <StatusBar style="dark" translucent backgroundColor="transparent" />
+        <GradientBackground zIndex={0} />
+        <Text style={{ color: colors.root.text }}>플랜을 불러오는 중 오류가 발생했습니다.</Text>
+      </View>
+    );
+  }
+
+  // 첫 번째 플랜 데이터 가져오기
+  const mainPlan = plansData?.items?.find(item => item.plan !== null);
+  const usersInfo = mainPlan?.users_info;
+  const planInfo = mainPlan?.plan;
+
   return (
     <View style={styles["home-wrapper"]}>
       <StatusBar style="dark" translucent backgroundColor="transparent" />
@@ -145,7 +176,7 @@ export default function Home() {
               style={[styles["header-title"], { fontWeight: "700" }]}
               allowFontScaling={false}
             >
-              김철수님만을 위한 플랜A
+              {planInfo?.title || "김철수님만을 위한 플랜A"}
             </Text>
           </View>
 
@@ -183,7 +214,7 @@ export default function Home() {
                   numberOfLines={1}
                   adjustsFontSizeToFit
                 >
-                  2026년 3월 28일
+                  {usersInfo?.wedding_date || "미정"}
                 </Text>
               </View>
 
@@ -197,7 +228,7 @@ export default function Home() {
                   지역
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  서울 강남구
+                  {usersInfo?.preferred_region || "미정"}
                 </Text>
               </View>
 
@@ -215,7 +246,7 @@ export default function Home() {
                   예산
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  800만원
+                  {usersInfo?.budget_limit ? `${usersInfo.budget_limit.toLocaleString()}만원` : "미정"}
                 </Text>
               </View>
             </View>
