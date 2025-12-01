@@ -45,3 +45,6 @@ export type { PolicyInfo, PolicyListResponse, PolicyType } from './usePolicies';
 
 export { useAddVendorToPlan } from './useAddVendorToPlan';
 export type { AddVendorToPlanParams, AddVendorToPlanResponse } from './useAddVendorToPlan';
+
+export { useUpcomingReservations } from './useUpcomingReservations';
+export type { UpcomingReservationVendor, UpcomingReservationItem, UpcomingReservationsResponse } from './useUpcomingReservations';

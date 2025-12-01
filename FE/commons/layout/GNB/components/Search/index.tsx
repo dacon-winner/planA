@@ -316,7 +316,8 @@ export default function Search() {
 
   return (
     <View style={styles["search-wrapper"]}>
-      <SafeAreaView style={styles["search-safe-area"]} edges={["top"]}>
+      <StatusBar style="dark" translucent backgroundColor="transparent" />
+      <SafeAreaView style={styles["search-safe-area"]} edges={[]}>
         <View style={styles["search-container"]}>
           {/* 초기 로딩 스피너 */}
           {!initialLoadComplete && (
@@ -397,8 +398,6 @@ export default function Search() {
           >
             <Crosshair size={24} color="#524a4e" />
           </TouchableOpacity>
-
-          <StatusBar style="auto" />
         </View>
       </SafeAreaView>
 
