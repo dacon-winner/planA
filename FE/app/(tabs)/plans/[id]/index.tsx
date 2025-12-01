@@ -77,6 +77,7 @@ export default function PlanDetail() {
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
   const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
   const [selectedAiRecommendation, setSelectedAiRecommendation] = useState<{
+    vendor_id: number;
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
@@ -480,12 +481,12 @@ export default function PlanDetail() {
   // API 데이터를 Mock 데이터 형식으로 변환
   const planData = transformApiDataToPlanData(aiRecommendationsData);
 
-  // 업체 상세 정보 조회
+  // 업체 상세 정보 조회 (현재 탭의 업체 또는 선택된 AI 추천 업체)
   const {
     data: vendorDetail,
     isLoading: isVendorLoading,
     error: vendorError,
-  } = useVendorDetail(currentVendorId, planId as string, !!currentVendorId);
+  } = useVendorDetail(selectedAiRecommendation?.vendor_id?.toString() || currentVendorId, planId as string, !!(selectedAiRecommendation?.vendor_id || currentVendorId));
 
   // 업체 상세 정보 조회 상태 로그
   useEffect(() => {
@@ -567,6 +568,7 @@ export default function PlanDetail() {
   };
 
   const handleAiRecommendationPress = (recommendation: {
+    vendor_id: number;
     name: string;
     price: string;
   }) => {
@@ -578,22 +580,43 @@ export default function PlanDetail() {
 
   // 동적 상세 정보 계산
   const currentDetailInfo = useMemo(() => {
-    if (selectedAiRecommendation) {
-      // 선택된 AI 추천 업체 정보로 상세 정보 생성
+    if (selectedAiRecommendation && vendorDetail) {
+      // 선택된 AI 추천 업체의 실제 API 데이터로 상세 정보 생성
+      // 서비스 아이템이 있으면 가격 정보 생성
+      const prices =
+        vendorDetail.service_items && vendorDetail.service_items.length > 0
+          ? vendorDetail.service_items.map((item) => ({
+              level: item.name,
+              price: `${item.price.toLocaleString()} 원`,
+            }))
+          : [{ level: "기본", price: "정보 없음" }];
+
+      const serviceType = finalPlanData.services[selectedTab].type;
+      return {
+        summary: `AI 추천 ${serviceType} 업체`,
+        name: vendorDetail.name,
+        address: vendorDetail.address || "주소 정보가 제공되지 않습니다",
+        phone: vendorDetail.phone || "전화번호 정보가 제공되지 않습니다",
+        hours: "영업시간 정보가 제공되지 않습니다", // API에 없는 정보
+        service:
+          vendorDetail.service_items?.[0]?.name ||
+          `${serviceType} 서비스`,
+        prices,
+        images: vendorDetail.vendor_images,
+      };
+    }
+
+    if (selectedAiRecommendation && !vendorDetail) {
+      // AI 추천 업체 선택되었지만 데이터 로딩 중일 때 기본 정보 표시
       const serviceType = finalPlanData.services[selectedTab].type;
       return {
         summary: `AI 추천 ${serviceType} 업체`,
         name: selectedAiRecommendation.name,
-        address: "주소 정보가 제공되지 않습니다",
-        phone: "전화번호 정보가 제공되지 않습니다",
-        hours: "영업시간 정보가 제공되지 않습니다",
+        address: "정보를 불러오는 중...",
+        phone: "정보를 불러오는 중...",
+        hours: "정보를 불러오는 중...",
         service: `${serviceType} 서비스`,
-        prices: [
-          {
-            level: "기본",
-            price: selectedAiRecommendation.price.replace("예상비용 ", ""),
-          },
-        ],
+        prices: [{ level: "기본", price: "정보를 불러오는 중..." }],
         images: null,
       };
     }
@@ -1443,7 +1466,11 @@ export default function PlanDetail() {
                               key={index}
                               style={styles["ai-recommendation-item"]}
                               onPress={() =>
-                                handleAiRecommendationPress(recommendation)
+                                handleAiRecommendationPress({
+                                  vendor_id: recommendation.vendor_id,
+                                  name: recommendation.name,
+                                  price: recommendation.reason || recommendation.price,
+                                })
                               }
                             >
                               <View style={styles["ai-recommendation-image"]} />
