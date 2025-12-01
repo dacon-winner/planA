@@ -14,11 +14,14 @@ import { AiModule } from './modules/ai';
 import { PlansModule } from './modules/plans';
 import { VendorsModule } from './modules/vendors';
 import { ReservationsModule } from './modules/reservations';
+import { PoliciesModule } from './modules/policies/policies.module';
 import {
   User,
   UsersInfo,
   Vendor,
   VendorVenueDetail,
+  VendorOperatingHour,
+  VendorCostDetail,
   VendorImage,
   ServiceItem,
   Plan,
@@ -54,6 +57,8 @@ import {
           UsersInfo,
           Vendor,
           VendorVenueDetail,
+          VendorOperatingHour,
+          VendorCostDetail,
           VendorImage,
           ServiceItem,
           Plan,
@@ -78,6 +83,7 @@ import {
     UsersInfoModule,
     VendorsModule,
     ReservationsModule,
+    PoliciesModule,
   ],
   controllers: [AppController],
   providers: [

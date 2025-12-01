@@ -1,0 +1,14 @@
+파일경로) /Users/kimdongeun/planA/FE/commons/layout/GNB/components/Search/index.tsx
+파일경로) /Users/kimdongeun/planA/FE/commons/components/kakao-map/index.tsx
+파일경로) /Users/kimdongeun/planA/FE/app/(tabs)/search.tsx
+파일경로) /Users/kimdongeun/planA/FE/commons/hooks
+
+스웨거 문서 http://localhost:3000/api-docs#/%EC%97%85%EC%B2%B4%20(Vendors)를 기준으로 api 를 연동하여 커스텀 맵 핀 마크업를 구현할것. 
+
+사용할 MCP경로): https://www.figma.com/design/ts4rknjsqv0LEfLMbSlL5E/plan-A---FE?node-id=4146-852&t=bsoLXUhwJFdxmAAp-4
+
+핵심요구사항) 전체, 스튜디오, 드레스, 메이크업, 웨딩홀 기준으로 필터기능을 포함할것.
+핵심요구사항) 커스텀 핀에 받아온 업체정보의 가격을 디자인과 동일하게 할당할것.
+핵심요구사항) 커스텀 핀에 업체별로 아이콘을 다르게 할당할것.
+
+핵심요구사항) 작업한후 작업한 내용을 체크리스트로 반환할것. 이후 요구사항과 구현된 코드의 일치율을 반환할것.

@@ -1,0 +1,17 @@
+파일경로) /Users/jiho/Desktop/planA/FE/commons/layout/GNB/components/Schedule/index.tsx
+파일경로) /Users/jiho/Desktop/planA/FE/app/(tabs)/schedule.tsx
+파일경로) /Users/jiho/Desktop/planA/FE/commons/hooks
+
+스웨거 문서 http://10.50.1.33:3000/api-docs#/%ED%94%8C%EB%9E%9C%20(Plans)/PlansController_getPlans를 기준으로 api 연동해서 플랜 목록을 불러올 것.
+스웨거 문서 http://10.50.1.33:3000/api-docs#/%ED%94%8C%EB%9E%9C%20(Plans)/PlansController_getPlanDetail를 기준으로 api 연동해서 자세히 보기 버튼 클릭시 url plans/[id]로 이동해서 정보 가져올것.
+
+API 요청 시 Authorization: Bearer {access_token} 헤더를 추가할 것.
+로그인 후 받은 access_token을 사용하여 API 요청할 것.
+
+사용할 MCP경로) https://www.figma.com/design/ts4rknjsqv0LEfLMbSlL5E/plan-A---FE?node-id=4100-84&m=dev
+
+핵심요구사항) 나의 정보를 기준으로 플랜 목록을 반환할 것.
+핵심요구사항) 플랜 추가는 아직 보류(api 아직 존재 X)
+핵심요구사항) 대표 플랜 생성 버튼 클릭 시, 행동 아직 보류(api 아직 존재 X)
+
+핵심요구사항) 작업한 후 작업한 내용을 체크리스트로 반환할것. 이후 요구사항과 구현된 코드의 일치율을 반환할것.

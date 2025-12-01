@@ -12,7 +12,8 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '@/commons/enums/color';
 
-const tailwindConfig = require('@/tailwind.config.js');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const tailwindConfig = require('@/tailwind.config.js') as any;
 const spacing = tailwindConfig.theme.extend.spacing;
 const fontSize = tailwindConfig.theme.extend.fontSize;
 const borderRadius = tailwindConfig.theme.extend.borderRadius;

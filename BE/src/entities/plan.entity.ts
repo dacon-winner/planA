@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
   OneToOne,
   JoinColumn,
@@ -30,13 +31,16 @@ export class Plan {
   title: string;
 
   @Column({ type: 'int', nullable: true })
-  total_budget: number;
+  total_budget: number | null;
 
   @Column({ type: 'boolean', default: false })
   is_ai_generated: boolean;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date | null;
 
   // Relations
   @ManyToOne(() => User, (user) => user.plans)

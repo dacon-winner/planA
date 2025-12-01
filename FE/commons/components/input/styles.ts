@@ -15,7 +15,12 @@
  */
 
 import { StyleSheet } from "react-native";
-import { rootColors, blueColors, brownColors, blackColors } from "../../enums/color";
+import {
+  rootColors,
+  blueColors,
+  brownColors,
+  blackColors,
+} from "../../enums/color";
 
 /**
  * Input Styles
@@ -44,6 +49,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 14, fontWeight 500, color #1f2937
    */
   labelMedium: {
+    fontFamily: "Pretendard-Medium",
     fontSize: 14,
     fontWeight: "500",
     letterSpacing: -0.150390625,
@@ -56,6 +62,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 12, fontWeight 500, color #1f2937
    */
   labelSmall: {
+    fontFamily: "Pretendard-Medium",
     fontSize: 12,
     fontWeight: "500",
     letterSpacing: -0.150390625,
@@ -156,6 +163,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 16, fontWeight 400, color #6a7282
    */
   textInputMediumDefault: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 16,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -169,6 +177,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 16, fontWeight 400, color #5c5050
    */
   textInputMediumFilled: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 16,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -182,6 +191,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 16, fontWeight 400, color #868083
    */
   textInputMediumDisabled: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 16,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -199,6 +209,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 12, fontWeight 400, color #6b7280
    */
   textInputSmallDefault: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 12,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -212,6 +223,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 12, fontWeight 400, color #5c5050
    */
   textInputSmallFilled: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 12,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -225,6 +237,7 @@ export const styles = StyleSheet.create({
    * 피그마: fontSize 12, fontWeight 400, color #868083
    */
   textInputSmallDisabled: {
+    fontFamily: "Pretendard-Regular",
     fontSize: 12,
     fontWeight: "400",
     letterSpacing: -0.3125,
@@ -235,5 +248,3 @@ export const styles = StyleSheet.create({
 });
 
 export default styles;
-
-

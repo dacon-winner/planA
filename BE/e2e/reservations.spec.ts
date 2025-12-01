@@ -557,4 +557,169 @@ test.describe('Reservations API E2E Tests', () => {
       console.log('   ✅ 완전한 예약 플로우 성공!\n');
     });
   });
+
+  test.describe('다가오는 일정 조회', () => {
+    let upcomingTestToken: string;
+    let upcomingTestUserId: string;
+    let upcomingTestPlanId: string;
+
+    test.beforeAll(async ({ request }) => {
+      console.log('\n📦 다가오는 일정 테스트 환경 구성 중...');
+
+      // 1. 테스트용 사용자 생성
+      const testUser = {
+        email: generateTestEmail(),
+        password: 'Upcoming123!',
+        name: '일정테스트',
+        gender: 'FEMALE',
+        phone: '010-5555-5555',
+      };
+
+      const registerRes = await request.post(`${BASE_URL}${AUTH_PREFIX}/register`, {
+        data: testUser,
+      });
+      const registerBody = (await registerRes.json()) as ApiResponse<AuthResponse>;
+      upcomingTestToken = registerBody.data.access_token;
+      upcomingTestUserId = registerBody.data.user.id;
+      console.log(`✅ 사용자 생성 완료: ${upcomingTestUserId}`);
+
+      // 2. UsersInfo 및 플랜 생성
+      const usersInfoRes = await request.post(`${BASE_URL}${USERS_INFO_PREFIX}`, {
+        headers: { Authorization: `Bearer ${upcomingTestToken}` },
+        data: {
+          wedding_date: '2026-08-15',
+          preferred_region: '강남구',
+          budget_limit: 15000000,
+        },
+      });
+
+      const usersInfoBody = (await usersInfoRes.json()) as ApiResponse<UsersInfoResponse>;
+      if (usersInfoBody.data.plan) {
+        upcomingTestPlanId = usersInfoBody.data.plan.id;
+        console.log(`✅ 플랜 생성 완료: ${upcomingTestPlanId}`);
+      }
+
+      // 3. 여러 개의 예약 생성 (다양한 날짜/시간)
+      const reservations = [
+        { date: '25-12-20', time: '14:00' }, // 2번째로 빠름
+        { date: '26-01-15', time: '10:00' }, // 3번째로 빠름
+        { date: '25-12-10', time: '15:30' }, // 가장 빠름
+        { date: '26-02-28', time: '11:00' }, // 4번째로 빠름
+        { date: '26-03-05', time: '16:00' }, // 5번째 (반환 안 됨)
+      ];
+
+      for (const reservation of reservations) {
+        await request.post(`${BASE_URL}/api/v1/plans/${upcomingTestPlanId}/reservations`, {
+          headers: { Authorization: `Bearer ${upcomingTestToken}` },
+          data: {
+            vendor_id: vendorId,
+            reservation_date: reservation.date,
+            reservation_time: reservation.time,
+          },
+        });
+      }
+
+      console.log('✅ 테스트용 예약 5개 생성 완료\n');
+    });
+
+    test('[1] 다가오는 일정 조회 성공 - 최대 4개 반환', async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/api/v1/reservations/upcoming`, {
+        headers: {
+          Authorization: `Bearer ${upcomingTestToken}`,
+        },
+      });
+
+      console.log(`Response status: ${response.status()}`);
+      const body = await response.json();
+      console.log('Response body:', JSON.stringify(body, null, 2));
+
+      expect(response.status()).toBe(200);
+
+      const result = body as ApiResponse<{
+        reservations: Array<{
+          reservation_date: string;
+          reservation_time: string;
+          vendor: {
+            id: string;
+            name: string;
+            address: string;
+          };
+        }>;
+      }>;
+
+      expect(result.success).toBe(true);
+      expect(result.data.reservations).toHaveLength(4); // 최대 4개만 반환
+
+      // 날짜 오름차순 정렬 확인
+      const dates = result.data.reservations.map((r) => r.reservation_date);
+      expect(dates[0]).toContain('2025-12-10'); // 가장 빠른 날짜
+      expect(dates[1]).toContain('2025-12-20'); // 2번째
+      expect(dates[2]).toContain('2026-01-15'); // 3번째
+      expect(dates[3]).toContain('2026-02-28'); // 4번째
+
+      // vendor 정보 확인
+      result.data.reservations.forEach((reservation) => {
+        expect(reservation.vendor).toHaveProperty('id');
+        expect(reservation.vendor).toHaveProperty('name');
+        expect(reservation.vendor).toHaveProperty('address');
+        expect(reservation.vendor.id).toBe(vendorId);
+      });
+
+      console.log('✅ 다가오는 일정 4개 조회 성공');
+    });
+
+    test('[2] 예약이 없는 사용자 - 빈 배열 반환', async ({ request }) => {
+      // 예약이 없는 새 사용자 생성
+      const newUser = {
+        email: generateTestEmail(),
+        password: 'NoReservation123!',
+        name: '예약없음',
+        gender: 'MALE',
+        phone: '010-8888-8888',
+      };
+
+      const registerRes = await request.post(`${BASE_URL}${AUTH_PREFIX}/register`, {
+        data: newUser,
+      });
+      const registerBody = (await registerRes.json()) as ApiResponse<AuthResponse>;
+      const noReservationToken = registerBody.data.access_token;
+
+      // 다가오는 일정 조회
+      const response = await request.get(`${BASE_URL}/api/v1/reservations/upcoming`, {
+        headers: {
+          Authorization: `Bearer ${noReservationToken}`,
+        },
+      });
+
+      expect(response.status()).toBe(200);
+      const result = await response.json();
+      expect(result.data.reservations).toHaveLength(0); // 빈 배열
+
+      console.log('✅ 예약 없는 사용자 - 빈 배열 반환 확인');
+    });
+
+    test('[3] 인증 없이 조회 시도 - 401 오류', async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/api/v1/reservations/upcoming`);
+
+      expect(response.status()).toBe(401);
+      const body = (await response.json()) as ErrorResponse;
+      expect(body.success).toBe(false);
+
+      console.log('✅ 인증 없이 조회 시 401 오류 확인');
+    });
+
+    test('[4] 잘못된 토큰으로 조회 시도 - 401 오류', async ({ request }) => {
+      const response = await request.get(`${BASE_URL}/api/v1/reservations/upcoming`, {
+        headers: {
+          Authorization: 'Bearer invalid-token-12345',
+        },
+      });
+
+      expect(response.status()).toBe(401);
+      const body = (await response.json()) as ErrorResponse;
+      expect(body.success).toBe(false);
+
+      console.log('✅ 잘못된 토큰으로 조회 시 401 오류 확인');
+    });
+  });
 });

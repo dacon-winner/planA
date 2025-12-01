@@ -6,8 +6,8 @@
  * AI 추천 요청 파라미터
  */
 export interface RecommendationRequest {
-  /** 결혼 예정일 */
-  wedding_date: Date | null;
+  /** 결혼 예정일 (Date 객체 또는 YYYY-MM-DD 형식 문자열) */
+  wedding_date: Date | string | null;
   /** 선호 지역 */
   preferred_region: string | null;
   /** 예산 제한 */
@@ -33,6 +33,11 @@ export interface AiRecommendationResponse {
     name: string;
     selection_reason: string;
   } | null;
+  venue?: {
+    vendor_id: string;
+    name: string;
+    selection_reason: string;
+  } | null;
   overall_reason?: string;
 }
 
@@ -53,7 +58,8 @@ export interface VendorRecommendation {
 }
 
 /**
- * 스드메 조합 추천 결과
+ * 스드메베 조합 추천 결과
+ * - 스튜디오, 드레스, 메이크업, 웨딩홀(VENUE)
  */
 export interface VendorCombinationRecommendation {
   /** 스튜디오 추천 */
@@ -62,7 +68,7 @@ export interface VendorCombinationRecommendation {
   dress: VendorRecommendation | null;
   /** 메이크업 추천 */
   makeup: VendorRecommendation | null;
-  /** 웨딩홀 추천 (향후 추가) */
+  /** 웨딩홀 추천 */
   venue: VendorRecommendation | null;
   /** 전체 추천 이유 */
   overall_reason?: string;

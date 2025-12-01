@@ -21,7 +21,7 @@ import {
   SafeAreaView,
   Animated,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import {
   StepperWithContext,
   useStepperContext,
@@ -41,6 +41,10 @@ export interface WeddingFormProps {
   onDateSelected?: (date: Date) => void;
   /** 폼 제출 핸들러 */
   onSubmit?: (data: WeddingFormData) => void;
+  /** 직접 업체 추가 모드 여부 */
+  isManualAddMode?: boolean;
+  /** 로딩 상태 */
+  isLoading?: boolean;
 }
 
 /**
@@ -260,23 +264,43 @@ const BudgetStep: React.FC<BudgetStepProps> = ({
 export const WeddingForm: React.FC<WeddingFormProps> = ({
   onDateSelected,
   onSubmit,
+  isManualAddMode = false,
+  isLoading = false,
 }) => {
-  // 라우터
+  // 라우터 및 URL params
   const router = useRouter();
+  const params = useLocalSearchParams();
 
-  // 폼 데이터 상태
+  // URL params에서 수정 모드 여부 확인 (AI 플랜 수정 또는 직접 업체 추가)
+  const isEditMode = params.isEdit === "true" || params.isManualAdd === "true";
+
+  // params에서 초기 데이터 파싱
+  const initialDate = params.wedding_date
+    ? new Date(params.wedding_date as string)
+    : null;
+  const initialRegion = (params.preferred_region as string) || null;
+  const initialBudget = params.budget_limit
+    ? `${(Number(params.budget_limit) / 10000).toLocaleString()}만원`
+    : null;
+
+  // 폼 데이터 상태 - 수정 모드일 경우 초기값 설정
   const [formData, setFormData] = useState<WeddingFormData>({
-    weddingDate: null,
-    region: null,
-    budget: null,
+    weddingDate: initialDate,
+    region: initialRegion,
+    budget: initialBudget,
   });
 
-  // Stepper 상태 - formData 기반으로 계산
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  // Stepper 상태 - 수정 모드일 경우 모든 스텝 완료 상태로 시작
+  const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>(
+    isEditMode ? [0, 1, 2] : []
+  );
 
   // 분석하기 버튼 애니메이션
   const buttonOpacity = useRef(new Animated.Value(0)).current;
+
+  // 초기 마운트 체크용 (초기 로드 시 자동 제출 방지)
+  const isInitialMount = useRef(true);
 
   /**
    * formData 변경 시 완료 상태 자동 업데이트
@@ -288,10 +312,13 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       setCompletedSteps([0, 1, 2]);
       setCurrentStep(-1);
 
-      // onSubmit 호출
-      if (onSubmit) {
+      // 초기 마운트가 아닐 때만 onSubmit 호출 (수정 모드에서는 자동 제출 방지)
+      if (onSubmit && !isInitialMount.current) {
         onSubmit(formData);
       }
+
+      // 초기 마운트 플래그 해제
+      isInitialMount.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.budget]);
@@ -392,21 +419,53 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   }, [isFormComplete, buttonOpacity]);
 
   /**
-   * 분석하기 버튼 클릭 핸들러
-   * 폼 데이터를 전달하고 로딩 화면으로 이동
+   * 분석하기/저장하기 버튼 클릭 핸들러
+   * - AI 플랜 생성 모드: 로딩 화면으로 이동
+   * - 직접 업체 추가 모드: 부모 컴포넌트(FormPage)의 onSubmit 호출
    */
   const handleAnalyze = () => {
-    // TODO: 추후 API 요청 시 formData 사용
-    console.log("Form data to be sent:", formData);
+    // 데이터 변환 로직
+    const weddingDateStr = formData.weddingDate
+      ? formData.weddingDate.toISOString().split("T")[0]
+      : "";
+
+    const budgetNum = formData.budget
+      ? parseInt(
+          formData.budget
+            .replace(/,/g, "")
+            .replace("만원", "")
+            .replace(" 이상", "")
+        ) * 10000
+      : 0;
+
+    console.log("Form data to be sent:", {
+      wedding_date: weddingDateStr,
+      preferred_region: formData.region,
+      budget_limit: budgetNum,
+    });
 
     // onSubmit 콜백이 있으면 호출
     if (onSubmit) {
       onSubmit(formData);
     }
 
-    // 로딩 화면으로 이동
-    router.push(URL_PATHS.FORM_LOADING);
+    // 직접 업체 추가 모드가 아닌 경우에만 로딩 화면으로 이동
+    if (!isManualAddMode) {
+      // AI 플랜 생성: 로딩 화면으로 이동하며 데이터 전달
+      router.push({
+        pathname: URL_PATHS.FORM_LOADING,
+        params: {
+          wedding_date: weddingDateStr,
+          preferred_region: formData.region,
+          budget_limit: budgetNum.toString(), // URL 파라미터는 문자열로 전달
+        },
+      });
+    }
+    // 직접 업체 추가 모드는 부모 컴포넌트(FormPage)의 onSubmit에서 처리
   };
+
+  // 버튼 텍스트 결정
+  const buttonText = isManualAddMode ? "저장하기" : "분석하기";
 
   return (
     <View style={styles.container}>
@@ -485,15 +544,20 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
         </View>
       </ScrollView>
 
-      {/* 분석하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
+      {/* 분석하기/저장하기 버튼 - 모든 데이터가 입력되었을 때만 표시 (화면 하단 고정) */}
       {isFormComplete && (
         <Animated.View
           style={[styles.analyzeButtonWrapper, { opacity: buttonOpacity }]}
         >
           <SafeAreaView>
             <View style={styles.analyzeButtonContainer}>
-              <Button variant="filled" size="large" onPress={handleAnalyze}>
-                분석하기
+              <Button
+                variant="filled"
+                size="large"
+                onPress={handleAnalyze}
+                disabled={isLoading}
+              >
+                {isLoading ? "생성 중..." : buttonText}
               </Button>
             </View>
           </SafeAreaView>

@@ -95,7 +95,7 @@ export const DayCell: React.FC<DayCellProps> = ({
   };
 
   const handlePress = () => {
-    // disabled 상태일 때는 클릭 불가
+    // disabled 상태일 때는 클릭 불가하지만, 결혼 예정일 이후 날짜는 에러 메시지 표시
     if (dateData.state === "disabled") {
       return;
     }
@@ -131,6 +131,7 @@ export interface MonthSectionProps {
   onDateSelect: (date: Date) => void;
   width: number;
   subtitle: string;
+  weddingDate: Date | null;
 }
 
 /**
@@ -145,6 +146,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
   onDateSelect,
   width,
   subtitle,
+  weddingDate,
 }) => {
   /**
    * 해당 월의 날짜 데이터 생성
@@ -177,7 +179,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
         month,
         day,
         date,
-        state: getDayState(date, today),
+        state: getDayState(date, today, weddingDate),
       };
 
       currentWeek.push(dateData);
@@ -209,7 +211,7 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
   /**
    * 날짜 상태 결정
    */
-  const getDayState = (date: Date, today: Date): DayCellState => {
+  const getDayState = (date: Date, today: Date, weddingDate: Date | null): DayCellState => {
     const dateOnly = new Date(
       date.getFullYear(),
       date.getMonth(),
@@ -220,6 +222,18 @@ export const MonthSection: React.FC<MonthSectionProps> = ({
       today.getMonth(),
       today.getDate()
     );
+
+    // 결혼 예정일이 설정되어 있고, 그 이후 날짜는 disabled
+    if (weddingDate) {
+      const weddingDateOnly = new Date(
+        weddingDate.getFullYear(),
+        weddingDate.getMonth(),
+        weddingDate.getDate()
+      );
+      if (dateOnly > weddingDateOnly) {
+        return "disabled";
+      }
+    }
 
     // 오늘 이전 날짜는 disabled
     if (dateOnly < todayOnly) {
@@ -341,6 +355,8 @@ export interface CalendarProps {
   onDateSelect?: (date: Date) => void;
   /** 서브타이틀 텍스트 */
   subtitle?: string;
+  /** 결혼 예정일 (이 날짜 이후로는 선택 불가) */
+  weddingDate?: Date | null;
 }
 
 /**
@@ -352,6 +368,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   selectedDate: controlledSelectedDate,
   onDateSelect,
   subtitle = "날짜를 선택하세요",
+  weddingDate = null,
 }) => {
   const today = new Date();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -446,6 +463,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             onDateSelect={handleDateSelect}
             width={MONTH_WIDTH}
             subtitle={subtitle}
+            weddingDate={weddingDate}
           />
         ))}
       </ScrollView>

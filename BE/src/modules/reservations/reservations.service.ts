@@ -12,6 +12,8 @@ import {
   ReservationResponseDto,
   GetReservationQueryDto,
   GetReservationResponseDto,
+  UpcomingReservationsResponseDto,
+  UpcomingReservationItemDto,
 } from './dto';
 
 /**
@@ -232,6 +234,41 @@ export class ReservationsService {
       status: reservation.status,
       visitor_name: reservation.visitor_name,
       visitor_phone: reservation.visitor_phone,
+    };
+  }
+
+  /**
+   * 다가오는 일정 조회
+   * @description 사용자의 모든 예약 중 예약 날짜 기준으로 가장 빠른 4개의 예약을 반환합니다.
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @returns 다가오는 예약 목록 (최대 4개)
+   */
+  async getUpcomingReservations(userId: string): Promise<UpcomingReservationsResponseDto> {
+    // 1. 사용자의 모든 예약을 조회하고, vendor 관계를 함께 로드
+    const reservations = await this.reservationRepository.find({
+      where: { user_id: userId },
+      relations: ['vendor'],
+      order: {
+        reservation_date: 'ASC', // 날짜 오름차순 (가장 빠른 날짜부터)
+        reservation_time: 'ASC', // 같은 날짜일 경우 시간 오름차순
+      },
+      take: 4, // 최대 4개만 가져오기
+    });
+
+    // 2. DTO로 변환
+    const upcomingReservations: UpcomingReservationItemDto[] = reservations.map((reservation) => ({
+      reservation_date: reservation.reservation_date,
+      reservation_time: reservation.reservation_time,
+      vendor: {
+        id: reservation.vendor.id,
+        name: reservation.vendor.name,
+        address: reservation.vendor.address,
+      },
+    }));
+
+    // 3. 응답 반환
+    return {
+      reservations: upcomingReservations,
     };
   }
 }

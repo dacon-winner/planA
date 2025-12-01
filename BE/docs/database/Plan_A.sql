@@ -160,7 +160,8 @@ CREATE TABLE "plan" (
   "title" varchar DEFAULT '나의 웨딩',
   "total_budget" int,
   "is_ai_generated" boolean DEFAULT false,
-  "created_at" timestamp DEFAULT (now())
+  "created_at" timestamp DEFAULT (now()),
+  "deleted_at" timestamp DEFAULT NULL
 );
 
 -- 플랜 항목

@@ -27,7 +27,7 @@ export class PlanItem {
   vendor_id: string;
 
   @Column({ type: 'uuid', nullable: true })
-  service_item_id: string;
+  service_item_id: string | null;
 
   @Column({
     type: 'enum',

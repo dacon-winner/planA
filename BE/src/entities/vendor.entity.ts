@@ -17,6 +17,7 @@ import { Review } from './review.entity';
 import { AiResource } from './ai-resource.entity';
 
 export enum VendorCategory {
+  ALL = 'ALL',
   VENUE = 'VENUE',
   STUDIO = 'STUDIO',
   DRESS = 'DRESS',

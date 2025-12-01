@@ -6,6 +6,7 @@ import ToastLib from "react-native-toast-message";
 import { AuthProvider } from "../commons/providers/auth/auth.provider";
 import { ReactQueryProvider } from "../commons/providers/react-query/react-query.provider";
 import { ModalProvider } from "../commons/providers/modal/modal.provider";
+import { PlanStateProvider } from "../commons/providers/plan-state/plan-state.provider";
 import { toastConfig } from "../commons/components/toast-message";
 
 export { ErrorBoundary } from "expo-router";
@@ -35,22 +36,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <ReactQueryProvider>
-          <ModalProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen
-                name="form/index"
-                options={{
-                  headerShown: true,
-                  title: "",
-                  headerBackTitle: "뒤로",
-                  headerShadowVisible: false,
-                }}
-              />
-            </Stack>
-            <ToastLib config={toastConfig} position="bottom" />
-          </ModalProvider>
-        </ReactQueryProvider>
+        <PlanStateProvider>
+          <ReactQueryProvider>
+            <ModalProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+              <ToastLib config={toastConfig} position="bottom" />
+            </ModalProvider>
+          </ReactQueryProvider>
+        </PlanStateProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );

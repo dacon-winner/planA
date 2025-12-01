@@ -64,10 +64,8 @@ interface Plan {
   created_at: string;
 }
 
-interface UsersInfoResponse {
-  usersInfo: UsersInfo;
-  plan: Plan | null;
-}
+// API는 Plan만 반환 (CreateUsersInfoResponseDto = Plan)
+type UsersInfoResponse = Plan;
 
 interface ErrorResponse {
   success: false;
@@ -136,7 +134,7 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
       const usersInfoData = {
         wedding_date: '2026-05-15',
         preferred_region: '강남구',
-        budget_limit: 10000000,
+        budget_limit: 50000000, // 웨딩홀 포함 현실적인 예산
       };
 
       const response = await request.post(`${BASE_URL}${USERS_INFO_PREFIX}`, {
@@ -154,33 +152,26 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
 
       const result = body;
       expect(result.success).toBe(true);
-      expect(result.data).toHaveProperty('usersInfo');
-      expect(result.data).toHaveProperty('plan');
+      expect(result.data).toBeTruthy();
 
-      // UsersInfo 검증
-      expect(result.data.usersInfo.user_id).toBe(userId);
-      expect(result.data.usersInfo.is_main_plan).toBe(true);
-      // 날짜는 ISO 형식으로 반환되므로 날짜 부분만 비교
-      expect(result.data.usersInfo.wedding_date).toContain(usersInfoData.wedding_date);
-      expect(result.data.usersInfo.preferred_region).toBe(usersInfoData.preferred_region);
-      expect(result.data.usersInfo.budget_limit).toBe(usersInfoData.budget_limit);
+      // Plan 검증 (API는 Plan 객체만 반환)
+      const plan = result.data;
+      if (plan) {
+        expect(plan.is_ai_generated).toBe(true);
+        expect(plan.title).toBe('AI 추천 플랜');
+        expect(plan.user_id).toBe(userId);
+        expect(plan).toHaveProperty('plan_items');
+        expect(plan).toHaveProperty('users_info_id');
 
-      usersInfoId = result.data.usersInfo.id;
-
-      // Plan 검증 (AI 추천 성공 시)
-      if (result.data.plan) {
-        expect(result.data.plan.is_ai_generated).toBe(true);
-        expect(result.data.plan.title).toBe('AI 추천 플랜');
-        expect(result.data.plan.users_info_id).toBe(usersInfoId);
-        expect(result.data.plan).toHaveProperty('plan_items');
-
-        planId = result.data.plan.id;
+        usersInfoId = plan.users_info_id;
+        planId = plan.id;
 
         console.log(`✅ AI 추천 플랜 생성 성공: ${planId}`);
-        console.log(`   - 추천된 업체 수: ${result.data.plan.plan_items.length}`);
+        console.log(`   - UsersInfo ID: ${usersInfoId}`);
+        console.log(`   - 추천된 업체 수: ${plan.plan_items.length}`);
 
         // PlanItems 검증
-        result.data.plan.plan_items.forEach((item, index) => {
+        plan.plan_items.forEach((item, index) => {
           console.log(`   - ${index + 1}. ${item.vendor.name} (${item.vendor.category})`);
           console.log(`      이유: ${item.selection_reason}`);
 
@@ -236,9 +227,10 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
       expect(response.status()).toBe(201);
       const body = (await response.json()) as ApiResponse<UsersInfoResponse>;
       expect(body.success).toBe(true);
-      expect(body.data.usersInfo.wedding_date).toBeNull();
-      expect(body.data.usersInfo.preferred_region).toBeNull();
-      expect(body.data.usersInfo.budget_limit).toBeNull();
+      // Plan이 반환될 수도 있고 안 될 수도 있음
+      if (body.data) {
+        console.log(`   - 조건 없이도 AI 추천 실행됨: ${body.data.plan_items?.length || 0}개 업체`);
+      }
 
       // AI 추천은 조건이 없으므로 실행되지 않거나 모든 후보를 고려함
       console.log('   - 조건 없이 생성: AI 추천은 모든 후보 고려');
@@ -338,9 +330,9 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
         expect(response.status()).toBe(201);
         const body = (await response.json()) as ApiResponse<UsersInfoResponse>;
 
-        if (body.data.plan && body.data.plan.plan_items.length > 0) {
-          console.log(`   ✅ 추천 성공: ${body.data.plan.plan_items.length}개 업체`);
-          body.data.plan.plan_items.forEach((item) => {
+        if (body.data && body.data.plan_items && body.data.plan_items.length > 0) {
+          console.log(`   ✅ 추천 성공: ${body.data.plan_items.length}개 업체`);
+          body.data.plan_items.forEach((item) => {
             console.log(`      - ${item.vendor.name} (${item.vendor.category})`);
           });
         } else {
@@ -387,14 +379,13 @@ test.describe('UsersInfo & AI Recommendation E2E Tests', () => {
       const usersInfoBody = (await usersInfoRes.json()) as ApiResponse<UsersInfoResponse>;
 
       console.log(`   2단계 완료: UsersInfo 생성`);
-      console.log(`   - 메인 플랜 여부: ${usersInfoBody.data.usersInfo.is_main_plan}`);
 
-      if (usersInfoBody.data.plan) {
-        console.log(`   - AI 추천 플랜: ${usersInfoBody.data.plan.title}`);
-        console.log(`   - 추천 업체 수: ${usersInfoBody.data.plan.plan_items.length}`);
+      if (usersInfoBody.data) {
+        console.log(`   - AI 추천 플랜: ${usersInfoBody.data.title}`);
+        console.log(`   - 추천 업체 수: ${usersInfoBody.data.plan_items.length}`);
 
-        expect(usersInfoBody.data.plan.is_ai_generated).toBe(true);
-        expect(usersInfoBody.data.plan.plan_items.length).toBeGreaterThan(0);
+        expect(usersInfoBody.data.is_ai_generated).toBe(true);
+        expect(usersInfoBody.data.plan_items.length).toBeGreaterThan(0);
 
         console.log('   ✅ 완전 통합 테스트 성공!');
       } else {

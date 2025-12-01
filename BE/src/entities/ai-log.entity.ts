@@ -22,7 +22,7 @@ export class AiLog {
   @Column({ type: 'json', nullable: true })
   response_result: Record<string, any>;
 
-  @Column({ type: 'varchar', default: 'gpt-4o-mini' })
+  @Column({ type: 'varchar', default: 'gpt-4o' })
   model_name: string;
 
   @Column({ type: 'int', default: 0 })
