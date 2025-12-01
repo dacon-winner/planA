@@ -24,12 +24,14 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useLocalSearchParams } from 'expo-router';
 import { Search as SearchIcon, Crosshair, MapPin, Phone, Clock, CircleDollarSign } from 'lucide-react-native';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { styles, vendorDetailStyles } from './styles';
 import KakaoMap, { MapMarker, KakaoMapRef } from '@/commons/components/kakao-map';
 import { useVendors } from '@/commons/hooks';
 import { MarkerVariant } from '@/commons/components/marker';
+import { Toast } from '@/commons/components/toast-message';
 
 const CATEGORIES = [
   { id: 'ALL', label: '전체' },
@@ -62,6 +64,7 @@ function mapCategoryToMarkerVariant(category: string): MarkerVariant | undefined
 }
 
 export default function Search() {
+  const params = useLocalSearchParams();
   const [selectedCategory, setSelectedCategory] = useState<Category>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [mapBounds, setMapBounds] = useState({
@@ -118,6 +121,20 @@ export default function Search() {
       }, 500);
     }
   }, [isMapReady, isLoadingVendors, vendorsData, hasInitialData]);
+
+  // 새 플랜 생성 후 토스트 메시지 표시
+  useEffect(() => {
+    // URL params에 showNewPlanToast 플래그가 있을 때만 토스트 표시
+    if (params.showNewPlanToast === "true") {
+      console.log('🆕 [Search] 새 플랜 생성 토스트 표시');
+      // 페이지 로드 후 약간의 딜레이 후 토스트 표시
+      setTimeout(() => {
+        Toast.success('새 플랜이 생성되었습니다. 업체를 추가해보세요!', {
+          bottomOffset: 80 as any, // 네비게이션 바로 위에 표시
+        });
+      }, 800);
+    }
+  }, [params.showNewPlanToast]);
 
   // 디버그 로그
   useEffect(() => {

@@ -18,7 +18,10 @@ export type { UserInfo } from './useUser';
 export { useReservations } from './useReservations';
 export type { ReservationInfo, ReservationListResponse } from './useReservations';
 
-export { useAIPlan } from './useAIPlan';
+export { usePlanCreation } from './usePlanCreation';
+
+export { useCreateEmptyPlan } from './useCreateEmptyPlan';
+export type { CreateEmptyPlanRequest, CreateEmptyPlanResponse } from './useCreateEmptyPlan';
 
 export { useSetMainPlan } from './useMainPlan';
 export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
