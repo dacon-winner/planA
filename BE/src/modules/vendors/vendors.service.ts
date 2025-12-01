@@ -46,23 +46,16 @@ export class VendorsService {
   /**
    * 지도용 업체 목록 조회
    * 지도 영역 내의 업체를 category로 필터링
+   * category가 'ALL'이면 모든 카테고리 조회
    */
   async getVendors(queryDto: GetVendorsQueryDto) {
     const {
-      category,
+      category = 'ALL',
       swLat,
       swLng,
       neLat,
       neLng,
-      page = '1',
-      limit = '20',
-      sort = 'rating',
     } = queryDto;
-
-    // 페이지네이션 계산
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
 
     // 좌표 파싱
     const southWestLat = parseFloat(swLat);
@@ -80,8 +73,7 @@ export class VendorsService {
       .createQueryBuilder('vendor')
       .leftJoinAndSelect('vendor.service_items', 'service_item')
       .leftJoinAndSelect('vendor.ai_resources', 'ai_resource')
-      .where('vendor.category = :category', { category })
-      .andWhere('vendor.latitude BETWEEN :swLat AND :neLat', {
+      .where('vendor.latitude BETWEEN :swLat AND :neLat', {
         swLat: southWestLat,
         neLat: northEastLat,
       })
@@ -90,46 +82,25 @@ export class VendorsService {
         neLng: northEastLng,
       });
 
-    // 정렬 적용
-    this.applySorting(queryBuilder, sort || 'rating');
+    // category가 'ALL'이 아닌 경우에만 카테고리 필터 적용
+    if (category !== 'ALL') {
+      queryBuilder.andWhere('vendor.category = :category', { category });
+    }
 
-    // 페이지네이션 적용
-    queryBuilder.skip(skip).take(limitNum);
+    // 이름순 정렬
+    queryBuilder.orderBy('vendor.name', 'ASC');
 
-    const [vendors, total] = await queryBuilder.getManyAndCount();
+    const vendors = await queryBuilder.getMany();
 
     // 응답 데이터 포맷팅
     const formattedVendors = this.formatVendorResponse(vendors);
 
     return {
       vendors: formattedVendors,
-      total,
-      page: pageNum,
-      limit: limitNum,
+      total: formattedVendors.length,
     };
   }
 
-  /**
-   * 정렬 로직 적용
-   */
-  private applySorting(queryBuilder: SelectQueryBuilder<Vendor>, sort: string) {
-    switch (sort) {
-      case 'rating':
-      case 'review_count':
-        // 평점/리뷰 수 정렬은 더 이상 사용하지 않음 - 이름순으로 대체
-        queryBuilder.orderBy('vendor.name', 'ASC');
-        break;
-      case 'price':
-        // service_item의 최소 가격 기준으로 정렬
-        queryBuilder.orderBy('service_item.price', 'ASC');
-        break;
-      case 'name':
-        queryBuilder.orderBy('vendor.name', 'ASC');
-        break;
-      default:
-        queryBuilder.orderBy('vendor.name', 'ASC');
-    }
-  }
 
   /**
    * 업체 상세 조회

@@ -191,10 +191,11 @@ export class PlansService {
    */
   private getCategoryInKorean(category: VendorCategory): string {
     const categoryMap: Record<VendorCategory, string> = {
-      [VendorCategory.MAKEUP]: '헤어/메이크업',
-      [VendorCategory.DRESS]: '드레스',
-      [VendorCategory.STUDIO]: '스튜디오',
+      [VendorCategory.ALL]: '전체',
       [VendorCategory.VENUE]: '웨딩홀',
+      [VendorCategory.STUDIO]: '스튜디오',
+      [VendorCategory.DRESS]: '드레스',
+      [VendorCategory.MAKEUP]: '헤어/메이크업',
     };
     return categoryMap[category];
   }

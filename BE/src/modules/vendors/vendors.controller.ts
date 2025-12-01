@@ -8,6 +8,7 @@ import {
   AiRecommendationResponseDto,
 } from './dto';
 import { JwtAuthGuard } from '../../common/guards';
+import { Public } from '../../common/decorators';
 
 /**
  * 업체 관련 API 컨트롤러
@@ -26,46 +27,52 @@ export class VendorsController {
    * 지도용 업체 목록 조회 API
    *
    * @description
-   * 지도의 좌하단/우상단 좌표와 category를 받아 영역 내 업체를 조회합니다.
+   * 지도의 좌하단/우상단 좌표와 선택적으로 category를 받아 영역 내 업체를 조회합니다.
+   * category를 지정하지 않으면 모든 카테고리의 업체를 조회합니다.
    *
-   * @param queryDto 쿼리 파라미터 (category, 좌표, 페이지네이션 등)
-   * @returns 업체 목록, 총 개수, 페이지 정보
+   * @param queryDto 쿼리 파라미터 (좌표, category)
+   * @returns 업체 목록, 총 개수
    *
    * @example
-   * // 요청
-   * GET /vendors?category=STUDIO&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0&page=1&limit=20
+   * // 모든 카테고리 조회 (category 생략 또는 ALL)
+   * GET /vendors?swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
+   * GET /vendors?category=ALL&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
+   *
+   * // 특정 카테고리만 조회
+   * GET /vendors?category=STUDIO&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
    *
    * // 응답 예시
    * {
    *   "vendors": [
    *     {
    *       "id": "uuid",
+   *       "category": "STUDIO",
    *       "name": "스튜디오 A",
    *       "address": "서울시 강남구...",
    *       "phone": "02-1234-5678",
-   *       "operating_hours": "09:00-18:00",
    *       "latitude": 37.5012,
    *       "longitude": 127.0394,
    *       "thumbnail_url": "https://...",
-   *       "naver_rating": 4.8,
-   *       "review_count": 120,
+   *       "badges": ["인기", "추천"],
    *       "service_items": [...],
    *       "ai_resources": [...]
    *     }
    *   ],
-   *   "total": 15,
-   *   "page": 1,
-   *   "limit": 20
+   *   "total": 15
    * }
    */
   @Get()
+  @Public()
   @ApiOperation({
     summary: '지도용 업체 목록 조회',
     description:
       '지도 영역 내 업체를 조회합니다.\n\n' +
-      '**필수 파라미터**: category, swLat, swLng, neLat, neLng\n' +
-      '**선택 파라미터**: page, limit, sort\n\n' +
-      '예시: GET /api/v1/vendors?category=VENUE&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0',
+      '**필수 파라미터**: swLat, swLng, neLat, neLng\n' +
+      '**선택 파라미터**: category (기본값: ALL)\n\n' +
+      '**카테고리 옵션**: ALL, VENUE, STUDIO, DRESS, MAKEUP\n\n' +
+      '예시:\n' +
+      '- 모든 카테고리: GET /api/v1/vendors?swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0\n' +
+      '- 특정 카테고리: GET /api/v1/vendors?category=VENUE&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0',
   })
   @ApiResponse({
     status: 200,
@@ -81,18 +88,14 @@ export class VendorsController {
               id: { type: 'string', format: 'uuid' },
               category: {
                 type: 'string',
-                enum: ['VENUE', 'STUDIO', 'DRESS', 'MAKEUP'],
+                enum: ['ALL', 'VENUE', 'STUDIO', 'DRESS', 'MAKEUP'],
               },
               name: { type: 'string' },
               address: { type: 'string' },
               phone: { type: 'string' },
-              operating_hours: { type: 'string' },
               latitude: { type: 'number' },
               longitude: { type: 'number' },
               thumbnail_url: { type: 'string' },
-              naver_rating: { type: 'number' },
-              review_count: { type: 'number' },
-              total_score: { type: 'number' },
               badges: { type: 'array', items: { type: 'string' } },
               service_items: {
                 type: 'array',
@@ -120,9 +123,7 @@ export class VendorsController {
             },
           },
         },
-        total: { type: 'number', description: '전체 업체 개수' },
-        page: { type: 'number', description: '현재 페이지' },
-        limit: { type: 'number', description: '페이지당 개수' },
+        total: { type: 'number', description: '조회된 업체 총 개수' },
       },
     },
   })
