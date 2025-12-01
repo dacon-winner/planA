@@ -306,7 +306,6 @@ export const styles = StyleSheet.create({
   /* 정책 카드 섹션 */
   "policy-section": {
     width: "100%",
-    paddingHorizontal: 24,
     marginTop: 32,
     marginBottom: 32,
     gap: 16,
@@ -318,6 +317,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
+    paddingHorizontal: 24,
   },
 
   "policy-title": {
@@ -343,8 +343,10 @@ export const styles = StyleSheet.create({
     fontFamily: "Pretendard",
   },
 
-  "policy-card-container": {
-    alignItems: "center",
-    width: "100%",
+  "policy-scroll-content": {
+    paddingHorizontal: 24,
+    gap: 12, // Card gap (Card style says width 345. Figma frame width 361? 361-345=16? No, gap 16 between cards usually. Let's check Figma data gap.)
+    // Figma: container gap 8px?
+    // Card style says width 345. If I use gap 16, total snap interval 361.
   },
 });
