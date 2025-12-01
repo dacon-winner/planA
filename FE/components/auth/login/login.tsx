@@ -16,8 +16,6 @@ import {
   Text,
   ImageBackground,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Alert,
 } from "react-native";
@@ -119,7 +117,10 @@ export const Login: React.FC = () => {
           onPress: async () => {
             try {
               await AsyncStorage.clear();
-              Alert.alert("완료", "AsyncStorage가 초기화되었습니다.\n앱을 재시작해주세요.");
+              Alert.alert(
+                "완료",
+                "AsyncStorage가 초기화되었습니다.\n앱을 재시작해주세요."
+              );
             } catch (error) {
               Alert.alert("오류", "초기화 중 오류가 발생했습니다.");
               console.error("AsyncStorage clear error:", error);
@@ -131,149 +132,141 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView
+    <ScrollView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? -100 : 0}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        automaticallyAdjustKeyboardInsets={true}
-        keyboardDismissMode="on-drag"
+      <ImageBackground
+        source={require("@/assets/form-background.png")}
+        style={styles.backgroundImage}
+        resizeMode="cover"
       >
-        <ImageBackground
-          source={require("@/assets/form-background.png")}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-        >
-          {/* 타이틀 영역 */}
-          <View style={styles.titleContainer}>
-            <Text style={styles.titleMain}>Plan A</Text>
-            <Text style={styles.titleSub}>결혼 준비 이제 한 곳 에서,</Text>
-          </View>
+        {/* 타이틀 영역 */}
+        <View style={styles.titleContainer}>
+          <Text style={styles.titleMain}>Plan A</Text>
+          <Text style={styles.titleSub}>결혼 준비 이제 한 곳 에서,</Text>
+        </View>
 
-          {/* 로그인 카드 */}
-          <View style={styles.cardWrapper}>
-            {/* Glassmorphism 효과 */}
-            <BlurView intensity={20} tint="light" style={styles.blurContainer}>
-              <View style={styles.cardContent}>
-                {/* 입력 필드 영역 */}
-                <View style={styles.inputSection}>
-                  {/* 이메일 입력 */}
-                  <Controller
-                    control={control}
-                    name="email"
-                    render={({ field: { onChange, value } }) => (
-                      <View>
-                        <Input
-                          label="이메일"
-                          placeholder="example@plan.com"
-                          value={value}
-                          onChangeText={onChange}
-                          keyboardType="email-address"
-                          autoCapitalize="none"
-                          autoComplete="email"
-                          size="medium"
-                        />
-                        {errors.email && (
-                          <Text
-                            style={{ color: "red", fontSize: 12, marginTop: 4 }}
-                          >
-                            {errors.email.message}
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  />
-
-                  {/* 비밀번호 입력 */}
-                  <Controller
-                    control={control}
-                    name="password"
-                    render={({ field: { onChange, value } }) => (
-                      <View>
-                        <Input
-                          label="비밀번호"
-                          placeholder="********************"
-                          value={value}
-                          onChangeText={onChange}
-                          secureTextEntry
-                          autoCapitalize="none"
-                          autoComplete="password"
-                          size="medium"
-                        />
-                        {errors.password && (
-                          <Text
-                            style={{ color: "red", fontSize: 12, marginTop: 4 }}
-                          >
-                            {errors.password.message}
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  />
-                </View>
-
-                {/* 버튼 영역 */}
-                <View style={styles.buttonSection}>
-                  {/* 로그인 버튼 */}
-                  <Button
-                    variant="filled"
-                    size="medium"
-                    onPress={handleSubmit(onSubmit)}
-                    disabled={!isValid || loginMutation.isPending}
-                  >
-                    {loginMutation.isPending ? "로그인 중..." : "로그인"}
-                  </Button>
-
-                  {/* 회원가입 링크 */}
-                  <Pressable
-                    style={styles.signUpButton}
-                    onPress={handleSignUp}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel="회원가입 페이지로 이동"
-                  >
-                    <Text style={styles.signUpTextNormal}>
-                      아직 회원이 아니신가요?{" "}
-                    </Text>
-                    <Text style={styles.signUpTextBold}>회원가입</Text>
-                  </Pressable>
-
-                  {/* [개발 전용] AsyncStorage 초기화 버튼 */}
-                  {__DEV__ && env.debugMode && (
-                    <Pressable
-                      style={{
-                        marginTop: 16,
-                        padding: 12,
-                        backgroundColor: "rgba(255, 0, 0, 0.1)",
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: "rgba(255, 0, 0, 0.3)",
-                      }}
-                      onPress={handleClearStorage}
-                    >
-                      <Text
-                        style={{
-                          color: "#ff0000",
-                          fontSize: 12,
-                          textAlign: "center",
-                          fontWeight: "600",
-                        }}
-                      >
-                        🔧 개발 도구: AsyncStorage 초기화
-                      </Text>
-                    </Pressable>
+        {/* 로그인 카드 */}
+        <View style={styles.cardWrapper}>
+          {/* Glassmorphism 효과 */}
+          <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+            <View style={styles.cardContent}>
+              {/* 입력 필드 영역 */}
+              <View style={styles.inputSection}>
+                {/* 이메일 입력 */}
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { onChange, value } }) => (
+                    <View>
+                      <Input
+                        label="이메일"
+                        placeholder="example@plan.com"
+                        value={value}
+                        onChangeText={onChange}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoComplete="email"
+                        size="medium"
+                      />
+                      {errors.email && (
+                        <Text
+                          style={{ color: "red", fontSize: 12, marginTop: 4 }}
+                        >
+                          {errors.email.message}
+                        </Text>
+                      )}
+                    </View>
                   )}
-                </View>
+                />
+
+                {/* 비밀번호 입력 */}
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({ field: { onChange, value } }) => (
+                    <View>
+                      <Input
+                        label="비밀번호"
+                        placeholder="********************"
+                        value={value}
+                        onChangeText={onChange}
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoComplete="password"
+                        size="medium"
+                      />
+                      {errors.password && (
+                        <Text
+                          style={{ color: "red", fontSize: 12, marginTop: 4 }}
+                        >
+                          {errors.password.message}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
               </View>
-            </BlurView>
-          </View>
-        </ImageBackground>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+              {/* 버튼 영역 */}
+              <View style={styles.buttonSection}>
+                {/* 로그인 버튼 */}
+                <Button
+                  variant="filled"
+                  size="medium"
+                  onPress={handleSubmit(onSubmit)}
+                  disabled={!isValid || loginMutation.isPending}
+                >
+                  {loginMutation.isPending ? "로그인 중..." : "로그인"}
+                </Button>
+
+                {/* 회원가입 링크 */}
+                <Pressable
+                  style={styles.signUpButton}
+                  onPress={handleSignUp}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="회원가입 페이지로 이동"
+                >
+                  <Text style={styles.signUpTextNormal}>
+                    아직 회원이 아니신가요?{" "}
+                  </Text>
+                  <Text style={styles.signUpTextBold}>회원가입</Text>
+                </Pressable>
+
+                {/* [개발 전용] AsyncStorage 초기화 버튼 */}
+                {__DEV__ && env.debugMode && (
+                  <Pressable
+                    style={{
+                      marginTop: 16,
+                      padding: 12,
+                      backgroundColor: "rgba(255, 0, 0, 0.1)",
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: "rgba(255, 0, 0, 0.3)",
+                    }}
+                    onPress={handleClearStorage}
+                  >
+                    <Text
+                      style={{
+                        color: "#ff0000",
+                        fontSize: 12,
+                        textAlign: "center",
+                        fontWeight: "600",
+                      }}
+                    >
+                      🔧 개발 도구: AsyncStorage 초기화
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          </BlurView>
+        </View>
+      </ImageBackground>
+    </ScrollView>
   );
 };
 

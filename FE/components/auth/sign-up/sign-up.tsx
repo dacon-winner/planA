@@ -11,15 +11,7 @@
  */
 
 import React from "react";
-import {
-  View,
-  Text,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, ImageBackground, ScrollView, Alert } from "react-native";
 import { BlurView } from "expo-blur";
 import { Input } from "@/commons/components/input";
 import { RadioGroup } from "@/commons/components/radio";
@@ -104,7 +96,9 @@ export const SignUp: React.FC = () => {
       },
       {
         onSuccess: () => {
-          console.log("✅ [SignUp] 회원가입 성공, 폼 작성 페이지로 이동합니다.");
+          console.log(
+            "✅ [SignUp] 회원가입 성공, 폼 작성 페이지로 이동합니다."
+          );
           router.replace(URL_PATHS.FORM);
         },
         onError: (error) => {
@@ -127,183 +121,172 @@ export const SignUp: React.FC = () => {
   ];
 
   return (
-    <KeyboardAvoidingView
+    <ScrollView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      bounces={false}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        keyboardDismissMode="interactive"
-        bounces={false}
+      <ImageBackground
+        source={require("@/assets/form-background.png")}
+        style={styles.backgroundImage}
+        resizeMode="cover"
       >
-        <ImageBackground
-          source={require("@/assets/form-background.png")}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-        >
-          {/* 전체 콘텐츠 래퍼 */}
-          <View style={styles.contentWrapper}>
-            {/* 타이틀 영역 */}
-            <View style={styles.titleContainer}>
-              <Text style={styles.titleMain}>Plan A</Text>
-              <Text style={styles.titleSub}>결혼 준비 이제 한 곳 에서,</Text>
-            </View>
-
-            {/* 회원가입 카드 */}
-            <View style={styles.cardWrapper}>
-              {/* Glassmorphism 효과 */}
-              <BlurView
-                intensity={20}
-                tint="light"
-                style={styles.blurContainer}
-              >
-                <View style={styles.cardContent}>
-                  {/* 입력 필드 영역 */}
-                  <View style={styles.inputSection}>
-                    {/* 이름 입력 */}
-                    <Controller
-                      control={control}
-                      name="name"
-                      render={({ field: { onChange, value } }) => (
-                        <View>
-                          <Input
-                            label="이름"
-                            placeholder="이름을 입력해주세요."
-                            value={value}
-                            onChangeText={onChange}
-                            autoComplete="name"
-                            size="medium"
-                          />
-                          <InputErrorText message={errors.name?.message} />
-                        </View>
-                      )}
-                    />
-
-                    {/* 성별 선택 */}
-                    <View style={styles.genderContainer}>
-                      <Text style={styles.genderLabel}>성별</Text>
-                      <Controller
-                        control={control}
-                        name="gender"
-                        render={({ field: { onChange, value } }) => (
-                          <RadioGroup
-                            value={value || ""}
-                            onChange={onChange}
-                            options={genderOptions}
-                            direction="horizontal"
-                          />
-                        )}
-                      />
-                    </View>
-
-                    {/* 이메일 입력 */}
-                    <Controller
-                      control={control}
-                      name="email"
-                      render={({ field: { onChange, value } }) => (
-                        <View>
-                          <Input
-                            label="이메일"
-                            placeholder="이메일을 입력해주세요."
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            autoComplete="email"
-                            size="medium"
-                          />
-                          <InputErrorText message={errors.email?.message} />
-                        </View>
-                      )}
-                    />
-
-                    {/* 비밀번호 입력 */}
-                    <Controller
-                      control={control}
-                      name="password"
-                      render={({ field: { onChange, value } }) => (
-                        <View>
-                          <Input
-                            label="비밀번호"
-                            placeholder="비밀번호를 입력해주세요."
-                            value={value}
-                            onChangeText={onChange}
-                            secureTextEntry
-                            autoCapitalize="none"
-                            autoComplete="password"
-                            size="medium"
-                          />
-                          <InputErrorText message={errors.password?.message} />
-                        </View>
-                      )}
-                    />
-
-                    {/* 비밀번호 확인 입력 */}
-                    <Controller
-                      control={control}
-                      name="passwordConfirm"
-                      render={({ field: { onChange, value } }) => (
-                        <View>
-                          <Input
-                            label="비밀번호 확인"
-                            placeholder="비밀번호를 한 번 더 입력해주세요."
-                            value={value}
-                            onChangeText={onChange}
-                            secureTextEntry
-                            autoCapitalize="none"
-                            autoComplete="password"
-                            size="medium"
-                          />
-                          <InputErrorText
-                            message={errors.passwordConfirm?.message}
-                          />
-                        </View>
-                      )}
-                    />
-
-                    {/* 연락처 입력 */}
-                    <Controller
-                      control={control}
-                      name="phone"
-                      render={({ field: { onChange, value } }) => (
-                        <View>
-                          <Input
-                            label="연락처"
-                            placeholder="010-1234-5678"
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType="phone-pad"
-                            autoComplete="tel"
-                            size="medium"
-                          />
-                          <InputErrorText message={errors.phone?.message} />
-                        </View>
-                      )}
-                    />
-                  </View>
-
-                  {/* 버튼 영역 */}
-                  <View style={styles.buttonSection}>
-                    {/* 회원가입 버튼 */}
-                    <Button
-                      variant="filled"
-                      size="medium"
-                      onPress={handleSubmit(onSubmit)}
-                      disabled={!isValid || signUpMutation.isPending}
-                    >
-                      {signUpMutation.isPending ? "가입 중..." : "회원가입"}
-                    </Button>
-                  </View>
-                </View>
-              </BlurView>
-            </View>
+        {/* 전체 콘텐츠 래퍼 */}
+        <View style={styles.contentWrapper}>
+          {/* 타이틀 영역 */}
+          <View style={styles.titleContainer}>
+            <Text style={styles.titleMain}>Plan A</Text>
+            <Text style={styles.titleSub}>결혼 준비 이제 한 곳 에서,</Text>
           </View>
-        </ImageBackground>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+          {/* 회원가입 카드 */}
+          <View style={styles.cardWrapper}>
+            {/* Glassmorphism 효과 */}
+            <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+              <View style={styles.cardContent}>
+                {/* 입력 필드 영역 */}
+                <View style={styles.inputSection}>
+                  {/* 이름 입력 */}
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field: { onChange, value } }) => (
+                      <View>
+                        <Input
+                          label="이름"
+                          placeholder="이름을 입력해주세요."
+                          value={value}
+                          onChangeText={onChange}
+                          autoComplete="name"
+                          size="medium"
+                        />
+                        <InputErrorText message={errors.name?.message} />
+                      </View>
+                    )}
+                  />
+
+                  {/* 성별 선택 */}
+                  <View style={styles.genderContainer}>
+                    <Text style={styles.genderLabel}>성별</Text>
+                    <Controller
+                      control={control}
+                      name="gender"
+                      render={({ field: { onChange, value } }) => (
+                        <RadioGroup
+                          value={value || ""}
+                          onChange={onChange}
+                          options={genderOptions}
+                          direction="horizontal"
+                        />
+                      )}
+                    />
+                  </View>
+
+                  {/* 이메일 입력 */}
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field: { onChange, value } }) => (
+                      <View>
+                        <Input
+                          label="이메일"
+                          placeholder="이메일을 입력해주세요."
+                          value={value}
+                          onChangeText={onChange}
+                          keyboardType="email-address"
+                          autoCapitalize="none"
+                          autoComplete="email"
+                          size="medium"
+                        />
+                        <InputErrorText message={errors.email?.message} />
+                      </View>
+                    )}
+                  />
+
+                  {/* 비밀번호 입력 */}
+                  <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, value } }) => (
+                      <View>
+                        <Input
+                          label="비밀번호"
+                          placeholder="비밀번호를 입력해주세요."
+                          value={value}
+                          onChangeText={onChange}
+                          secureTextEntry
+                          autoCapitalize="none"
+                          autoComplete="password"
+                          size="medium"
+                        />
+                        <InputErrorText message={errors.password?.message} />
+                      </View>
+                    )}
+                  />
+
+                  {/* 비밀번호 확인 입력 */}
+                  <Controller
+                    control={control}
+                    name="passwordConfirm"
+                    render={({ field: { onChange, value } }) => (
+                      <View>
+                        <Input
+                          label="비밀번호 확인"
+                          placeholder="비밀번호를 한 번 더 입력해주세요."
+                          value={value}
+                          onChangeText={onChange}
+                          secureTextEntry
+                          autoCapitalize="none"
+                          autoComplete="password"
+                          size="medium"
+                        />
+                        <InputErrorText
+                          message={errors.passwordConfirm?.message}
+                        />
+                      </View>
+                    )}
+                  />
+
+                  {/* 연락처 입력 */}
+                  <Controller
+                    control={control}
+                    name="phone"
+                    render={({ field: { onChange, value } }) => (
+                      <View>
+                        <Input
+                          label="연락처"
+                          placeholder="010-1234-5678"
+                          value={value}
+                          onChangeText={onChange}
+                          keyboardType="phone-pad"
+                          autoComplete="tel"
+                          size="medium"
+                        />
+                        <InputErrorText message={errors.phone?.message} />
+                      </View>
+                    )}
+                  />
+                </View>
+
+                {/* 버튼 영역 */}
+                <View style={styles.buttonSection}>
+                  {/* 회원가입 버튼 */}
+                  <Button
+                    variant="filled"
+                    size="medium"
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={!isValid || signUpMutation.isPending}
+                  >
+                    {signUpMutation.isPending ? "가입 중..." : "회원가입"}
+                  </Button>
+                </View>
+              </View>
+            </BlurView>
+          </View>
+        </View>
+      </ImageBackground>
+    </ScrollView>
   );
 };
 
