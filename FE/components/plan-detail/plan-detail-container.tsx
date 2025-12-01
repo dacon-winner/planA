@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo } from "react";
+import React, { useRef, useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,6 @@ import {
   Image,
   Pressable,
   Dimensions,
-  FlatList,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { MapPin, Phone, Clock, CircleDollarSign } from "lucide-react-native";
@@ -82,9 +81,14 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
   const hasSnappedToMaxRef = useRef(false);
 
+  // 이미지 캐러셀 인덱스 추적
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageScrollViewRef = useRef<ScrollView>(null);
+
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
   const screenHeight = useMemo(() => Dimensions.get("window").height, []);
+  const screenWidth = useMemo(() => Dimensions.get("window").width, []);
   const snapPoints = useMemo(
     () => [screenHeight * 0.35, screenHeight * 0.7],
     [screenHeight]
@@ -144,6 +148,16 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
     (recommendation: { vendor_id: string; name: string; price: string }) =>
       handleAiRecommendationPress(recommendation, expandBottomSheet),
     [handleAiRecommendationPress, expandBottomSheet]
+  );
+
+  // 이미지 스크롤 핸들러
+  const handleImageScroll = useCallback(
+    (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / screenWidth);
+      setCurrentImageIndex(index);
+    },
+    [screenWidth]
   );
 
   // 로딩/에러/데이터 없음 상태 처리
@@ -223,28 +237,52 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
               {/* 이미지 섹션 */}
               <View style={styles["detail-images"]}>
-                <FlatList
+                <ScrollView
+                  ref={imageScrollViewRef}
                   horizontal
-                  pagingEnabled
                   showsHorizontalScrollIndicator={false}
+                  snapToInterval={screenWidth}
                   snapToAlignment="start"
                   decelerationRate="fast"
-                  data={currentDetailInfo.images && currentDetailInfo.images.length > 0
-                    ? currentDetailInfo.images
-                    : [null]} // 이미지가 없으면 null 하나를 넣어 플레이스홀더 표시
-                  keyExtractor={(_, index) => index.toString()}
-                  renderItem={({ item: imageUrl }) => (
-                    imageUrl ? (
-                      <Image
-                        source={{ uri: imageUrl }}
-                        style={styles["detail-image-placeholder"]}
-                        resizeMode="cover"
+                  onScroll={handleImageScroll}
+                  scrollEventThrottle={16}
+                  contentContainerStyle={styles["detail-images-scroll-content"]}
+                >
+                  {currentDetailInfo.images && currentDetailInfo.images.length > 0
+                    ? currentDetailInfo.images.map((imageUrl, index) => (
+                        <Image
+                          key={index}
+                          source={{ uri: imageUrl }}
+                          style={[
+                            styles["detail-image-placeholder"],
+                            { width: screenWidth }
+                          ]}
+                          resizeMode="cover"
+                        />
+                      ))
+                    : (
+                      <View
+                        style={[
+                          styles["detail-image-placeholder"],
+                          { width: screenWidth }
+                        ]}
                       />
-                    ) : (
-                      <View style={styles["detail-image-placeholder"]} />
-                    )
-                  )}
-                />
+                    )}
+                </ScrollView>
+                {/* 페이지 인디케이터 */}
+                {currentDetailInfo.images && currentDetailInfo.images.length > 1 && (
+                  <View style={styles["image-indicator-container"]}>
+                    {currentDetailInfo.images.map((_, index) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles["image-indicator-dot"],
+                          index === currentImageIndex && styles["image-indicator-dot-active"]
+                        ]}
+                      />
+                    ))}
+                  </View>
+                )}
               </View>
 
               {/* 연락처 및 정보 */}

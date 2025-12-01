@@ -432,13 +432,43 @@ export const styles = StyleSheet.create({
   'detail-images': {
     width: '100%',
     alignItems: 'center',
+    position: 'relative',
+  },
+
+  'detail-images-scroll-content': {
+    // ScrollView contentContainerStyle - gap 없이 이미지들이 연속으로 배치
   },
 
   'detail-image-placeholder': {
-    width: 345,
-    aspectRatio: 1,
+    // width는 인라인 스타일로 동적으로 설정됨 (화면 너비)
+    aspectRatio: 4/3,
     backgroundColor: colors.black['black-5'], // #d9d9d9
     borderRadius: 0,
+  },
+
+  'image-indicator-container': {
+    position: 'absolute',
+    bottom: parseInt(spacing.md),
+    flexDirection: 'row',
+    gap: parseInt(spacing.xs),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
+  'image-indicator-dot': {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.black['black-1'],
+    opacity: 0.4,
+  },
+
+  'image-indicator-dot-active': {
+    opacity: 1,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 
   'detail-info-list': {
