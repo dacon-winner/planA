@@ -20,6 +20,7 @@ import { Button } from '@/commons/components/button';
 import { Toast } from '@/commons/components/toast-message';
 import { Calendar } from '@/commons/components/calendar';
 import { SelectButton } from '@/commons/components/select-button';
+import { ErrorModal } from '@/commons/components/modal/ErrorModal';
 import { styles, getDetailContentScrollStyle } from './styles';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo } from 'react';
@@ -35,6 +36,12 @@ export default function PlanDetail() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
   const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
+  const [selectedAiRecommendation, setSelectedAiRecommendation] = useState<{
+    name: string;
+    price: string;
+  } | null>(null); // 선택된 AI 추천 업체
+  const [showChangeVendorModal, setShowChangeVendorModal] = useState(false); // 업체 변경 확인 모달 표시 상태
+  const [aiRecommendationsCount, setAiRecommendationsCount] = useState(3); // 표시할 AI 추천 업체 개수 (기본 3개)
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
   // 시간 옵션 생성 (9시부터 20시까지)
@@ -149,10 +156,205 @@ export default function PlanDetail() {
         { level: '실장급', price: '440,000 원' },
       ],
     },
+    aiRecommendations: {
+      '스튜디오': [
+        {
+          name: '에이비 스튜디오',
+          price: '예상비용 440만원',
+        },
+        {
+          name: '웨딩 스튜디오 A',
+          price: '예상비용 320만원',
+        },
+        {
+          name: '럭셔리 스튜디오',
+          price: '예상비용 380만원',
+        },
+        {
+          name: '아트 스튜디오',
+          price: '예상비용 290만원',
+        },
+        {
+          name: '모던 스튜디오',
+          price: '예상비용 360만원',
+        },
+        {
+          name: '클래식 스튜디오',
+          price: '예상비용 420만원',
+        },
+        {
+          name: '빈티지 스튜디오',
+          price: '예상비용 390만원',
+        },
+        {
+          name: '네이처 스튜디오',
+          price: '예상비용 350만원',
+        },
+        {
+          name: '시티 스튜디오',
+          price: '예상비용 410만원',
+        },
+      ],
+      '드레스': [
+        {
+          name: '브라이드 드레스',
+          price: '예상비용 440만원',
+        },
+        {
+          name: '엘레강스 드레스',
+          price: '예상비용 250만원',
+        },
+        {
+          name: '로맨틱 드레스',
+          price: '예상비용 320만원',
+        },
+        {
+          name: '프리미엄 드레스',
+          price: '예상비용 400만원',
+        },
+        {
+          name: '모던 드레스',
+          price: '예상비용 380만원',
+        },
+        {
+          name: '클래식 드레스',
+          price: '예상비용 450만원',
+        },
+        {
+          name: '빈티지 드레스',
+          price: '예상비용 420만원',
+        },
+        {
+          name: '심플 드레스',
+          price: '예상비용 350만원',
+        },
+        {
+          name: '럭셔리 드레스',
+          price: '예상비용 500만원',
+        },
+      ],
+      '메이크업': [
+        {
+          name: '프롬바이어스',
+          price: '예상비용 440만원',
+        },
+        {
+          name: '뷰티 메이크업',
+          price: '예상비용 150만원',
+        },
+        {
+          name: '아트 메이크업',
+          price: '예상비용 180만원',
+        },
+        {
+          name: '럭셔리 메이크업',
+          price: '예상비용 220만원',
+        },
+        {
+          name: '내추럴 메이크업',
+          price: '예상비용 160만원',
+        },
+        {
+          name: '드라마틱 메이크업',
+          price: '예상비용 200만원',
+        },
+        {
+          name: '웨딩 메이크업',
+          price: '예상비용 250만원',
+        },
+        {
+          name: '파티 메이크업',
+          price: '예상비용 190만원',
+        },
+        {
+          name: '데일리 메이크업',
+          price: '예상비용 140만원',
+        },
+      ],
+      '웨딩홀': [
+        {
+          name: '타임스퀘어홀',
+          price: '예상비용 440만원',
+        },
+        {
+          name: '드림 웨딩홀',
+          price: '예상비용 450만원',
+        },
+        {
+          name: '그랜드 홀',
+          price: '예상비용 550만원',
+        },
+        {
+          name: '프리미엄 홀',
+          price: '예상비용 480만원',
+        },
+        {
+          name: '가든 홀',
+          price: '예상비용 520만원',
+        },
+        {
+          name: '시티 홀',
+          price: '예상비용 490만원',
+        },
+        {
+          name: '루프탑 홀',
+          price: '예상비용 580만원',
+        },
+        {
+          name: '트래디셔널 홀',
+          price: '예상비용 460만원',
+        },
+        {
+          name: '모던 홀',
+          price: '예상비용 530만원',
+        },
+      ],
+    },
   };
 
   const handleViewOtherVendors = () => {
-    // TODO: 다른 업체 보기 로직 구현
+    // AI 추천 업체 표시 개수를 3개씩 늘림
+    setAiRecommendationsCount(prev => prev + 3);
+  };
+
+  const handleAiRecommendationPress = (recommendation: { name: string; price: string }) => {
+    // 선택된 AI 추천 업체를 메인 상세 섹션에 표시
+    setSelectedAiRecommendation(recommendation);
+    // Bottom sheet를 최대 높이로 열기
+    bottomSheetRef.current?.snapToIndex(1);
+  };
+
+  // 동적 상세 정보 계산
+  const currentDetailInfo = useMemo(() => {
+    if (selectedAiRecommendation) {
+      // 선택된 AI 추천 업체 정보로 상세 정보 생성
+      const serviceType = planData.services[selectedTab].type;
+      return {
+        summary: `AI 추천 ${serviceType} 업체`,
+        name: selectedAiRecommendation.name,
+        address: '주소 정보가 제공되지 않습니다',
+        phone: '전화번호 정보가 제공되지 않습니다',
+        hours: '영업시간 정보가 제공되지 않습니다',
+        service: `${serviceType} 서비스`,
+        prices: [
+          { level: '기본', price: selectedAiRecommendation.price.replace('예상비용 ', '') },
+        ],
+      };
+    }
+    // 기본 서비스 정보 반환
+    return planData.detailInfo;
+  }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
+
+  const handleSaveConfirm = () => {
+    // 실제 저장 실행
+    setIsSaved(true);
+    setShowChangeVendorModal(false);
+    Toast.success('플랜이 성공적으로 저장되었습니다.');
+  };
+
+  const handleSaveCancel = () => {
+    // 모달 닫기
+    setShowChangeVendorModal(false);
   };
 
   const handleSave = () => {
@@ -160,10 +362,19 @@ export default function PlanDetail() {
       // 저장 취소하기
       setIsSaved(false);
       setSelectedDate(null);
+      setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
+      setAiRecommendationsCount(3); // AI 추천 업체 표시 개수 초기화
     } else {
-      // 저장하기
-      setIsSaved(true);
-      Toast.success('플랜이 성공적으로 저장되었습니다.');
+      // 이미 저장된 업체가 있는지 확인 (현재 선택된 탭의 서비스가 저장된 상태인지)
+      const currentService = planData.services[selectedTab];
+      if (currentService.isSelected && currentService.status !== '업체 저장 전') {
+        // 이미 저장된 업체가 있으면 모달 표시
+        setShowChangeVendorModal(true);
+      } else {
+        // 저장된 업체가 없으면 바로 저장
+        setIsSaved(true);
+        Toast.success('플랜이 성공적으로 저장되었습니다.');
+      }
     }
   };
 
@@ -409,7 +620,7 @@ export default function PlanDetail() {
               showsVerticalScrollIndicator={false}
             >
             <Text style={styles['detail-name']}>
-              {planData.detailInfo.name}
+              {currentDetailInfo.name}
             </Text>
 
             {/* 이미지 플레이스홀더 */}
@@ -423,32 +634,32 @@ export default function PlanDetail() {
               <View style={styles['detail-info-item']}>
                 <MapPin size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.address}
+                  {currentDetailInfo.address}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <Phone size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.phone}
+                  {currentDetailInfo.phone}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <Clock size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.hours}
+                  {currentDetailInfo.hours}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <CircleDollarSign size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.service}
+                  {currentDetailInfo.service}
                 </Text>
               </View>
             </View>
 
             {/* 가격 정보 */}
             <View style={styles['detail-prices']}>
-              {planData.detailInfo.prices.map((price, index) => (
+              {currentDetailInfo.prices.map((price, index) => (
                 <View key={index} style={styles['detail-price-row']}>
                   <Text style={styles['detail-price-level']}>{price.level}</Text>
                   <View style={styles['detail-price-dots']}>
@@ -483,12 +694,12 @@ export default function PlanDetail() {
               </View>
             </View>
 
-            {/* AI 추천 업체 또는 방문 예약하기 */}
-            {isSaved ? (
+            {/* 방문 예약하기 - 저장된 경우에만 표시 */}
+            {isSaved && (
               <View style={styles['reservation-section']}>
                 {/* 구분선 */}
                 <View style={styles['reservation-divider']} />
-                
+
                 {/* 방문 예약하기 제목 */}
                 <Text style={styles['reservation-title']}>
                   방문 예약하기
@@ -611,28 +822,58 @@ export default function PlanDetail() {
                   </View>
                 )}
               </View>
-            ) : (
-              <View style={styles['ai-recommendations']}>
-                <Text style={styles['ai-recommendations-title']}>
-                  AI가 추천하는 다른 업체
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles['ai-recommendations-images']}
-                >
-                  <View style={styles['ai-recommendation-image']} />
-                  <View style={styles['ai-recommendation-image']} />
-                  <View style={styles['ai-recommendation-image']} />
-                </ScrollView>
-              </View>
             )}
+
+            {/* AI 추천 업체 - 항상 표시 */}
+            <View style={styles['ai-recommendations']}>
+              <Text style={styles['ai-recommendations-title']}>
+                AI가 추천하는 다른 업체
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles['ai-recommendations-images']}
+              >
+                {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
+                  ?.filter((recommendation: any) =>
+                    recommendation.name !== currentDetailInfo.name
+                  )
+                  ?.slice(0, aiRecommendationsCount)
+                  ?.map((recommendation: any, index: number) => (
+                  <Pressable
+                    key={index}
+                    style={styles['ai-recommendation-item']}
+                    onPress={() => handleAiRecommendationPress(recommendation)}
+                  >
+                    <View style={styles['ai-recommendation-image']} />
+                    <View style={styles['ai-recommendation-text-container']}>
+                      <Text style={styles['ai-recommendation-name']}>
+                        {recommendation.name}
+                      </Text>
+                      <Text style={styles['ai-recommendation-price']}>
+                        {recommendation.price}
+                      </Text>
+                    </View>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
             </ScrollView>
           </View>
          
         </BottomSheetView>
        
       </BottomSheet>
+
+      {/* 업체 변경 확인 모달 */}
+      {showChangeVendorModal && (
+        <ErrorModal
+          planAName={planData.planName}
+          studioName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
+          onConfirm={handleSaveConfirm}
+          onCancel={handleSaveCancel}
+        />
+      )}
     </View>
   );
 }
