@@ -62,9 +62,7 @@ export const usePlanCreation = () => {
         scheduleInfo={scheduleInfo}
         onKeep={() => {
           console.log(`[${mode}] 정보 유지하기 선택`);
-
-          // 모달 닫기
-          closeModal();
+          // EditModalContent 내부에서 closeModal() 호출하므로 여기서는 불필요
 
           if (mode === "ai") {
             // AI 플랜 생성: 로딩 화면으로 이동
@@ -102,9 +100,7 @@ export const usePlanCreation = () => {
         }}
         onEdit={() => {
           console.log(`[${mode}] 정보 수정하기 선택`);
-
-          // 모달 닫기
-          closeModal();
+          // EditModalContent 내부에서 closeModal() 호출하므로 여기서는 불필요
 
           // 폼 페이지로 이동하면서 기존 사용자 데이터 전달
           router.push({

@@ -31,7 +31,7 @@ export const NewPlanModalContent: React.FC<NewPlanModalProps> = ({
           label: "직접 업체 추가",
           onPress: () => {
             onManualAdd?.();
-            closeModal();
+            // closeModal()을 호출하지 않음 - 모달 내용만 교체
           },
         },
         right: {
