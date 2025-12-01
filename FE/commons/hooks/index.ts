@@ -3,8 +3,8 @@
  * 버전: 1.0.0
  */
 
-export { useVendors } from './useVendors';
-export type { Vendor, VendorsParams, VendorsResponse } from './useVendors';
+export { useVendors, useVendorDetail } from './useVendors';
+export type { Vendor, VendorsParams, VendorsResponse, VendorDetailResponse } from './useVendors';
 
 export { usePlans, usePlanDetail } from './usePlans';
 export type { PlanInfo, UsersInfo, PlanListItem, PlanListResponse } from './usePlans';
@@ -38,3 +38,6 @@ export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiReco
 
 export { usePolicies } from './usePolicies';
 export type { PolicyInfo, PolicyListResponse, PolicyType } from './usePolicies';
+
+export { useAddVendorToPlan } from './useAddVendorToPlan';
+export type { AddVendorToPlanParams, AddVendorToPlanResponse } from './useAddVendorToPlan';

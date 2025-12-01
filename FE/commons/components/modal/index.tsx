@@ -29,3 +29,4 @@ export { PlanAddModal } from './PlanAddModal';
 export { ErrorModal } from './ErrorModal';
 export { NewPlanModal, NewPlanModalContent } from './NewPlanModal';
 export { EditModal, EditModalContent } from './EditModal';
+export { AddToPlanModal, AddToPlanModalContent } from './AddToPlanModal';
