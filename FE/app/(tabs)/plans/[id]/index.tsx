@@ -50,9 +50,12 @@ import BottomSheet, {
 import { useAnimatedReaction, runOnJS } from "react-native-reanimated";
 import { usePlanDetail } from "@/commons/hooks/usePlans";
 import { useVendorDetail } from "@/commons/hooks/useVendors";
+import { useAiRecommendations, type AiRecommendedVendor } from "@/commons/hooks/useAiRecommendations";
 
 export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
+
+  console.log('🔍 [PlanDetail] planId:', planId, 'exists:', !!planId);
 
   // API 호출
   const {
@@ -60,6 +63,7 @@ export default function PlanDetail() {
     isLoading,
     error,
   } = usePlanDetail(planId as string);
+
   const [selectedTab, setSelectedTab] = useState(0);
   const [isHeaderCompact, setIsHeaderCompact] = useState(false); // 헤더가 컴팩트 모드인지 (0.65 기준)
   const [savedServices, setSavedServices] = useState<Record<string, boolean>>({
@@ -73,6 +77,7 @@ export default function PlanDetail() {
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
   const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
   const [selectedAiRecommendation, setSelectedAiRecommendation] = useState<{
+    vendor_id: string;
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
@@ -220,16 +225,16 @@ export default function PlanDetail() {
   };
 
   // 카테고리 영어 → 한글 변환 함수
-  const categoryMap: Record<string, string> = {
+  const categoryMap = useMemo((): Record<string, string> => ({
     STUDIO: "스튜디오",
     DRESS: "드레스",
     MAKEUP: "메이크업",
     WEDDING_HALL: "웨딩홀",
     "헤어/메이크업": "메이크업", // API에서 오는 실제 카테고리 이름
-  };
+  }), []);
 
   // API 데이터 → Mock 데이터 형식 변환
-  const transformApiDataToPlanData = () => {
+  const transformApiDataToPlanData = (aiRecommendationsData?: any) => {
     if (!planDetailData) {
       return null;
     }
@@ -345,13 +350,20 @@ export default function PlanDetail() {
           images: null,
         };
 
-    // aiRecommendations는 빈 객체로 (추후 API 연동 필요)
-    const aiRecommendations: Record<string, any[]> = {
-      스튜디오: [],
-      드레스: [],
-      메이크업: [],
-      웨딩홀: [],
-    };
+    // aiRecommendations는 API 데이터만 사용
+    const aiRecommendations: Record<string, AiRecommendedVendor[]> = aiRecommendationsData && aiRecommendationsData.recommendations && Array.isArray(aiRecommendationsData.recommendations)
+      ? {
+          스튜디오: aiRecommendationsData.recommendations.filter((item: AiRecommendedVendor) => item.category === 'STUDIO') || [],
+          드레스: aiRecommendationsData.recommendations.filter((item: AiRecommendedVendor) => item.category === 'DRESS') || [],
+          메이크업: aiRecommendationsData.recommendations.filter((item: AiRecommendedVendor) => item.category === 'MAKEUP') || [],
+          웨딩홀: aiRecommendationsData.recommendations.filter((item: AiRecommendedVendor) => item.category === 'VENUE') || [],
+        }
+      : {
+          스튜디오: [],
+          드레스: [],
+          메이크업: [],
+          웨딩홀: [],
+        };
 
     return {
       planName: plan.title || "플랜",
@@ -364,9 +376,6 @@ export default function PlanDetail() {
       aiRecommendations,
     };
   };
-
-  // API 데이터를 Mock 데이터 형식으로 변환
-  const planData = transformApiDataToPlanData();
 
   // 현재 선택된 탭의 vendor ID 가져오기
   const currentVendorId = useMemo(() => {
@@ -429,14 +438,55 @@ export default function PlanDetail() {
     });
 
     return vendorId;
-  }, [planDetailData, selectedTab]);
+  }, [planDetailData, selectedTab, categoryMap]);
 
-  // 업체 상세 정보 조회
+  // 탭 변경 시 currentVendorId 재계산 디버깅
+  console.log('🔍 [PlanDetail] currentVendorId:', currentVendorId, 'selectedTab:', selectedTab, 'hasPlanData:', !!planDetailData);
+  if (__DEV__) {
+    // iOS에서도 보이도록 여러 방법으로 로깅
+    console.warn('🔍 [PlanDetail] Debug - currentVendorId:', currentVendorId, 'selectedTab:', selectedTab);
+    console.log('🔍 [PlanDetail] Debug - currentVendorId:', currentVendorId, 'selectedTab:', selectedTab);
+  }
+
+  // 탭 변경 시점 로깅
+  useEffect(() => {
+    console.log('🔄 [PlanDetail] Tab changed - selectedTab:', selectedTab, 'currentVendorId:', currentVendorId);
+  }, [selectedTab, currentVendorId]);
+
+  // AI 추천 업체 조회 (현재 보고 있는 업체 기반)
+  const {
+    data: aiRecommendationsData,
+    isLoading: isAiRecommendationsLoading,
+  } = useAiRecommendations(currentVendorId);
+
+  // AI 추천 데이터 상태 로깅
+  useEffect(() => {
+    console.log('📊 [AI Recommendations] Data status - currentVendorId:', currentVendorId, 'isLoading:', isAiRecommendationsLoading, 'hasData:', !!aiRecommendationsData, 'dataKeys:', aiRecommendationsData ? Object.keys(aiRecommendationsData) : 'null');
+    console.log('🔍 [AI Recommendations] aiRecommendationsData:', aiRecommendationsData);
+
+    // 실제 데이터가 있는지 확인해서 로그
+    if (aiRecommendationsData && Object.keys(aiRecommendationsData).length > 0) {
+      const totalItems = Object.values(aiRecommendationsData).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0);
+      console.log('🎉 [AI Recommendations] 실제 데이터가 있습니다!', {
+        categories: Object.keys(aiRecommendationsData),
+        totalItems,
+        currentTabType: ['스튜디오', '드레스', '메이크업', '웨딩홀'][selectedTab],
+        currentTabData: (aiRecommendationsData as any)[Object.keys(aiRecommendationsData)[selectedTab]] || []
+      });
+    } else {
+      console.log('🚫 [AI Recommendations] 데이터가 없습니다 (null 또는 빈 객체)');
+    }
+  }, [currentVendorId, isAiRecommendationsLoading, aiRecommendationsData, selectedTab]);
+
+  // API 데이터를 Mock 데이터 형식으로 변환
+  const planData = transformApiDataToPlanData(aiRecommendationsData);
+
+  // 업체 상세 정보 조회 (현재 탭의 업체 또는 선택된 AI 추천 업체)
   const {
     data: vendorDetail,
     isLoading: isVendorLoading,
     error: vendorError,
-  } = useVendorDetail(currentVendorId, planId as string, !!currentVendorId);
+  } = useVendorDetail(selectedAiRecommendation?.vendor_id || currentVendorId, planId as string, !!(selectedAiRecommendation?.vendor_id || currentVendorId));
 
   // 업체 상세 정보 조회 상태 로그
   useEffect(() => {
@@ -502,62 +552,10 @@ export default function PlanDetail() {
       images: null,
     },
     aiRecommendations: {
-      스튜디오: [
-        {
-          name: "에이비 스튜디오",
-          price: "예상비용 440만원",
-        },
-        {
-          name: "웨딩 스튜디오 A",
-          price: "예상비용 320만원",
-        },
-        {
-          name: "럭셔리 스튜디오",
-          price: "예상비용 380만원",
-        },
-      ],
-      드레스: [
-        {
-          name: "브라이드 드레스",
-          price: "예상비용 440만원",
-        },
-        {
-          name: "엘레강스 드레스",
-          price: "예상비용 250만원",
-        },
-        {
-          name: "로맨틱 드레스",
-          price: "예상비용 320만원",
-        },
-      ],
-      메이크업: [
-        {
-          name: "프롬바이어스",
-          price: "예상비용 440만원",
-        },
-        {
-          name: "뷰티 메이크업",
-          price: "예상비용 150만원",
-        },
-        {
-          name: "아트 메이크업",
-          price: "예상비용 180만원",
-        },
-      ],
-      웨딩홀: [
-        {
-          name: "타임스퀘어홀",
-          price: "예상비용 440만원",
-        },
-        {
-          name: "드림 웨딩홀",
-          price: "예상비용 450만원",
-        },
-        {
-          name: "그랜드 홀",
-          price: "예상비용 550만원",
-        },
-      ],
+      스튜디오: [],
+      드레스: [],
+      메이크업: [],
+      웨딩홀: [],
     },
   };
 
@@ -565,11 +563,47 @@ export default function PlanDetail() {
   const finalPlanData = planData || mockPlanData;
 
   const handleViewOtherVendors = () => {
-    // AI 추천 업체 표시 개수를 3개씩 늘림
-    setAiRecommendationsCount((prev) => prev + 3);
+    // 현재 탭의 카테고리에 해당하는 AI 추천 리스트에서 랜덤하게 하나 선택
+    const currentRecommendations = (aiRecommendationsData as any)?.recommendations?.filter(
+      (item: any) => item.category === (selectedTab === 0 ? 'STUDIO' : selectedTab === 1 ? 'DRESS' : selectedTab === 2 ? 'MAKEUP' : 'VENUE')
+    ) || [];
+
+    if (currentRecommendations.length > 0) {
+      // 현재 메인 섹션에 표시된 업체를 제외하고 랜덤 선택
+      const currentMainServiceName = selectedAiRecommendation?.name || finalPlanData.services[selectedTab].name;
+      const availableRecommendations = currentRecommendations.filter(
+        (rec: any) => rec.name !== currentMainServiceName
+      );
+
+      if (availableRecommendations.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableRecommendations.length);
+        const selectedRecommendation = availableRecommendations[randomIndex];
+
+        // 선택된 추천을 메인 섹션에 표시
+        const selectedData = {
+          vendor_id: selectedRecommendation.vendor_id,
+          name: selectedRecommendation.name,
+          price: selectedRecommendation.reason || '추천 업체',
+        };
+
+        console.log('🎯 [다른 업체 보기] 선택된 업체:', selectedData);
+
+        setSelectedAiRecommendation(selectedData);
+
+        // 바텀 시트를 최대 높이로 열기
+        bottomSheetRef.current?.snapToIndex(1);
+
+        Toast.success(`${selectedRecommendation.name} 업체 정보를 확인해보세요!`);
+      } else {
+        Toast.success('표시할 수 있는 다른 추천 업체가 없습니다.');
+      }
+    } else {
+      Toast.success('현재 카테고리에 대한 AI 추천이 없습니다.');
+    }
   };
 
   const handleAiRecommendationPress = (recommendation: {
+    vendor_id: string;
     name: string;
     price: string;
   }) => {
@@ -581,22 +615,50 @@ export default function PlanDetail() {
 
   // 동적 상세 정보 계산
   const currentDetailInfo = useMemo(() => {
-    if (selectedAiRecommendation) {
-      // 선택된 AI 추천 업체 정보로 상세 정보 생성
+    console.log('🔄 [currentDetailInfo] 계산:', {
+      hasSelectedAiRecommendation: !!selectedAiRecommendation,
+      selectedAiRecommendation: selectedAiRecommendation,
+      hasVendorDetail: !!vendorDetail,
+      vendorDetailKeys: vendorDetail ? Object.keys(vendorDetail) : null,
+    });
+
+    if (selectedAiRecommendation && vendorDetail) {
+      // 선택된 AI 추천 업체의 실제 API 데이터로 상세 정보 생성
+      // 서비스 아이템이 있으면 가격 정보 생성
+      const prices =
+        vendorDetail.service_items && vendorDetail.service_items.length > 0
+          ? vendorDetail.service_items.map((item) => ({
+              level: item.name,
+              price: `${item.price.toLocaleString()} 원`,
+            }))
+          : [{ level: "기본", price: "정보 없음" }];
+
+      const serviceType = finalPlanData.services[selectedTab].type;
+      return {
+        summary: `AI 추천 ${serviceType} 업체`,
+        name: vendorDetail.name,
+        address: vendorDetail.address || "주소 정보가 제공되지 않습니다",
+        phone: vendorDetail.phone || "전화번호 정보가 제공되지 않습니다",
+        hours: "영업시간 정보가 제공되지 않습니다", // API에 없는 정보
+        service:
+          vendorDetail.service_items?.[0]?.name ||
+          `${serviceType} 서비스`,
+        prices,
+        images: vendorDetail.vendor_images,
+      };
+    }
+
+    if (selectedAiRecommendation && !vendorDetail) {
+      // AI 추천 업체 선택되었지만 데이터 로딩 중일 때 기본 정보 표시
       const serviceType = finalPlanData.services[selectedTab].type;
       return {
         summary: `AI 추천 ${serviceType} 업체`,
         name: selectedAiRecommendation.name,
-        address: "주소 정보가 제공되지 않습니다",
-        phone: "전화번호 정보가 제공되지 않습니다",
-        hours: "영업시간 정보가 제공되지 않습니다",
+        address: "정보를 불러오는 중...",
+        phone: "정보를 불러오는 중...",
+        hours: "정보를 불러오는 중...",
         service: `${serviceType} 서비스`,
-        prices: [
-          {
-            level: "기본",
-            price: selectedAiRecommendation.price.replace("예상비용 ", ""),
-          },
-        ],
+        prices: [{ level: "기본", price: "정보를 불러오는 중..." }],
         images: null,
       };
     }
@@ -1402,8 +1464,8 @@ export default function PlanDetail() {
                 </View>
               )}
 
-              {/* AI 추천 업체 - 현재 서비스가 저장되지 않은 경우에만 표시 */}
-              {!savedServices[finalPlanData.services[selectedTab].type] && (
+              {/* AI 추천 업체 - 항상 표시 (테스트용) */}
+              {true && (
                 <View style={styles["ai-recommendations"]}>
                   <Text style={styles["ai-recommendations-title"]}>
                     AI가 추천하는 다른 업체
@@ -1413,40 +1475,61 @@ export default function PlanDetail() {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles["ai-recommendations-images"]}
                   >
-                    {(() => {
-                      const currentMainServiceName =
-                        selectedAiRecommendation?.name ||
-                        finalPlanData.services[selectedTab].name;
-                      return (finalPlanData.aiRecommendations as any)[
-                        finalPlanData.services[selectedTab].type
-                      ]
-                        ?.filter(
-                          (recommendation: any) =>
-                            recommendation.name !== currentMainServiceName
-                        )
-                        ?.slice(0, aiRecommendationsCount)
-                        ?.map((recommendation: any, index: number) => (
-                          <Pressable
-                            key={index}
-                            style={styles["ai-recommendation-item"]}
-                            onPress={() =>
-                              handleAiRecommendationPress(recommendation)
-                            }
-                          >
-                            <View style={styles["ai-recommendation-image"]} />
-                            <View
-                              style={styles["ai-recommendation-text-container"]}
+                    {isAiRecommendationsLoading ? (
+                      // 로딩 중 스켈레톤 표시
+                      Array.from({ length: 3 }).map((_, index) => (
+                        <View key={`skeleton-${index}`} style={styles["ai-recommendation-item"]}>
+                          <View style={styles["ai-recommendation-image-skeleton"]} />
+                          <View style={styles["ai-recommendation-text-container"]}>
+                            <View style={styles["ai-recommendation-name-skeleton"]} />
+                            <View style={styles["ai-recommendation-price-skeleton"]} />
+                          </View>
+                        </View>
+                      ))
+                    ) : (
+                      // 데이터 로드 완료 시 실제 콘텐츠 표시
+                      (() => {
+                        const currentTabType = finalPlanData.services[selectedTab].type;
+                        const currentMainServiceName =
+                          selectedAiRecommendation?.name ||
+                          finalPlanData.services[selectedTab].name;
+                        const recommendations = (finalPlanData.aiRecommendations as any)[currentTabType] || [];
+
+                        console.log('🎯 [AI Recommendations] Data check - tabType:', currentTabType, 'recommendations:', recommendations, 'length:', recommendations?.length, 'aiRecommendations keys:', Object.keys(finalPlanData.aiRecommendations || {}));
+
+                        return recommendations
+                          ?.filter(
+                            (recommendation: any) =>
+                              recommendation.name !== currentMainServiceName
+                          )
+                          ?.slice(0, aiRecommendationsCount)
+                          ?.map((recommendation: any, index: number) => (
+                            <Pressable
+                              key={index}
+                              style={styles["ai-recommendation-item"]}
+                              onPress={() =>
+                                handleAiRecommendationPress({
+                                  vendor_id: recommendation.vendor_id,
+                                  name: recommendation.name,
+                                  price: recommendation.reason || recommendation.price,
+                                })
+                              }
                             >
-                              <Text style={styles["ai-recommendation-name"]}>
-                                {recommendation.name}
-                              </Text>
-                              <Text style={styles["ai-recommendation-price"]}>
-                                {recommendation.price}
-                              </Text>
-                            </View>
-                          </Pressable>
-                        ));
-                    })()}
+                              <View style={styles["ai-recommendation-image"]} />
+                              <View
+                                style={styles["ai-recommendation-text-container"]}
+                              >
+                                <Text style={styles["ai-recommendation-name"]}>
+                                  {recommendation.name}
+                                </Text>
+                                <Text style={styles["ai-recommendation-price"]}>
+                                  {recommendation.reason}
+                                </Text>
+                              </View>
+                            </Pressable>
+                          ));
+                      })()
+                    )}
                   </ScrollView>
                 </View>
               )}

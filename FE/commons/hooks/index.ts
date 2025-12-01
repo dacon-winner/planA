@@ -23,3 +23,5 @@ export { useAIPlan } from './useAIPlan.tsx';
 export { useSetMainPlan } from './useMainPlan';
 export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
 
+export { useAiRecommendations } from './useAiRecommendations';
+export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
