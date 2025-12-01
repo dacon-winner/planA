@@ -1454,7 +1454,7 @@ export default function PlanDetail() {
                                   {recommendation.name}
                                 </Text>
                                 <Text style={styles["ai-recommendation-price"]}>
-                                  {recommendation.address}
+                                  {recommendation.reason}
                                 </Text>
                               </View>
                             </Pressable>
