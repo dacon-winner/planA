@@ -5,6 +5,8 @@ import { UsersInfo } from '../../entities/users-info.entity';
 import { User } from '../../entities/user.entity';
 import { Plan } from '../../entities/plan.entity';
 import { CreateUsersInfoDto } from './dto/create-users-info.dto';
+import { UpdateUsersInfoDto } from './dto/update-users-info.dto';
+import { UpdateUsersInfoResponseDto } from './dto/update-users-info-response.dto';
 import { AiService } from '../ai/ai.service';
 import { PlansService } from '../plans/plans.service';
 
@@ -108,5 +110,84 @@ export class UsersInfoService {
 
     // 생성된 플랜만 반환 (plan_items, vendor, service_item 포함)
     return plan;
+  }
+
+  /**
+   * 사용자 상세 정보 수정
+   * @description 결혼 예정일, 선호 지역, 예산 한도를 수정합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param usersInfoId - 사용자 정보 ID
+   * @param updateUsersInfoDto - 수정할 정보
+   * @returns 수정 완료 메시지 및 수정된 정보
+   *
+   * @throws NotFoundException - users_info를 찾을 수 없거나 다른 사용자의 것인 경우
+   */
+  async update(
+    userId: string,
+    usersInfoId: string,
+    updateUsersInfoDto: UpdateUsersInfoDto,
+  ): Promise<UpdateUsersInfoResponseDto> {
+    this.logger.log(`사용자 상세 정보 수정 시작: userId=${userId}, usersInfoId=${usersInfoId}`);
+
+    // 1. users_info 조회
+    const usersInfo = await this.usersInfoRepository.findOne({
+      where: { id: usersInfoId },
+    });
+
+    if (!usersInfo) {
+      throw new NotFoundException(`사용자 정보를 찾을 수 없습니다. (usersInfoId: ${usersInfoId})`);
+    }
+
+    // 2. 사용자 소유권 확인
+    if (usersInfo.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 정보가 아닙니다. (usersInfoId: ${usersInfoId})`);
+    }
+
+    // 3. 수정할 필드만 업데이트
+    if (updateUsersInfoDto.wedding_date !== undefined) {
+      usersInfo.wedding_date = updateUsersInfoDto.wedding_date
+        ? new Date(updateUsersInfoDto.wedding_date)
+        : null;
+    }
+
+    if (updateUsersInfoDto.preferred_region !== undefined) {
+      usersInfo.preferred_region = updateUsersInfoDto.preferred_region;
+    }
+
+    if (updateUsersInfoDto.budget_limit !== undefined) {
+      usersInfo.budget_limit = updateUsersInfoDto.budget_limit;
+    }
+
+    // 4. 저장
+    const updatedUsersInfo = await this.usersInfoRepository.save(usersInfo);
+
+    this.logger.log(`사용자 상세 정보 수정 완료: usersInfoId=${usersInfoId}`);
+
+    // 5. 응답 데이터 포맷팅
+    return {
+      message: '사용자 정보가 수정되었습니다.',
+      usersInfoId: updatedUsersInfo.id,
+      wedding_date: this.formatDate(updatedUsersInfo.wedding_date),
+      preferred_region: updatedUsersInfo.preferred_region,
+      budget_limit: updatedUsersInfo.budget_limit,
+    };
+  }
+
+  /**
+   * Date 또는 문자열을 YYYY-MM-DD 형식으로 변환
+   * @param date - Date 객체 또는 문자열
+   * @returns YYYY-MM-DD 형식의 문자열 또는 null
+   */
+  private formatDate(date: Date | string | null): string | null {
+    if (!date) return null;
+
+    // 이미 문자열인 경우 (TypeORM이 date 타입을 문자열로 반환하는 경우)
+    if (typeof date === 'string') {
+      return date.split('T')[0];
+    }
+
+    // Date 객체인 경우
+    return date.toISOString().split('T')[0];
   }
 }

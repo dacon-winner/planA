@@ -7,7 +7,14 @@ import { UsersInfo } from '../../entities/users-info.entity';
 import { Reservation } from '../../entities/reservation.entity';
 import { VendorCategory } from '../../entities/vendor.entity';
 import { VendorCombinationRecommendation } from '../ai/interfaces';
-import { PlanListResponseDto, PlanListItemDto, PlanDetailResponseDto } from './dto';
+import {
+  PlanListResponseDto,
+  PlanListItemDto,
+  PlanDetailResponseDto,
+  SetMainPlanResponseDto,
+  UpdatePlanTitleResponseDto,
+  CreatePlanResponseDto,
+} from './dto';
 
 /**
  * 플랜 서비스
@@ -117,7 +124,12 @@ export class PlansService {
     // 생성된 플랜 및 아이템 조회 (관계 포함)
     const planWithItems = await this.planRepository.findOne({
       where: { id: savedPlan.id },
-      relations: ['plan_items', 'plan_items.vendor', 'plan_items.service_item'],
+      relations: [
+        'plan_items',
+        'plan_items.vendor',
+        'plan_items.vendor.venue_detail',
+        'plan_items.service_item',
+      ],
     });
 
     this.logger.log(`AI 추천 플랜 생성 완료: planId=${savedPlan.id}`);
@@ -130,7 +142,12 @@ export class PlansService {
   async findOne(id: string): Promise<Plan | null> {
     return await this.planRepository.findOne({
       where: { id },
-      relations: ['plan_items', 'plan_items.vendor', 'users_info'],
+      relations: [
+        'plan_items',
+        'plan_items.vendor',
+        'plan_items.vendor.venue_detail',
+        'users_info',
+      ],
     });
   }
 
@@ -165,9 +182,7 @@ export class PlansService {
       users_info: {
         id: usersInfo.id,
         is_main_plan: usersInfo.is_main_plan,
-        wedding_date: usersInfo.wedding_date
-          ? usersInfo.wedding_date.toISOString().split('T')[0]
-          : null,
+        wedding_date: this.formatDate(usersInfo.wedding_date),
         preferred_region: usersInfo.preferred_region,
         budget_limit: usersInfo.budget_limit,
       },
@@ -184,6 +199,23 @@ export class PlansService {
     this.logger.log(`플랜 목록 조회 완료: ${items.length}개`);
 
     return { items };
+  }
+
+  /**
+   * Date 또는 문자열을 YYYY-MM-DD 형식으로 변환
+   * @param date - Date 객체 또는 문자열
+   * @returns YYYY-MM-DD 형식의 문자열 또는 null
+   */
+  private formatDate(date: Date | string | null): string | null {
+    if (!date) return null;
+
+    // 이미 문자열인 경우 (TypeORM이 date 타입을 문자열로 반환하는 경우)
+    if (typeof date === 'string') {
+      return date.split('T')[0];
+    }
+
+    // Date 객체인 경우
+    return date.toISOString().split('T')[0];
   }
 
   /**
@@ -225,7 +257,7 @@ export class PlansService {
     // 2. plan_items 조회 (vendor와 함께)
     const planItems = await this.planItemRepository.find({
       where: { plan_id: planId },
-      relations: ['vendor'],
+      relations: ['vendor', 'vendor.venue_detail'],
       order: { order_index: 'ASC' },
     });
 
@@ -280,9 +312,7 @@ export class PlansService {
     const result: PlanDetailResponseDto = {
       users_info: {
         is_main_plan: plan.users_info.is_main_plan,
-        wedding_date: plan.users_info.wedding_date
-          ? plan.users_info.wedding_date.toISOString().split('T')[0]
-          : null,
+        wedding_date: this.formatDate(plan.users_info.wedding_date),
         preferred_region: plan.users_info.preferred_region,
         budget_limit: plan.users_info.budget_limit,
       },
@@ -296,5 +326,162 @@ export class PlansService {
 
     this.logger.log(`플랜 상세 조회 완료: planId=${planId}`);
     return result;
+  }
+
+  /**
+   * 대표 플랜 설정
+   * @description 특정 플랜을 대표 플랜으로 설정합니다.
+   * 기존 대표 플랜은 자동으로 해제됩니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param planId - 대표 플랜으로 설정할 플랜 ID
+   * @returns 설정 완료 메시지
+   *
+   * 처리 과정:
+   * 1. 바디에서 받은 plan ID로 plan 테이블을 조회하여 users_info_id를 추출
+   * 2. 해당 플랜이 해당 사용자의 것인지 확인
+   * 3. 해당 유저의 모든 users_info에서 is_main_plan을 false로 설정
+   * 4. 해당 plan의 users_info_id의 is_main_plan을 true로 설정
+   */
+  async setMainPlan(userId: string, planId: string): Promise<SetMainPlanResponseDto> {
+    this.logger.log(`대표 플랜 설정 시작: userId=${userId}, planId=${planId}`);
+
+    // 1. 플랜 조회 및 users_info_id 추출
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`플랜을 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    // 2. 플랜이 해당 사용자의 것인지 확인
+    if (plan.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 플랜이 아닙니다. (planId: ${planId})`);
+    }
+
+    // 3. 해당 유저의 모든 users_info에서 is_main_plan을 false로 설정
+    await this.usersInfoRepository.update(
+      { user_id: userId, is_main_plan: true },
+      { is_main_plan: false },
+    );
+    this.logger.log(`기존 대표 플랜 해제 완료: userId=${userId}`);
+
+    // 4. 해당 plan의 users_info_id의 is_main_plan을 true로 설정
+    await this.usersInfoRepository.update({ id: plan.users_info_id }, { is_main_plan: true });
+    this.logger.log(`새 대표 플랜 설정 완료: usersInfoId=${plan.users_info_id}`);
+
+    return {
+      message: '대표 플랜이 설정되었습니다.',
+      planId: plan.id,
+      usersInfoId: plan.users_info_id,
+    };
+  }
+
+  /**
+   * 플랜 제목 수정
+   * @description 플랜의 제목을 수정합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param planId - 플랜 ID
+   * @param title - 새로운 제목
+   * @returns 수정 완료 메시지 및 수정된 제목
+   *
+   * @throws NotFoundException - 플랜을 찾을 수 없거나 다른 사용자의 것인 경우
+   */
+  async updatePlanTitle(
+    userId: string,
+    planId: string,
+    title: string,
+  ): Promise<UpdatePlanTitleResponseDto> {
+    this.logger.log(`플랜 제목 수정 시작: userId=${userId}, planId=${planId}`);
+
+    // 1. 플랜 조회
+    const plan = await this.planRepository.findOne({
+      where: { id: planId },
+    });
+
+    if (!plan) {
+      throw new NotFoundException(`플랜을 찾을 수 없습니다. (planId: ${planId})`);
+    }
+
+    // 2. 플랜이 해당 사용자의 것인지 확인
+    if (plan.user_id !== userId) {
+      throw new NotFoundException(`해당 사용자의 플랜이 아닙니다. (planId: ${planId})`);
+    }
+
+    // 3. 제목 수정
+    plan.title = title;
+    await this.planRepository.save(plan);
+
+    this.logger.log(`플랜 제목 수정 완료: planId=${planId}, title=${title}`);
+
+    return {
+      message: '플랜 제목이 수정되었습니다.',
+      planId: plan.id,
+      title: plan.title,
+    };
+  }
+
+  /**
+   * 빈 플랜 생성
+   * @description users_info와 plan을 함께 생성합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @param dto - 플랜 생성 정보
+   * @returns 생성 완료 메시지
+   */
+  async createEmptyPlan(
+    userId: string,
+    dto: {
+      wedding_date?: string;
+      preferred_region?: string;
+      budget_limit?: number;
+      title?: string;
+    },
+  ): Promise<CreatePlanResponseDto> {
+    this.logger.log(`빈 플랜 생성 시작: userId=${userId}`);
+
+    // 1. 해당 사용자의 기존 users_info 조회
+    const existingUsersInfo = await this.usersInfoRepository.findOne({
+      where: { user_id: userId },
+    });
+
+    // 기존 플랜이 없으면 is_main_plan=true, 있으면 false
+    const isMainPlan = !existingUsersInfo;
+
+    // 2. users_info 생성
+    const weddingDate = dto.wedding_date ? new Date(dto.wedding_date) : null;
+    const preferredRegion = dto.preferred_region || null;
+    const budgetLimit = dto.budget_limit || null;
+
+    const usersInfo = this.usersInfoRepository.create({
+      user_id: userId,
+      is_main_plan: isMainPlan,
+      wedding_date: weddingDate,
+      preferred_region: preferredRegion,
+      budget_limit: budgetLimit,
+    });
+
+    const savedUsersInfo = await this.usersInfoRepository.save(usersInfo);
+    this.logger.log(`사용자 상세 정보 생성 완료: usersInfoId=${savedUsersInfo.id}`);
+
+    // 3. 빈 플랜 생성
+    const planTitle = dto.title || '나의 웨딩';
+
+    const plan = this.planRepository.create({
+      user_id: userId,
+      users_info_id: savedUsersInfo.id,
+      title: planTitle,
+      total_budget: null,
+      is_ai_generated: false,
+    });
+
+    const savedPlan = await this.planRepository.save(plan);
+    this.logger.log(`빈 플랜 생성 완료: planId=${savedPlan.id}`);
+
+    return {
+      message: '빈 플랜 생성 성공',
+    };
   }
 }

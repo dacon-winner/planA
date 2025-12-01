@@ -86,8 +86,42 @@ export class VendorInfoDto {
   badges: string[];
 
   @ApiProperty({
+    description: '주차 정보',
+    example: '500대 / 혼주 6시간 무료',
+    nullable: true,
+  })
+  parking_info: string | null;
+
+  @ApiProperty({
+    description: '교통편 정보',
+    example: '셔틀버스 수시 운행',
+    nullable: true,
+  })
+  transport_info: string | null;
+
+  @ApiProperty({
     description: '생성일',
     example: '2024-01-01T00:00:00.000Z',
   })
   created_at: Date;
+
+  @ApiProperty({
+    description: '웨딩홀 상세 정보 (VENUE 카테고리만)',
+    required: false,
+    nullable: true,
+    example: {
+      hall_type: '단독홀',
+      meal_type: '뷔페',
+      min_guarantee: 200,
+      meal_cost: 99000,
+      rental_fee: 10000000,
+    },
+  })
+  venue_detail?: {
+    hall_type: string | null;
+    meal_type: string | null;
+    min_guarantee: number;
+    meal_cost: number;
+    rental_fee: number;
+  } | null;
 }

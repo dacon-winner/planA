@@ -1,9 +1,18 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { PlansService } from './plans.service';
-import { PlanListResponseDto, PlanDetailResponseDto } from './dto';
+import { 
+  PlanListResponseDto, 
+  PlanDetailResponseDto, 
+  SetMainPlanResponseDto,
+  UpdatePlanTitleDto,
+  UpdatePlanTitleResponseDto,
+  CreatePlanDto,
+  CreatePlanResponseDto,
+} from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators';
 
 /**
  * 플랜 관련 API 컨트롤러
@@ -15,6 +24,57 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 @ApiBearerAuth()
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
+
+  /**
+   * 빈 플랜 생성 API
+   * @description users_info와 plan을 함께 생성하여 빈 플랜을 만듭니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param createPlanDto - 플랜 생성 정보
+   * @returns 생성 완료 메시지
+   *
+   * @example
+   * POST /api/v1/plans
+   * Body: {
+   *   "wedding_date": "2025-06-15",
+   *   "preferred_region": "서울 강남구",
+   *   "budget_limit": 50000000,
+   *   "title": "우리의 웨딩 플랜"
+   * }
+   *
+   * // 응답 예시
+   * {
+   *   "message": "빈 플랜 생성 성공"
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   */
+  @Post()
+  @ApiOperation({
+    summary: '빈 플랜 생성',
+    description:
+      '새로운 빈 플랜을 생성합니다.\n\n' +
+      '- users_info 테이블을 먼저 생성합니다 (wedding_date, preferred_region, budget_limit).\n' +
+      '- 그 다음 plan 테이블을 생성합니다 (title 사용).\n' +
+      '- total_budget은 null, is_ai_generated는 false로 설정됩니다.\n' +
+      '- plan_items는 생성되지 않으며, 이후 수동으로 추가 가능합니다.\n' +
+      '- 모든 필드는 선택사항입니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '빈 플랜 생성 성공',
+    type: CreatePlanResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  async createPlan(
+    @CurrentUser('id') userId: string,
+    @Body() createPlanDto: CreatePlanDto,
+  ): Promise<CreatePlanResponseDto> {
+    return this.plansService.createEmptyPlan(userId, createPlanDto);
+  }
 
   /**
    * 플랜 목록 조회 API
@@ -118,6 +178,7 @@ export class PlansController {
    * @throws 404 Not Found - 플랜을 찾을 수 없음
    */
   @Get(':id')
+  @Public()
   @ApiOperation({
     summary: '플랜 상세 조회',
     description:
@@ -155,5 +216,116 @@ export class PlansController {
   })
   async getPlanDetail(@Param('id') planId: string): Promise<PlanDetailResponseDto> {
     return this.plansService.getPlanDetail(planId);
+  }
+
+  /**
+   * 대표 플랜 설정 API
+   * @description 특정 플랜을 대표 플랜으로 설정합니다.
+   * 기존 대표 플랜은 자동으로 해제됩니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param planId - 대표 플랜으로 설정할 플랜 ID
+   * @returns 설정 완료 메시지
+   *
+   * @example
+   * POST /api/v1/plans/main
+   * Body: { "planId": "550e8400-e29b-41d4-a716-446655440000" }
+   *
+   * // 응답 예시
+   * {
+   *   "message": "대표 플랜이 설정되었습니다.",
+   *   "planId": "550e8400-e29b-41d4-a716-446655440000",
+   *   "usersInfoId": "550e8400-e29b-41d4-a716-446655440001"
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 플랜을 찾을 수 없음
+   */
+  @Post('main')
+  @ApiOperation({
+    summary: '대표 플랜 설정',
+    description:
+      '특정 플랜을 대표 플랜으로 설정합니다.\n\n' +
+      '- 기존에 대표 플랜으로 설정된 플랜이 있다면 자동으로 해제됩니다.\n' +
+      '- 헤더의 JWT 토큰에서 사용자 ID를 추출합니다.\n' +
+      '- 바디에서 받은 plan ID로 해당 플랜을 조회합니다.\n' +
+      '- 해당 플랜의 users_info를 대표 플랜으로 설정합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '대표 플랜 설정 성공',
+    type: SetMainPlanResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '플랜을 찾을 수 없음',
+  })
+  async setMainPlan(
+    @CurrentUser('id') userId: string,
+    @Body('planId') planId: string,
+  ): Promise<SetMainPlanResponseDto> {
+    return this.plansService.setMainPlan(userId, planId);
+  }
+
+  /**
+   * 플랜 제목 수정 API
+   * @description 플랜의 제목을 수정합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @param planId - 플랜 ID
+   * @param updatePlanTitleDto - 새로운 제목
+   * @returns 수정 완료 메시지
+   *
+   * @example
+   * POST /api/v1/plans/550e8400-e29b-41d4-a716-446655440000/update-title
+   * Body: { "title": "우리의 꿈같은 웨딩" }
+   *
+   * // 응답 예시
+   * {
+   *   "message": "플랜 제목이 수정되었습니다.",
+   *   "planId": "550e8400-e29b-41d4-a716-446655440000",
+   *   "title": "우리의 꿈같은 웨딩"
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 플랜을 찾을 수 없음
+   */
+  @Post(':id/update-title')
+  @ApiOperation({
+    summary: '플랜 제목 수정',
+    description:
+      '플랜의 제목을 수정합니다.\n\n' +
+      '- JWT 토큰의 사용자 ID와 플랜의 소유자가 일치해야 합니다.\n' +
+      '- 제목은 최대 100자까지 입력 가능합니다.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: '플랜 ID',
+    type: String,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '플랜 제목 수정 성공',
+    type: UpdatePlanTitleResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '플랜을 찾을 수 없거나 권한이 없음',
+  })
+  async updatePlanTitle(
+    @CurrentUser('id') userId: string,
+    @Param('id') planId: string,
+    @Body() updatePlanTitleDto: UpdatePlanTitleDto,
+  ): Promise<UpdatePlanTitleResponseDto> {
+    return this.plansService.updatePlanTitle(userId, planId, updatePlanTitleDto.title);
   }
 }

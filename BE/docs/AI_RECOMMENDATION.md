@@ -1,19 +1,21 @@
 # AI 추천 시스템 구현 가이드
 
 > **작성일**: 2025.11.29  
-> **버전**: 1.0.0
+> **최종 수정일**: 2025.12.01  
+> **버전**: 1.1.0
 
 ---
 
 ## 📋 개요
 
-사용자가 `users_info`를 생성할 때 AI가 자동으로 **스드메(스튜디오, 드레스, 메이크업) 조합**을 추천하고, 추천 결과를 기반으로 플랜을 자동 생성하는 시스템입니다.
+사용자가 `users_info`를 생성할 때 AI가 자동으로 **스드메베(스튜디오, 드레스, 메이크업, 웨딩홀) 조합**을 추천하고, 추천 결과를 기반으로 플랜을 자동 생성하는 시스템입니다.
 
 ### 주요 특징
 
 - **RAG(Retrieval-Augmented Generation) 패턴 적용**: 2단계 필터링으로 비용 최적화
 - **OpenAI GPT-4o-mini 사용**: 비용 효율적인 모델
-- **확장 가능한 구조**: 향후 웨딩홀(VENUE) 추가 가능
+- **4개 카테고리 추천**: STUDIO, DRESS, MAKEUP, VENUE
+- **웨딩홀 가격 정보 포함**: 식대, 대관료 등 상세 정보 기반 추천
 - **에러 안전성**: AI 추천 실패 시에도 users_info는 정상 생성
 
 ---
@@ -56,11 +58,12 @@
    ↓ - 지역: preferred_region
    ↓ - 예산: budget_limit
    ↓ - 카테고리별 최대 10개
-20-30개 후보
+40개 후보 (각 카테고리별 10개)
    ↓ [2차 LLM 추천]
    ↓ - GPT-4o-mini 사용
    ↓ - JSON 응답 형식
-3개 추천 (스튜디오, 드레스, 메이크업)
+   ↓ - Temperature: 0.3 (일관성 향상)
+4개 추천 (스튜디오, 드레스, 메이크업, 웨딩홀)
 
 💰 토큰 사용량: 99% 절감 (약 100배 비용 절감)
 ```
@@ -131,16 +134,25 @@ interface VendorCombinationRecommendation {
   studio: VendorRecommendation | null;   // 스튜디오 추천
   dress: VendorRecommendation | null;    // 드레스 추천
   makeup: VendorRecommendation | null;   // 메이크업 추천
-  venue: VendorRecommendation | null;    // 웨딩홀 (현재 null, 향후 추가)
+  venue: VendorRecommendation | null;    // 웨딩홀 추천 ✨
   overall_reason?: string;               // 전체 추천 이유
 }
 
 interface VendorRecommendation {
   vendor_id: string;                     // 업체 ID
-  category: string;                      // 카테고리
+  category: string;                      // 카테고리 (STUDIO, DRESS, MAKEUP, VENUE)
   name: string;                          // 업체명
   selection_reason: string;              // 추천 이유
   confidence_score?: number;             // 신뢰도 (0-1)
+}
+
+// 웨딩홀 상세 정보 (VENUE 카테고리만)
+interface VenueDetail {
+  hall_type: string | null;              // 홀 타입 (예: "그랜드볼룸")
+  meal_type: string | null;              // 식사 타입 (예: "양식")
+  min_guarantee: number;                 // 최소 보증 인원
+  meal_cost: number;                     // 식대 (1인당)
+  rental_fee: number;                    // 대관료
 }
 ```
 
@@ -158,7 +170,7 @@ Content-Type: application/json
 {
   "wedding_date": "2026-05-15",
   "preferred_region": "강남구",
-  "budget_limit": 10000000
+  "budget_limit": 50000000  # 웨딩홀 포함 현실적인 예산
 }
 ```
 
@@ -222,12 +234,32 @@ Content-Type: application/json
             "category": "MAKEUP",
             "region": "강남구"
           }
+        },
+        {
+          "id": "uuid",
+          "vendor_id": "uuid",
+          "source": "AI_RECOMMEND",
+          "selection_reason": "식대가 합리적이며, 대관료가 예산 내에서 적합합니다.",
+          "order_index": 3,
+          "vendor": {
+            "id": "uuid",
+            "name": "D 웨딩홀",
+            "category": "VENUE",
+            "region": "강남구",
+            "venue_detail": {
+              "hall_type": "그랜드볼룸",
+              "meal_type": "양식",
+              "min_guarantee": 200,
+              "meal_cost": 99000,
+              "rental_fee": 10000000
+            }
+          }
         }
       ],
-      "created_at": "2025-11-29T10:00:00.000Z"
+      "created_at": "2025-12-01T10:00:00.000Z"
     }
   },
-  "timestamp": "2025-11-29T10:00:00.000Z"
+  "timestamp": "2025-12-01T10:00:00.000Z"
 }
 ```
 

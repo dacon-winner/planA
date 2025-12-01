@@ -54,13 +54,13 @@ export class AiService {
       const candidates = await this.fetchCandidates(request);
 
       this.logger.log(
-        `후보 업체 수: STUDIO=${candidates.studio.length}, DRESS=${candidates.dress.length}, MAKEUP=${candidates.makeup.length}`,
+        `후보 업체 수: STUDIO=${candidates.studio.length}, DRESS=${candidates.dress.length}, MAKEUP=${candidates.makeup.length}, VENUE=${candidates.venue.length}`,
       );
 
       // 2단계: OpenAI API로 최적 조합 선택
       const recommendation = await this.selectBestCombination(candidates, request, userId);
 
-      this.logger.log(`스드메 추천 완료: userId=${userId}`);
+      this.logger.log(`스드메베 추천 완료: userId=${userId}`);
       return recommendation;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
@@ -83,13 +83,14 @@ export class AiService {
    * - 각 카테고리별 최대 10개 추출
    */
   private async fetchCandidates(request: RecommendationRequest) {
-    const categories = ['STUDIO', 'DRESS', 'MAKEUP'] as const;
+    const categories = ['STUDIO', 'DRESS', 'MAKEUP', 'VENUE'] as const;
     const maxCandidatesPerCategory = 10;
 
     const results: Record<string, AiResource[]> = {
       studio: [],
       dress: [],
       makeup: [],
+      venue: [],
     };
 
     for (const category of categories) {
@@ -97,18 +98,18 @@ export class AiService {
         .createQueryBuilder('ai_resource')
         .where('ai_resource.category = :category', { category });
 
-      // 지역 필터링
+      // 지역 필터링 (괄호 추가로 AND 연산자와 OR 연산자 우선순위 명확화)
       if (request.preferred_region) {
         queryBuilder.andWhere(
-          "ai_resource.metadata->>'region' = :region OR ai_resource.metadata->>'region' IS NULL",
+          "(ai_resource.metadata->>'region' = :region OR ai_resource.metadata->>'region' IS NULL)",
           { region: request.preferred_region },
         );
       }
 
-      // 예산 필터링 (metadata에 price_min, price_max가 있다고 가정)
+      // 예산 필터링 (괄호 추가로 AND 연산자와 OR 연산자 우선순위 명확화)
       if (request.budget_limit) {
         queryBuilder.andWhere(
-          "(ai_resource.metadata->>'price_min')::int <= :budget OR ai_resource.metadata->>'price_min' IS NULL",
+          "((ai_resource.metadata->>'price_min')::int <= :budget OR ai_resource.metadata->>'price_min' IS NULL)",
           { budget: request.budget_limit },
         );
       }
@@ -136,7 +137,8 @@ export class AiService {
     if (
       candidates.studio.length === 0 &&
       candidates.dress.length === 0 &&
-      candidates.makeup.length === 0
+      candidates.makeup.length === 0 &&
+      candidates.venue.length === 0
     ) {
       this.logger.warn('추천 가능한 후보가 없습니다.');
       return {
@@ -154,13 +156,27 @@ export class AiService {
     try {
       const startTime = Date.now();
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: `당신은 결혼 준비를 돕는 웨딩 플래너 AI입니다. 
-사용자의 조건에 맞는 스튜디오, 드레스, 메이크업 업체를 추천해주세요.
-응답은 반드시 JSON 형식으로만 작성하세요.`,
+            content: `당신은 결혼 준비를 돕는 전문 웨딩 플래너 AI입니다.
+
+[핵심 규칙 - 절대 위반 금지]
+1. ⚠️ 무조건 4개 카테고리(스튜디오, 드레스, 메이크업, 웨딩홀) 모두를 추천해야 합니다.
+2. ⚠️ 각 카테고리에서 정확히 1개씩, 총 4개를 선택하세요.
+3. ⚠️ 후보 목록에 업체가 있는 카테고리는 절대로 null로 반환하지 마세요.
+4. ⚠️ 4개 중 하나라도 빠지면 안 됩니다. 반드시 studio, dress, makeup, venue 모두 채워야 합니다.
+
+[추천 기준]
+1. 사용자의 예산 범위 내에서 최적의 조합을 선택하세요.
+2. 지역 접근성을 고려하되, 예산을 초과하지 않는 것이 더 중요합니다.
+3. 예산이 부족하면 각 카테고리에서 더 저렴한 옵션을 선택하세요.
+4. 전체 예산을 4개 카테고리에 적절히 배분하세요.
+
+[응답 형식]
+- 반드시 JSON 형식으로만 작성하세요.
+- studio, dress, makeup, venue 필드를 모두 포함해야 합니다.`,
           },
           {
             role: 'user',
@@ -168,7 +184,7 @@ export class AiService {
           },
         ],
         response_format: { type: 'json_object' },
-        temperature: 0.7,
+        temperature: 0.2,
       });
 
       const responseTime = Date.now() - startTime;
@@ -180,7 +196,7 @@ export class AiService {
         user_id: userId,
         request_prompt: prompt,
         response_result: recommendation,
-        model_name: 'gpt-4o-mini',
+        model_name: 'gpt-4o',
         input_tokens: completion.usage?.prompt_tokens || 0,
         output_tokens: completion.usage?.completion_tokens || 0,
         total_tokens: completion.usage?.total_tokens || 0,
@@ -228,6 +244,7 @@ export class AiService {
         studio: '스튜디오',
         dress: '드레스',
         makeup: '메이크업',
+        venue: '웨딩홀',
       }[category];
 
       parts.push(`[${categoryName} 후보]`);
@@ -242,9 +259,21 @@ export class AiService {
       });
     }
 
-    parts.push('각 카테고리에서 가장 적합한 업체를 1개씩 선택하고, 선택 이유를 설명해주세요.');
-    parts.push('후보가 없는 카테고리는 null로 설정해주세요.');
-    parts.push('\n응답 형식:');
+    parts.push('\n===========================================');
+    parts.push('[추천 요청 - 필수 준수 사항]');
+    parts.push('===========================================');
+    parts.push(
+      '⚠️ 필수: 위 후보 목록에서 4개 카테고리(스튜디오, 드레스, 메이크업, 웨딩홀) 모두에서 정확히 1개씩 선택하세요.',
+    );
+    parts.push('⚠️ 필수: studio, dress, makeup, venue 필드를 모두 채워야 합니다.');
+    parts.push('⚠️ 필수: 예산이 부족하면 각 카테고리에서 더 저렴한 옵션을 선택하세요.');
+    parts.push('⚠️ 필수: 4개 중 하나라도 null이면 안 됩니다.');
+    parts.push('');
+    parts.push('[선택 기준]');
+    parts.push('1. 전체 예산을 4개 카테고리에 적절히 배분하세요.');
+    parts.push('2. 예산 범위 내에서 가장 합리적인 가격대의 업체를 선택하세요.');
+    parts.push('3. 각 업체의 선택 이유를 명확히 설명하세요.');
+    parts.push('\n응답 형식 (반드시 아래 JSON 구조를 따라주세요):');
     parts.push(
       JSON.stringify(
         {
@@ -259,6 +288,11 @@ export class AiService {
             selection_reason: '선택 이유',
           },
           makeup: {
+            vendor_id: 'uuid',
+            name: '업체명',
+            selection_reason: '선택 이유',
+          },
+          venue: {
             vendor_id: 'uuid',
             name: '업체명',
             selection_reason: '선택 이유',
@@ -289,8 +323,11 @@ export class AiService {
     };
 
     // 각 카테고리별로 추천 결과 검증
-    for (const category of ['studio', 'dress', 'makeup'] as const) {
-      const categoryResponse = response[category];
+    for (const category of ['studio', 'dress', 'makeup', 'venue'] as const) {
+      const categoryResponse = response[category] as
+        | { vendor_id: string; name: string; selection_reason: string }
+        | null
+        | undefined;
 
       if (categoryResponse && categoryResponse.vendor_id) {
         // vendor_id가 실제 후보 목록에 있는지 확인

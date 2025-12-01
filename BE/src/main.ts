@@ -1,15 +1,38 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { Request, Response, NextFunction } from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Static 파일 서빙 설정 (vendor 이미지용)
+  app.useStaticAssets(join(__dirname, '..', 'public'), {
+    prefix: '/static/',
+  });
+
+  // HTTP 요청 로깅 미들웨어 (요청이 들어오면 터미널에 표시)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const { method, originalUrl } = req;
+    const startTime = Date.now();
+
+    res.on('finish', () => {
+      const { statusCode } = res;
+      const responseTime = Date.now() - startTime;
+      console.log(`[${method}] ${originalUrl} - ${statusCode} (${responseTime}ms)`);
+    });
+
+    next();
+  });
 
   // CORS 설정
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-    credentials: true,
+    // origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: '*',
+    credentials: false,
   });
 
   // Global API Prefix 설정

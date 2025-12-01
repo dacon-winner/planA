@@ -30,7 +30,7 @@ export class Plan {
   title: string;
 
   @Column({ type: 'int', nullable: true })
-  total_budget: number;
+  total_budget: number | null;
 
   @Column({ type: 'boolean', default: false })
   is_ai_generated: boolean;

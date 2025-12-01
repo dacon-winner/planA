@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsNumberString } from 'class-validator';
+import { IsEnum, IsOptional, IsNumberString, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VendorCategory } from '../../../entities/vendor.entity';
 
@@ -16,6 +16,15 @@ export class GetVendorsQueryDto {
   @IsOptional()
   @IsEnum(VendorCategory)
   category?: VendorCategory = VendorCategory.ALL;
+
+  // 업체 이름 검색 파라미터 (선택)
+  @ApiPropertyOptional({
+    description: '업체 이름 검색 (선택)',
+    example: '스튜디오 A',
+  })
+  @IsOptional()
+  @IsString()
+  vendor?: string;
 
   // 필수 파라미터
   @ApiProperty({

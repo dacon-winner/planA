@@ -27,19 +27,24 @@ export class VendorsController {
    * 지도용 업체 목록 조회 API
    *
    * @description
-   * 지도의 좌하단/우상단 좌표와 선택적으로 category를 받아 영역 내 업체를 조회합니다.
-   * category를 지정하지 않으면 모든 카테고리의 업체를 조회합니다.
+   * 지도의 좌하단/우상단 좌표와 선택적으로 category, vendor를 받아 업체를 조회합니다.
+   * - category를 지정하지 않으면 모든 카테고리의 업체를 조회합니다.
+   * - vendor를 지정하면 해당 이름과 일치하는 업체만 조회합니다.
+   * - **중요**: vendor 검색어가 입력되면 좌표 제한 없이 전체 DB에서 검색합니다.
    *
-   * @param queryDto 쿼리 파라미터 (좌표, category)
+   * @param queryDto 쿼리 파라미터 (좌표, category, vendor)
    * @returns 업체 목록, 총 개수
    *
    * @example
-   * // 모든 카테고리 조회 (category 생략 또는 ALL)
+   * // 모든 카테고리 조회 (좌표 범위 내)
    * GET /vendors?swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
    * GET /vendors?category=ALL&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
    *
-   * // 특정 카테고리만 조회
+   * // 특정 카테고리만 조회 (좌표 범위 내)
    * GET /vendors?category=STUDIO&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
+   *
+   * // 특정 업체 이름으로 검색 (좌표 제한 없이 전체 검색)
+   * GET /vendors?vendor=스튜디오 A&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0
    *
    * // 응답 예시
    * {
@@ -68,11 +73,13 @@ export class VendorsController {
     description:
       '지도 영역 내 업체를 조회합니다.\n\n' +
       '**필수 파라미터**: swLat, swLng, neLat, neLng\n' +
-      '**선택 파라미터**: category (기본값: ALL)\n\n' +
+      '**선택 파라미터**: category (기본값: ALL), vendor (업체 이름 검색)\n\n' +
       '**카테고리 옵션**: ALL, VENUE, STUDIO, DRESS, MAKEUP\n\n' +
+      '**중요**: vendor 검색어가 입력되면 좌표 제한 없이 전체 DB에서 검색합니다.\n\n' +
       '예시:\n' +
-      '- 모든 카테고리: GET /api/v1/vendors?swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0\n' +
-      '- 특정 카테고리: GET /api/v1/vendors?category=VENUE&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0',
+      '- 모든 카테고리 (좌표 범위 내): GET /api/v1/vendors?swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0\n' +
+      '- 특정 카테고리 (좌표 범위 내): GET /api/v1/vendors?category=VENUE&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0\n' +
+      '- 업체 이름 검색 (전체 검색): GET /api/v1/vendors?vendor=스튜디오 A&swLat=37.5&swLng=126.9&neLat=37.6&neLng=127.0',
   })
   @ApiResponse({
     status: 200,
@@ -268,6 +275,7 @@ export class VendorsController {
    * }
    */
   @Get(':id/ai-recommendations')
+  @Public()
   @ApiOperation({
     summary: 'AI 기반 유사 업체 추천',
     description:

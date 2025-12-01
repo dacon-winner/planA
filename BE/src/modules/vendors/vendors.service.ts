@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder, Not } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { Vendor } from '../../entities/vendor.entity';
@@ -47,15 +47,10 @@ export class VendorsService {
    * 지도용 업체 목록 조회
    * 지도 영역 내의 업체를 category로 필터링
    * category가 'ALL'이면 모든 카테고리 조회
+   * vendor 파라미터가 있으면 해당 이름으로 필터링 (좌표 제한 없이 전체 검색)
    */
   async getVendors(queryDto: GetVendorsQueryDto) {
-    const {
-      category = 'ALL',
-      swLat,
-      swLng,
-      neLat,
-      neLng,
-    } = queryDto;
+    const { category = 'ALL', vendor, swLat, swLng, neLat, neLng } = queryDto;
 
     // 좌표 파싱
     const southWestLat = parseFloat(swLat);
@@ -68,29 +63,48 @@ export class VendorsService {
       throw new BadRequestException('Invalid coordinates');
     }
 
-    // vendor 조회 (지도 영역 내 + category 필터)
+    // vendor 조회 쿼리 빌더 생성
     const queryBuilder = this.vendorRepository
       .createQueryBuilder('vendor')
       .leftJoinAndSelect('vendor.service_items', 'service_item')
-      .leftJoinAndSelect('vendor.ai_resources', 'ai_resource')
-      .where('vendor.latitude BETWEEN :swLat AND :neLat', {
-        swLat: southWestLat,
-        neLat: northEastLat,
-      })
-      .andWhere('vendor.longitude BETWEEN :swLng AND :neLng', {
-        swLng: southWestLng,
-        neLng: northEastLng,
-      });
+      .leftJoinAndSelect('vendor.ai_resources', 'ai_resource');
+
+    // vendor 이름 검색어가 있으면 좌표 필터 적용 안 함 (전체 검색)
+    // vendor 이름 검색어가 없으면 좌표 필터 적용
+    if (!vendor) {
+      queryBuilder
+        .where('vendor.latitude BETWEEN :swLat AND :neLat', {
+          swLat: southWestLat,
+          neLat: northEastLat,
+        })
+        .andWhere('vendor.longitude BETWEEN :swLng AND :neLng', {
+          swLng: southWestLng,
+          neLng: northEastLng,
+        });
+    }
 
     // category가 'ALL'이 아닌 경우에만 카테고리 필터 적용
     if (category !== 'ALL') {
-      queryBuilder.andWhere('vendor.category = :category', { category });
+      if (!vendor) {
+        queryBuilder.andWhere('vendor.category = :category', { category });
+      } else {
+        queryBuilder.where('vendor.category = :category', { category });
+      }
     }
 
-    // 이름순 정렬
-    queryBuilder.orderBy('vendor.name', 'ASC');
+    // vendor 이름 필터 적용 (있는 경우)
+    if (vendor && typeof vendor === 'string') {
+      if (category !== 'ALL') {
+        queryBuilder.andWhere('vendor.name = :vendorName', { vendorName: vendor });
+      } else {
+        queryBuilder.where('vendor.name = :vendorName', { vendorName: vendor });
+      }
+    }
 
     const vendors = await queryBuilder.getMany();
+
+    // 한글 정렬 (localeCompare 사용)
+    vendors.sort((a, b) => a.name.localeCompare(b.name, 'ko-KR'));
 
     // 응답 데이터 포맷팅
     const formattedVendors = this.formatVendorResponse(vendors);
@@ -100,7 +114,6 @@ export class VendorsService {
       total: formattedVendors.length,
     };
   }
-
 
   /**
    * 업체 상세 조회
@@ -240,7 +253,11 @@ export class VendorsService {
             role: 'system',
             content: `당신은 결혼 준비를 돕는 웨딩 전문가입니다. 
 사용자가 현재 보고 있는 업체와 유사하거나, 함께 고려하면 좋을 업체를 추천해주세요.
-응답은 반드시 JSON 형식으로만 작성하세요.`,
+
+[중요 규칙]
+1. vendor_id 필드에는 반드시 후보 목록에 나온 UUID를 정확히 복사하여 사용하세요.
+2. vendor_id 필드에 업체명(name)을 절대 넣지 마세요.
+3. 응답은 반드시 JSON 형식으로만 작성하세요.`,
           },
           {
             role: 'user',
@@ -284,7 +301,7 @@ export class VendorsService {
 
     parts.push('추천 후보 업체 목록:\n');
     candidates.forEach((candidate, idx) => {
-      parts.push(`\n${idx + 1}. ID: ${candidate.vendor_id}`);
+      parts.push(`\n${idx + 1}. vendor_id: ${candidate.vendor_id}`);
       parts.push(`   이름: ${candidate.name}`);
       parts.push(`   특징: ${candidate.content}`);
       if (candidate.metadata && Object.keys(candidate.metadata).length > 0) {
@@ -293,6 +310,13 @@ export class VendorsService {
     });
 
     parts.push('\n---\n');
+    parts.push('\n===========================================');
+    parts.push('[중요 규칙 - 필수 준수]');
+    parts.push('===========================================');
+    parts.push('⚠️ 필수: 위 후보 목록에 나온 vendor_id(UUID 형식)를 정확히 복사하여 사용하세요.');
+    parts.push('⚠️ 금지: vendor_id 필드에 업체명(name)을 절대 넣지 마세요.');
+    parts.push('⚠️ 필수: vendor_id는 반드시 위 후보 목록에 있는 UUID를 그대로 사용해야 합니다.');
+    parts.push('');
     parts.push(
       '위 후보 중에서 현재 업체와 유사하거나 함께 고려하면 좋을 업체를 최대 5개 추천해주세요.',
     );
@@ -304,7 +328,8 @@ export class VendorsService {
         {
           recommendations: [
             {
-              vendor_id: 'uuid',
+              vendor_id:
+                '위 후보 목록에서 정확히 복사한 UUID (예: a1b2c3d4-e5f6-7890-abcd-ef1234567890)',
               reason: '이 업체를 추천하는 상세한 이유 (2-3문장)',
             },
           ],
@@ -324,11 +349,28 @@ export class VendorsService {
   private async fetchRecommendedVendorDetails(
     aiRecommendations: Array<{ vendor_id: string; reason: string }>,
   ): Promise<RecommendedVendorDto[]> {
-    const vendorIds = aiRecommendations.map((r) => r.vendor_id);
-
-    if (vendorIds.length === 0) {
+    if (aiRecommendations.length === 0) {
       return [];
     }
+
+    // UUID 형식 검증 및 필터링
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validRecommendations = aiRecommendations.filter((r) => {
+      const isValid = uuidRegex.test(r.vendor_id);
+      if (!isValid) {
+        this.logger.warn(
+          `유효하지 않은 vendor_id 발견: ${r.vendor_id} (업체명이 잘못 반환되었을 가능성)`,
+        );
+      }
+      return isValid;
+    });
+
+    if (validRecommendations.length === 0) {
+      this.logger.warn('유효한 vendor_id가 하나도 없습니다.');
+      return [];
+    }
+
+    const vendorIds = validRecommendations.map((r) => r.vendor_id);
 
     // 업체 정보 조회
     const vendors = await this.vendorRepository
@@ -338,7 +380,7 @@ export class VendorsService {
 
     // AI 추천 이유와 업체 정보 매핑
     const results: RecommendedVendorDto[] = [];
-    for (const aiRec of aiRecommendations) {
+    for (const aiRec of validRecommendations) {
       const vendor = vendors.find((v) => v.id === aiRec.vendor_id);
       if (vendor) {
         results.push({
