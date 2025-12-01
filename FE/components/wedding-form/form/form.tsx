@@ -316,7 +316,7 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       if (onSubmit && !isInitialMount.current) {
         onSubmit(formData);
       }
-      
+
       // 초기 마운트 플래그 해제
       isInitialMount.current = false;
     }
