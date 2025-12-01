@@ -41,6 +41,7 @@ export default function PlanDetail() {
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
   const [showChangeVendorModal, setShowChangeVendorModal] = useState(false); // 업체 변경 확인 모달 표시 상태
+  const [aiRecommendationsCount, setAiRecommendationsCount] = useState(3); // 표시할 AI 추천 업체 개수 (기본 3개)
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
   // 시간 옵션 생성 (9시부터 20시까지)
@@ -158,6 +159,10 @@ export default function PlanDetail() {
     aiRecommendations: {
       '스튜디오': [
         {
+          name: '에이비 스튜디오',
+          price: '예상비용 440만원',
+        },
+        {
           name: '웨딩 스튜디오 A',
           price: '예상비용 320만원',
         },
@@ -169,8 +174,32 @@ export default function PlanDetail() {
           name: '아트 스튜디오',
           price: '예상비용 290만원',
         },
+        {
+          name: '모던 스튜디오',
+          price: '예상비용 360만원',
+        },
+        {
+          name: '클래식 스튜디오',
+          price: '예상비용 420만원',
+        },
+        {
+          name: '빈티지 스튜디오',
+          price: '예상비용 390만원',
+        },
+        {
+          name: '네이처 스튜디오',
+          price: '예상비용 350만원',
+        },
+        {
+          name: '시티 스튜디오',
+          price: '예상비용 410만원',
+        },
       ],
       '드레스': [
+        {
+          name: '브라이드 드레스',
+          price: '예상비용 440만원',
+        },
         {
           name: '엘레강스 드레스',
           price: '예상비용 250만원',
@@ -183,8 +212,32 @@ export default function PlanDetail() {
           name: '프리미엄 드레스',
           price: '예상비용 400만원',
         },
+        {
+          name: '모던 드레스',
+          price: '예상비용 380만원',
+        },
+        {
+          name: '클래식 드레스',
+          price: '예상비용 450만원',
+        },
+        {
+          name: '빈티지 드레스',
+          price: '예상비용 420만원',
+        },
+        {
+          name: '심플 드레스',
+          price: '예상비용 350만원',
+        },
+        {
+          name: '럭셔리 드레스',
+          price: '예상비용 500만원',
+        },
       ],
       '메이크업': [
+        {
+          name: '프롬바이어스',
+          price: '예상비용 440만원',
+        },
         {
           name: '뷰티 메이크업',
           price: '예상비용 150만원',
@@ -197,8 +250,32 @@ export default function PlanDetail() {
           name: '럭셔리 메이크업',
           price: '예상비용 220만원',
         },
+        {
+          name: '내추럴 메이크업',
+          price: '예상비용 160만원',
+        },
+        {
+          name: '드라마틱 메이크업',
+          price: '예상비용 200만원',
+        },
+        {
+          name: '웨딩 메이크업',
+          price: '예상비용 250만원',
+        },
+        {
+          name: '파티 메이크업',
+          price: '예상비용 190만원',
+        },
+        {
+          name: '데일리 메이크업',
+          price: '예상비용 140만원',
+        },
       ],
       '웨딩홀': [
+        {
+          name: '타임스퀘어홀',
+          price: '예상비용 440만원',
+        },
         {
           name: '드림 웨딩홀',
           price: '예상비용 450만원',
@@ -211,12 +288,33 @@ export default function PlanDetail() {
           name: '프리미엄 홀',
           price: '예상비용 480만원',
         },
+        {
+          name: '가든 홀',
+          price: '예상비용 520만원',
+        },
+        {
+          name: '시티 홀',
+          price: '예상비용 490만원',
+        },
+        {
+          name: '루프탑 홀',
+          price: '예상비용 580만원',
+        },
+        {
+          name: '트래디셔널 홀',
+          price: '예상비용 460만원',
+        },
+        {
+          name: '모던 홀',
+          price: '예상비용 530만원',
+        },
       ],
     },
   };
 
   const handleViewOtherVendors = () => {
-    // TODO: 다른 업체 보기 로직 구현
+    // AI 추천 업체 표시 개수를 3개씩 늘림
+    setAiRecommendationsCount(prev => prev + 3);
   };
 
   const handleAiRecommendationPress = (recommendation: { name: string; price: string }) => {
@@ -265,6 +363,7 @@ export default function PlanDetail() {
       setIsSaved(false);
       setSelectedDate(null);
       setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
+      setAiRecommendationsCount(3); // AI 추천 업체 표시 개수 초기화
     } else {
       // 이미 저장된 업체가 있는지 확인 (현재 선택된 탭의 서비스가 저장된 상태인지)
       const currentService = planData.services[selectedTab];
@@ -737,6 +836,7 @@ export default function PlanDetail() {
                     ?.filter((recommendation: any) =>
                       !selectedAiRecommendation || recommendation.name !== selectedAiRecommendation.name
                     )
+                    ?.slice(0, aiRecommendationsCount)
                     ?.map((recommendation: any, index: number) => (
                     <Pressable
                       key={index}
