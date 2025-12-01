@@ -48,6 +48,7 @@ import BottomSheet, {
   useBottomSheet,
 } from "@gorhom/bottom-sheet";
 import { useAnimatedReaction, runOnJS } from "react-native-reanimated";
+import { usePlanStateInfo, useSaveVendor, useCreateReservation, VendorCategory } from "@/commons/hooks/useReservations";
 import { usePlanDetail } from "@/commons/hooks/usePlans";
 import { useVendorDetail } from "@/commons/hooks/useVendors";
 import { useAiRecommendations, type AiRecommendedVendor } from "@/commons/hooks/useAiRecommendations";
@@ -488,6 +489,13 @@ export default function PlanDetail() {
     error: vendorError,
   } = useVendorDetail(selectedAiRecommendation?.vendor_id || currentVendorId, planId as string, !!(selectedAiRecommendation?.vendor_id || currentVendorId));
 
+  // 플랜 상태 관리
+  const planState = usePlanStateInfo(planId as string);
+
+  // 업체 저장 및 예약 생성 Hook
+  const saveVendorMutation = useSaveVendor();
+  const createReservationMutation = useCreateReservation();
+
   // 업체 상세 정보 조회 상태 로그
   useEffect(() => {
     console.log("🔄 [PlanDetail] 업체 상세 정보 조회 상태:", {
@@ -711,18 +719,51 @@ export default function PlanDetail() {
     vendorDetail,
   ]);
 
-  const handleSaveConfirm = () => {
+  const handleSaveConfirm = async () => {
     // 실제 저장 실행 - 현재 선택된 탭의 서비스만 저장
     const currentServiceType = finalPlanData.services[selectedTab].type;
-    setSavedServices((prev) => ({
-      ...prev,
-      [currentServiceType]: true,
-    }));
-    setChangeVendorModals((prev) => ({
-      ...prev,
-      [currentServiceType]: false,
-    }));
-    Toast.success("플랜이 성공적으로 저장되었습니다.");
+
+    if (!currentVendorId) {
+      Toast.error("업체를 선택해주세요.");
+      return;
+    }
+
+    try {
+      const categoryMap: Record<string, VendorCategory> = {
+        '스튜디오': '스튜디오',
+        '드레스': '드레스',
+        '메이크업': '메이크업',
+        '웨딩홀': '웨딩홀',
+      };
+
+      const category = categoryMap[currentServiceType];
+
+      if (!category) {
+        Toast.error("잘못된 서비스 타입입니다.");
+        return;
+      }
+
+      await saveVendorMutation.mutateAsync({
+        plan_id: planId as string,
+        category,
+        vendor_id: currentVendorId,
+      });
+
+      // 로컬 상태도 업데이트 (하위 호환성 유지)
+      setSavedServices((prev) => ({
+        ...prev,
+        [currentServiceType]: true,
+      }));
+      setChangeVendorModals((prev) => ({
+        ...prev,
+        [currentServiceType]: false,
+      }));
+
+      Toast.success("플랜이 성공적으로 저장되었습니다.");
+    } catch (error) {
+      console.error('업체 저장 실패:', error);
+      Toast.error("업체 저장에 실패했습니다.");
+    }
   };
 
   const handleSaveCancel = () => {
@@ -734,7 +775,7 @@ export default function PlanDetail() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const currentServiceType = finalPlanData.services[selectedTab].type;
     const isCurrentServiceSaved = savedServices[currentServiceType];
 
@@ -745,18 +786,73 @@ export default function PlanDetail() {
         [currentServiceType]: true,
       }));
     } else {
-      // 저장되지 않은 경우, 바로 저장
-      setSavedServices((prev) => ({
-        ...prev,
-        [currentServiceType]: true,
-      }));
-      Toast.success("플랜이 성공적으로 저장되었습니다.");
+      // 저장되지 않은 경우, 업체 저장 API 호출
+      if (!currentVendorId) {
+        Toast.error("업체를 선택해주세요.");
+        return;
+      }
+
+      try {
+        const categoryMap: Record<string, VendorCategory> = {
+          '스튜디오': '스튜디오',
+          '드레스': '드레스',
+          '메이크업': '메이크업',
+          '웨딩홀': '웨딩홀',
+        };
+
+        const category = categoryMap[currentServiceType];
+
+        if (!category) {
+          Toast.error("잘못된 서비스 타입입니다.");
+          return;
+        }
+
+        await saveVendorMutation.mutateAsync({
+          plan_id: planId as string,
+          category,
+          vendor_id: currentVendorId,
+        });
+
+        // 로컬 상태도 업데이트 (하위 호환성 유지)
+        setSavedServices((prev) => ({
+          ...prev,
+          [currentServiceType]: true,
+        }));
+
+        Toast.success("플랜이 성공적으로 저장되었습니다.");
+      } catch (error) {
+        console.error('업체 저장 실패:', error);
+        Toast.error("업체 저장에 실패했습니다.");
+      }
     }
   };
 
   // 서비스 상태 계산 함수
   const getServiceStatus = (serviceIndex: number) => {
     const serviceType = finalPlanData.services[serviceIndex].type;
+    const categoryMap: Record<string, VendorCategory> = {
+      '스튜디오': '스튜디오',
+      '드레스': '드레스',
+      '메이크업': '메이크업',
+      '웨딩홀': '웨딩홀',
+    };
+
+    const category = categoryMap[serviceType];
+    const vendorState = category ? planState[category] : null;
+
+    // 플랜 상태 기반으로 상태 표시
+    if (vendorState) {
+      switch (vendorState.status) {
+        case '예약됨':
+          return '예약됨';
+        case '업체 저장됨':
+          return '업체 저장됨';
+        case '업체 저장전':
+        default:
+          return '업체 저장 전';
+      }
+    }
+
     const isServiceSaved = savedServices[serviceType];
     const currentService = finalPlanData.services[serviceIndex];
 
@@ -775,7 +871,7 @@ export default function PlanDetail() {
     }
 
     // 방문 예정 상태 (status에 '방문 예정'이 포함된 경우)
-    if (currentService.status.includes("방문 예정")) {
+    if (currentService.status?.includes("방문 예정")) {
       return "방문 예정";
     }
 
@@ -806,6 +902,29 @@ export default function PlanDetail() {
   // 서비스 상태 아이콘 계산 함수
   const getServiceStatusIcon = (serviceIndex: number) => {
     const serviceType = finalPlanData.services[serviceIndex].type;
+    const categoryMap: Record<string, VendorCategory> = {
+      '스튜디오': '스튜디오',
+      '드레스': '드레스',
+      '메이크업': '메이크업',
+      '웨딩홀': '웨딩홀',
+    };
+
+    const category = categoryMap[serviceType];
+    const vendorState = category ? planState[category] : null;
+
+    // 플랜 상태 기반으로 아이콘 표시
+    if (vendorState) {
+      switch (vendorState.status) {
+        case '예약됨':
+          return "clockCheck" as const;
+        case '업체 저장됨':
+          return "clock" as const;
+        case '업체 저장전':
+        default:
+          return null;
+      }
+    }
+
     const isServiceSaved = savedServices[serviceType];
     const currentService = finalPlanData.services[serviceIndex];
 
@@ -824,7 +943,7 @@ export default function PlanDetail() {
 
     // 방문 예정 상태 (status에 '방문 예정'이 포함되거나 예약 확정된 경우)
     if (
-      currentService.status.includes("방문 예정") ||
+      currentService.status?.includes("방문 예정") ||
       (isReserved && selectedDate && selectedTime)
     ) {
       return "clockCheck" as const;
@@ -1448,12 +1567,41 @@ export default function PlanDetail() {
                         <Button
                           variant="filled"
                           size="medium"
-                          disabled={!selectedDate || !selectedTime}
-                          onPress={() => {
-                            // 예약 신청 완료
-                            setIsReserved(true);
-                            setShowTimePicker(false); // 시간 선택 버튼 숨김
-                            Toast.success("예약 신청이 완료되었습니다.");
+                          disabled={!selectedDate || !selectedTime || createReservationMutation.isPending}
+                          onPress={async () => {
+                            if (!currentVendorId || !selectedDate || !selectedTime) return;
+
+                            try {
+                              const categoryMap: Record<string, VendorCategory> = {
+                                '스튜디오': '스튜디오',
+                                '드레스': '드레스',
+                                '메이크업': '메이크업',
+                                '웨딩홀': '웨딩홀',
+                              };
+
+                              const currentServiceType = finalPlanData.services[selectedTab].type;
+                              const category = categoryMap[currentServiceType];
+
+                              if (!category) {
+                                Toast.error("잘못된 서비스 타입입니다.");
+                                return;
+                              }
+
+                              await createReservationMutation.mutateAsync({
+                                vendor_id: currentVendorId,
+                                reservation_date: selectedDate.toISOString().split('T')[0].replace(/-/g, '-'),
+                                reservation_time: selectedTime,
+                                plan_id: planId as string,
+                                category,
+                              });
+
+                              // 예약 신청 완료 상태 업데이트
+                              setIsReserved(true);
+                              setShowTimePicker(false); // 시간 선택 버튼 숨김
+                            } catch (error) {
+                              console.error('예약 생성 실패:', error);
+                              Toast.error("예약 신청에 실패했습니다.");
+                            }
                           }}
                         >
                           예약 신청
