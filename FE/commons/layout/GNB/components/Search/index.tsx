@@ -27,7 +27,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Search as SearchIcon, Crosshair, MapPin, Phone, Clock, CircleDollarSign } from 'lucide-react-native';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { styles, vendorDetailStyles } from './styles';
-import KakaoMap, { MapMarker } from '@/commons/components/kakao-map';
+import KakaoMap, { MapMarker, KakaoMapRef } from '@/commons/components/kakao-map';
 import { useVendors } from '@/commons/hooks';
 import { MarkerVariant } from '@/commons/components/marker';
 
@@ -77,6 +77,7 @@ export default function Search() {
   const [hasInitialData, setHasInitialData] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const mapRef = useRef<KakaoMapRef>(null);
   const snapPoints = useMemo(() => ['60%', '90%'], []);
 
   // 지도 영역이 변경되면 1초 후에 API 호출 (Debounce)
@@ -194,7 +195,10 @@ export default function Search() {
 
   const handleCurrentLocation = () => {
     console.log('현재 위치로 이동');
-    // TODO: 현재 위치 가져오기 및 지도 이동
+    // 사전 정의된 좌표(37.568305, 127.010740)로 이동
+    if (mapRef.current) {
+      mapRef.current.moveTo(37.568305, 127.010740);
+    }
   };
 
   return (
@@ -211,6 +215,7 @@ export default function Search() {
 
           {/* 지도 (배경) */}
           <KakaoMap
+            ref={mapRef}
             latitude={37.5247}
             longitude={127.0404}
             level={5}

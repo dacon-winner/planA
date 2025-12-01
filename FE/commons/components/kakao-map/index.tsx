@@ -4,7 +4,7 @@
  * 수정 시각: 2025-12-01
  */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import { env } from '@/commons/config';
@@ -33,6 +33,10 @@ interface KakaoMapProps {
   onMarkerClick?: (markerId: string) => void;
 }
 
+export interface KakaoMapRef {
+  moveTo: (latitude: number, longitude: number) => void;
+}
+
 interface MapBounds {
   swLat: number;
   swLng: number;
@@ -40,7 +44,7 @@ interface MapBounds {
   neLng: number;
 }
 
-export default function KakaoMap({
+const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(({
   latitude = 37.5665,
   longitude = 126.9780,
   level = 3,
@@ -48,9 +52,23 @@ export default function KakaoMap({
   onMapReady,
   onRegionChange,
   onMarkerClick,
-}: KakaoMapProps) {
+}, ref) => {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useImperativeHandle(ref, () => ({
+    moveTo: (latitude: number, longitude: number) => {
+      if (webViewRef.current) {
+        const message = JSON.stringify({
+          type: 'MOVE_TO',
+          latitude,
+          longitude
+        });
+        webViewRef.current.postMessage(message);
+        console.log(`📍 [KakaoMap] 지도 이동: ${latitude}, ${longitude}`);
+      }
+    }
+  }));
 
   // markers가 변경될 때마다 WebView에 전달
   useEffect(() => {
@@ -111,9 +129,23 @@ export default function KakaoMap({
           var message = JSON.parse(data);
           if (message.type === 'UPDATE_MARKERS') {
             updateMarkers(message.markers);
+          } else if (message.type === 'MOVE_TO') {
+            moveToLocation(message.latitude, message.longitude);
           }
         } catch(e) {
           sendMessage('ERROR', '메시지 처리 오류: ' + e.message);
+        }
+      }
+
+      function moveToLocation(latitude, longitude) {
+        if (!map) return;
+
+        try {
+          var position = new kakao.maps.LatLng(latitude, longitude);
+          map.setCenter(position);
+          sendMessage('LOG', '✅ 지도 이동 완료: ' + latitude + ', ' + longitude);
+        } catch(e) {
+          sendMessage('ERROR', '지도 이동 오류: ' + e.message);
         }
       }
       
@@ -321,4 +353,8 @@ export default function KakaoMap({
       />
     </View>
   );
-}
+});
+
+KakaoMap.displayName = 'KakaoMap';
+
+export default KakaoMap;
