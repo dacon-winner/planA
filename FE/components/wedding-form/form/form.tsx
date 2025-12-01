@@ -271,8 +271,8 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  // URL params에서 수정 모드 여부 확인
-  const isEditMode = params.isEdit === "true";
+  // URL params에서 수정 모드 여부 확인 (AI 플랜 수정 또는 직접 업체 추가)
+  const isEditMode = params.isEdit === "true" || params.isManualAdd === "true";
 
   // params에서 초기 데이터 파싱
   const initialDate = params.wedding_date
@@ -299,6 +299,9 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
   // 분석하기 버튼 애니메이션
   const buttonOpacity = useRef(new Animated.Value(0)).current;
 
+  // 초기 마운트 체크용 (초기 로드 시 자동 제출 방지)
+  const isInitialMount = useRef(true);
+
   /**
    * formData 변경 시 완료 상태 자동 업데이트
    * budget이 null이 아니면 모든 단계가 완료된 것으로 간주
@@ -309,10 +312,13 @@ export const WeddingForm: React.FC<WeddingFormProps> = ({
       setCompletedSteps([0, 1, 2]);
       setCurrentStep(-1);
 
-      // onSubmit 호출
-      if (onSubmit) {
+      // 초기 마운트가 아닐 때만 onSubmit 호출 (수정 모드에서는 자동 제출 방지)
+      if (onSubmit && !isInitialMount.current) {
         onSubmit(formData);
       }
+      
+      // 초기 마운트 플래그 해제
+      isInitialMount.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.budget]);
