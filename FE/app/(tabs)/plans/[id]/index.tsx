@@ -563,8 +563,39 @@ export default function PlanDetail() {
   const finalPlanData = planData || mockPlanData;
 
   const handleViewOtherVendors = () => {
-    // AI 추천 업체 표시 개수를 3개씩 늘림
-    setAiRecommendationsCount((prev) => prev + 3);
+    // 현재 탭의 카테고리에 해당하는 AI 추천 리스트에서 랜덤하게 하나 선택
+    const currentRecommendations = (aiRecommendationsData as any)?.recommendations?.filter(
+      (item: any) => item.category === (selectedTab === 0 ? 'STUDIO' : selectedTab === 1 ? 'DRESS' : selectedTab === 2 ? 'MAKEUP' : 'VENUE')
+    ) || [];
+
+    if (currentRecommendations.length > 0) {
+      // 현재 메인 섹션에 표시된 업체를 제외하고 랜덤 선택
+      const currentMainServiceName = selectedAiRecommendation?.name || finalPlanData.services[selectedTab].name;
+      const availableRecommendations = currentRecommendations.filter(
+        (rec: any) => rec.name !== currentMainServiceName
+      );
+
+      if (availableRecommendations.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableRecommendations.length);
+        const selectedRecommendation = availableRecommendations[randomIndex];
+
+        // 선택된 추천을 메인 섹션에 표시
+        setSelectedAiRecommendation({
+          vendor_id: parseInt(selectedRecommendation.vendor_id),
+          name: selectedRecommendation.name,
+          price: selectedRecommendation.reason || '추천 업체',
+        });
+
+        // 바텀 시트를 최대 높이로 열기
+        bottomSheetRef.current?.snapToIndex(1);
+
+        Toast.success(`${selectedRecommendation.name} 업체 정보를 확인해보세요!`);
+      } else {
+        Toast.success('표시할 수 있는 다른 추천 업체가 없습니다.');
+      }
+    } else {
+      Toast.success('현재 카테고리에 대한 AI 추천이 없습니다.');
+    }
   };
 
   const handleAiRecommendationPress = (recommendation: {
