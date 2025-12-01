@@ -41,6 +41,12 @@ import {
   CATEGORY_LABELS,
   extractRegion,
 } from "@/commons/hooks/useMainPlan";
+import {
+  formatWeddingDate,
+  formatBudget,
+  formatRegion,
+  calculateDDay,
+} from "@/commons/utils";
 
 export default function Home() {
   const { data: plansData, isLoading, error } = usePlans();
@@ -112,7 +118,8 @@ export default function Home() {
           {/* 상단 텍스트 섹션 */}
           <View style={styles["header-section"]}>
             <Text style={styles["header-subtitle"]} allowFontScaling={false}>
-              결혼식까지 N일 남았어요
+              결혼식까지 {calculateDDay(usersInfo?.wedding_date || null)}{" "}
+              남았어요
             </Text>
             <Text
               style={[styles["header-title"], { fontWeight: "700" }]}
@@ -156,7 +163,10 @@ export default function Home() {
                   numberOfLines={1}
                   adjustsFontSizeToFit
                 >
-                  {usersInfo?.wedding_date || "미정"}
+                  {formatWeddingDate(usersInfo?.wedding_date || null, {
+                    includeDayOfWeek: false,
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
 
@@ -170,7 +180,9 @@ export default function Home() {
                   지역
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  {usersInfo?.preferred_region || "미정"}
+                  {formatRegion(usersInfo?.preferred_region || null, {
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
 
@@ -188,9 +200,10 @@ export default function Home() {
                   예산
                 </Text>
                 <Text style={styles["info-value"]} allowFontScaling={false}>
-                  {usersInfo?.budget_limit
-                    ? `${usersInfo.budget_limit.toLocaleString()}만원`
-                    : "미정"}
+                  {formatBudget(usersInfo?.budget_limit || null, {
+                    style: "compact",
+                    fallback: "미정",
+                  })}
                 </Text>
               </View>
             </View>
@@ -226,14 +239,6 @@ export default function Home() {
             mainPlanData?.items?.map((item) => {
               const hasReservation = !!item.reservation_date;
               const region = extractRegion(item.address);
-
-              // 날짜 포맷팅: "2025-03-15" → "2025년 3월 15일"
-              const formatDate = (dateStr: string) => {
-                const date = new Date(dateStr);
-                return `${date.getFullYear()}년 ${
-                  date.getMonth() + 1
-                }월 ${date.getDate()}일`;
-              };
 
               return (
                 <View key={item.plan_item_id} style={styles["vendor-card"]}>
@@ -275,7 +280,11 @@ export default function Home() {
                           <>
                             <Clock size={12} color={colors.root.text} />
                             <Text style={styles["card-status-text"]}>
-                              {formatDate(item.reservation_date!)} 방문 예정
+                              {formatWeddingDate(item.reservation_date, {
+                                includeDayOfWeek: false,
+                                fallback: "미정",
+                              })}{" "}
+                              방문 예정
                             </Text>
                           </>
                         ) : (
