@@ -29,3 +29,6 @@ export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
 
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
+
+export { usePolicies } from './usePolicies';
+export type { PolicyInfo, PolicyListResponse, PolicyType } from './usePolicies';
