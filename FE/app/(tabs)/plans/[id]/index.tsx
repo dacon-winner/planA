@@ -149,20 +149,64 @@ export default function PlanDetail() {
         { level: '실장급', price: '440,000 원' },
       ],
     },
-    aiRecommendations: [
-      {
-        name: '웨딩 스튜디오 A',
-        price: '예상비용 320만원',
-      },
-      {
-        name: '드림 웨딩홀',
-        price: '예상비용 450만원',
-      },
-      {
-        name: '럭셔리 스튜디오',
-        price: '예상비용 380만원',
-      },
-    ],
+    aiRecommendations: {
+      '스튜디오': [
+        {
+          name: '웨딩 스튜디오 A',
+          price: '예상비용 320만원',
+        },
+        {
+          name: '럭셔리 스튜디오',
+          price: '예상비용 380만원',
+        },
+        {
+          name: '아트 스튜디오',
+          price: '예상비용 290만원',
+        },
+      ],
+      '드레스': [
+        {
+          name: '엘레강스 드레스',
+          price: '예상비용 250만원',
+        },
+        {
+          name: '로맨틱 드레스',
+          price: '예상비용 320만원',
+        },
+        {
+          name: '프리미엄 드레스',
+          price: '예상비용 400만원',
+        },
+      ],
+      '메이크업': [
+        {
+          name: '뷰티 메이크업',
+          price: '예상비용 150만원',
+        },
+        {
+          name: '아트 메이크업',
+          price: '예상비용 180만원',
+        },
+        {
+          name: '럭셔리 메이크업',
+          price: '예상비용 220만원',
+        },
+      ],
+      '웨딩홀': [
+        {
+          name: '드림 웨딩홀',
+          price: '예상비용 450만원',
+        },
+        {
+          name: '그랜드 홀',
+          price: '예상비용 550만원',
+        },
+        {
+          name: '프리미엄 홀',
+          price: '예상비용 480만원',
+        },
+      ],
+    },
   };
 
   const handleViewOtherVendors = () => {
@@ -635,7 +679,7 @@ export default function PlanDetail() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles['ai-recommendations-images']}
                 >
-                  {planData.aiRecommendations.map((recommendation, index) => (
+                  {(planData.aiRecommendations as any)[planData.services[selectedTab].type]?.map((recommendation: any, index: number) => (
                     <View key={index} style={styles['ai-recommendation-item']}>
                       <View style={styles['ai-recommendation-image']} />
                       <View style={styles['ai-recommendation-text-container']}>
