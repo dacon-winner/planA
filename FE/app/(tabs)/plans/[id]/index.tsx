@@ -225,6 +225,7 @@ export default function PlanDetail() {
     DRESS: "드레스",
     MAKEUP: "메이크업",
     WEDDING_HALL: "웨딩홀",
+    "헤어/메이크업": "메이크업", // API에서 오는 실제 카테고리 이름
   };
 
   // API 데이터 → Mock 데이터 형식 변환
@@ -391,12 +392,28 @@ export default function PlanDetail() {
       })),
     });
 
-    // 해당 카테고리의 plan_item 찾기 (영어 또는 한글로 매칭)
-    const planItem = planDetailData.plan_items.find(
-      (item) =>
-        item.vendor.category === currentCategoryEn ||
-        item.vendor.category === currentCategoryKo
-    );
+    // 해당 카테고리의 plan_item 찾기
+    // 1. 직접 매칭 (영어 또는 한글)
+    // 2. categoryMap을 통한 매칭 (예: "헤어/메이크업" → "메이크업")
+    const planItem = planDetailData.plan_items.find((item) => {
+      const itemCategory = item.vendor.category;
+
+      // 직접 매칭
+      if (
+        itemCategory === currentCategoryEn ||
+        itemCategory === currentCategoryKo
+      ) {
+        return true;
+      }
+
+      // categoryMap을 통한 매칭
+      const mappedCategory = categoryMap[itemCategory];
+      if (mappedCategory === currentCategoryKo) {
+        return true;
+      }
+
+      return false;
+    });
 
     const vendorId = planItem?.vendor.id || null;
     console.log("📍 [PlanDetail] 추출된 vendor ID:", {
