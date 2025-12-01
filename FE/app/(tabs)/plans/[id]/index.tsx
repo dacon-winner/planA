@@ -23,7 +23,7 @@ import { SelectButton } from '@/commons/components/select-button';
 import { ErrorModal } from '@/commons/components/modal/ErrorModal';
 import { styles, getDetailContentScrollStyle } from './styles';
 import { colors } from '@/commons/enums/color';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import BottomSheet, { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
 import { useAnimatedReaction, runOnJS } from 'react-native-reanimated';
 
@@ -31,7 +31,12 @@ export default function PlanDetail() {
   const { id: planId } = useLocalSearchParams<{ id: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
   const [isHeaderCompact, setIsHeaderCompact] = useState(false); // 헤더가 컴팩트 모드인지 (0.65 기준)
-  const [isSaved, setIsSaved] = useState(false); // 저장 상태
+  const [savedServices, setSavedServices] = useState<Record<string, boolean>>({
+    '스튜디오': false,
+    '드레스': false,
+    '메이크업': false,
+    '웨딩홀': false,
+  }); // 각 서비스별 저장 상태
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // 달력 선택 날짜
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
@@ -40,7 +45,12 @@ export default function PlanDetail() {
     name: string;
     price: string;
   } | null>(null); // 선택된 AI 추천 업체
-  const [showChangeVendorModal, setShowChangeVendorModal] = useState(false); // 업체 변경 확인 모달 표시 상태
+  const [changeVendorModals, setChangeVendorModals] = useState<Record<string, boolean>>({
+    '스튜디오': false,
+    '드레스': false,
+    '메이크업': false,
+    '웨딩홀': false,
+  }); // 각 서비스별 업체 변경 확인 모달 표시 상태
   const [aiRecommendationsCount, setAiRecommendationsCount] = useState(3); // 표시할 AI 추천 업체 개수 (기본 3개)
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
@@ -54,6 +64,16 @@ export default function PlanDetail() {
       };
     });
   }, []);
+
+  // 탭 변경 시 AI 추천 선택 상태 초기화 (저장 상태는 유지)
+  useEffect(() => {
+    setSelectedAiRecommendation(null);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setShowTimePicker(false);
+    setIsReserved(false);
+    setAiRecommendationsCount(3);
+  }, [selectedTab]);
   
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -341,47 +361,81 @@ export default function PlanDetail() {
         ],
       };
     }
-    // 기본 서비스 정보 반환
-    return planData.detailInfo;
+    // 현재 선택된 탭의 서비스 정보 반환
+    const currentService = planData.services[selectedTab];
+    if (selectedTab === 0) {
+      // 스튜디오 탭 (기본 detailInfo 사용)
+      return planData.detailInfo;
+    } else {
+      // 다른 탭들은 기본 정보 생성
+      return {
+        summary: `${currentService.type} 기본 정보`,
+        name: currentService.name,
+        address: '주소 정보가 제공되지 않습니다',
+        phone: '전화번호 정보가 제공되지 않습니다',
+        hours: '영업시간 정보가 제공되지 않습니다',
+        service: `${currentService.type} 서비스`,
+        prices: [
+          { level: '기본', price: '정보 없음' },
+        ],
+      };
+    }
   }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
 
   const handleSaveConfirm = () => {
-    // 실제 저장 실행
-    setIsSaved(true);
-    setShowChangeVendorModal(false);
+    // 실제 저장 실행 - 현재 선택된 탭의 서비스만 저장
+    const currentServiceType = planData.services[selectedTab].type;
+    setSavedServices(prev => ({
+      ...prev,
+      [currentServiceType]: true,
+    }));
+    setChangeVendorModals(prev => ({
+      ...prev,
+      [currentServiceType]: false,
+    }));
     Toast.success('플랜이 성공적으로 저장되었습니다.');
   };
 
   const handleSaveCancel = () => {
-    // 모달 닫기
-    setShowChangeVendorModal(false);
+    // 모달 닫기 - 현재 선택된 탭의 서비스 모달만 닫기
+    const currentServiceType = planData.services[selectedTab].type;
+    setChangeVendorModals(prev => ({
+      ...prev,
+      [currentServiceType]: false,
+    }));
   };
 
   const handleSave = () => {
-    if (isSaved) {
-      // 저장 취소하기
-      setIsSaved(false);
-      setSelectedDate(null);
-      setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
-      setAiRecommendationsCount(3); // AI 추천 업체 표시 개수 초기화
+    const currentServiceType = planData.services[selectedTab].type;
+    const isCurrentServiceSaved = savedServices[currentServiceType];
+
+    if (isCurrentServiceSaved) {
+      // 이미 저장된 경우, 모달 표시 (업체 변경 확인)
+      setChangeVendorModals(prev => ({
+        ...prev,
+        [currentServiceType]: true,
+      }));
     } else {
-      // 이미 저장된 업체가 있는지 확인 (현재 선택된 탭의 서비스가 저장된 상태인지)
-      const currentService = planData.services[selectedTab];
-      if (currentService.isSelected && currentService.status !== '업체 저장 전') {
-        // 이미 저장된 업체가 있으면 모달 표시
-        setShowChangeVendorModal(true);
-      } else {
-        // 저장된 업체가 없으면 바로 저장
-        setIsSaved(true);
-        Toast.success('플랜이 성공적으로 저장되었습니다.');
-      }
+      // 저장되지 않은 경우, 바로 저장
+      setSavedServices(prev => ({
+        ...prev,
+        [currentServiceType]: true,
+      }));
+      Toast.success('플랜이 성공적으로 저장되었습니다.');
     }
   };
 
   // 서비스 상태 계산 함수
   const getServiceStatus = (serviceIndex: number) => {
+    const serviceType = planData.services[serviceIndex].type;
+    const isServiceSaved = savedServices[serviceType];
+
     // 현재 선택된 서비스가 아니면 원래 상태 반환
     if (serviceIndex !== selectedTab) {
+      // 다른 서비스의 저장 상태에 따라 상태 표시
+      if (isServiceSaved) {
+        return '저장 완료';
+      }
       return planData.services[serviceIndex].status;
     }
 
@@ -391,7 +445,7 @@ export default function PlanDetail() {
     }
 
     // 저장 완료된 경우
-    if (isSaved) {
+    if (isServiceSaved) {
       return '저장 완료';
     }
 
@@ -401,8 +455,14 @@ export default function PlanDetail() {
 
   // 서비스 상태 아이콘 계산 함수
   const getServiceStatusIcon = (serviceIndex: number) => {
-    // 현재 선택된 서비스가 아니면 원래 아이콘 반환
+    const serviceType = planData.services[serviceIndex].type;
+    const isServiceSaved = savedServices[serviceType];
+
+    // 현재 선택된 서비스가 아니면 원래 아이콘 반환 (저장 상태에 따라 다름)
     if (serviceIndex !== selectedTab) {
+      if (isServiceSaved) {
+        return 'clock' as const;
+      }
       return planData.services[serviceIndex].statusIcon;
     }
 
@@ -412,7 +472,7 @@ export default function PlanDetail() {
     }
 
     // 저장 완료된 경우
-    if (isSaved) {
+    if (isServiceSaved) {
       return 'clock' as const;
     }
 
@@ -495,18 +555,18 @@ export default function PlanDetail() {
             {/* Top Left - 스튜디오 */}
             <Pressable
               onPress={() => handleServiceItemPress(0)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], !planData.services[0].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-left'], !savedServices['스튜디오'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[0].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['스튜디오'] && styles['service-grid-type-inactive']]}>
                 {planData.services[0].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[0].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['스튜디오'] && styles['service-grid-name-inactive']]}>
                   {planData.services[0].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, planData.services[0].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[0].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(0) && getStatusIcon(getServiceStatusIcon(0)!, savedServices['스튜디오'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['스튜디오'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(0)}
                   </Text>
                 </View>
@@ -516,18 +576,18 @@ export default function PlanDetail() {
             {/* Top Right - 드레스 */}
             <Pressable
               onPress={() => handleServiceItemPress(1)}
-              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], !planData.services[1].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-top-right'], !savedServices['드레스'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[1].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['드레스'] && styles['service-grid-type-inactive']]}>
                 {planData.services[1].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[1].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['드레스'] && styles['service-grid-name-inactive']]}>
                   {planData.services[1].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, planData.services[1].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[1].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(1) && getStatusIcon(getServiceStatusIcon(1)!, savedServices['드레스'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['드레스'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(1)}
                   </Text>
                 </View>
@@ -537,18 +597,18 @@ export default function PlanDetail() {
             {/* Bottom Left - 메이크업 */}
             <Pressable
               onPress={() => handleServiceItemPress(2)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], !planData.services[2].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-left'], !savedServices['메이크업'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[2].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['메이크업'] && styles['service-grid-type-inactive']]}>
                 {planData.services[2].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[2].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['메이크업'] && styles['service-grid-name-inactive']]}>
                   {planData.services[2].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, planData.services[2].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[2].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(2) && getStatusIcon(getServiceStatusIcon(2)!, savedServices['메이크업'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['메이크업'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(2)}
                   </Text>
                 </View>
@@ -558,18 +618,18 @@ export default function PlanDetail() {
             {/* Bottom Right - 웨딩홀 */}
             <Pressable
               onPress={() => handleServiceItemPress(3)}
-              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], !planData.services[3].isSelected && styles['service-grid-item-inactive']]}
+              style={[styles['service-grid-item'], styles['service-grid-item-bottom-right'], !savedServices['웨딩홀'] && styles['service-grid-item-inactive']]}
             >
-              <Text style={[styles['service-grid-type'], !planData.services[3].isSelected && styles['service-grid-type-inactive']]}>
+              <Text style={[styles['service-grid-type'], !savedServices['웨딩홀'] && styles['service-grid-type-inactive']]}>
                 {planData.services[3].type}
               </Text>
               <View style={styles['service-grid-content']}>
-                <Text style={[styles['service-grid-name'], !planData.services[3].isSelected && styles['service-grid-name-inactive']]}>
+                <Text style={[styles['service-grid-name'], !savedServices['웨딩홀'] && styles['service-grid-name-inactive']]}>
                   {planData.services[3].name}
                 </Text>
                 <View style={styles['service-grid-status']}>
-                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, planData.services[3].isSelected)}
-                  <Text style={[styles['service-grid-status-text'], !planData.services[3].isSelected && styles['service-grid-status-text-inactive']]}>
+                  {getServiceStatusIcon(3) && getStatusIcon(getServiceStatusIcon(3)!, savedServices['웨딩홀'])}
+                  <Text style={[styles['service-grid-status-text'], !savedServices['웨딩홀'] && styles['service-grid-status-text-inactive']]}>
                     {getServiceStatus(3)}
                   </Text>
                 </View>
@@ -689,13 +749,13 @@ export default function PlanDetail() {
                   size="medium"
                   onPress={handleSave}
                 >
-                  {isSaved ? '저장 취소하기' : '저장하기'}
+                  {savedServices[planData.services[selectedTab].type] ? '저장 변경하기' : '저장하기'}
                 </Button>
               </View>
             </View>
 
-            {/* 방문 예약하기 - 저장된 경우에만 표시 */}
-            {isSaved && (
+            {/* 방문 예약하기 - 현재 서비스가 저장된 경우에만 표시 */}
+            {savedServices[planData.services[selectedTab].type] && (
               <View style={styles['reservation-section']}>
                 {/* 구분선 */}
                 <View style={styles['reservation-divider']} />
@@ -824,8 +884,9 @@ export default function PlanDetail() {
               </View>
             )}
 
-            {/* AI 추천 업체 - 항상 표시 */}
-            <View style={styles['ai-recommendations']}>
+            {/* AI 추천 업체 - 현재 서비스가 저장되지 않은 경우에만 표시 */}
+            {!savedServices[planData.services[selectedTab].type] && (
+              <View style={styles['ai-recommendations']}>
               <Text style={styles['ai-recommendations-title']}>
                 AI가 추천하는 다른 업체
               </Text>
@@ -834,30 +895,34 @@ export default function PlanDetail() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles['ai-recommendations-images']}
               >
-                {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
-                  ?.filter((recommendation: any) =>
-                    recommendation.name !== currentDetailInfo.name
-                  )
-                  ?.slice(0, aiRecommendationsCount)
-                  ?.map((recommendation: any, index: number) => (
-                  <Pressable
-                    key={index}
-                    style={styles['ai-recommendation-item']}
-                    onPress={() => handleAiRecommendationPress(recommendation)}
-                  >
-                    <View style={styles['ai-recommendation-image']} />
-                    <View style={styles['ai-recommendation-text-container']}>
-                      <Text style={styles['ai-recommendation-name']}>
-                        {recommendation.name}
-                      </Text>
-                      <Text style={styles['ai-recommendation-price']}>
-                        {recommendation.price}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
+                {(() => {
+                  const currentMainServiceName = selectedAiRecommendation?.name || planData.services[selectedTab].name;
+                  return (planData.aiRecommendations as any)[planData.services[selectedTab].type]
+                    ?.filter((recommendation: any) =>
+                      recommendation.name !== currentMainServiceName
+                    )
+                    ?.slice(0, aiRecommendationsCount)
+                    ?.map((recommendation: any, index: number) => (
+                      <Pressable
+                        key={index}
+                        style={styles['ai-recommendation-item']}
+                        onPress={() => handleAiRecommendationPress(recommendation)}
+                      >
+                        <View style={styles['ai-recommendation-image']} />
+                        <View style={styles['ai-recommendation-text-container']}>
+                          <Text style={styles['ai-recommendation-name']}>
+                            {recommendation.name}
+                          </Text>
+                          <Text style={styles['ai-recommendation-price']}>
+                            {recommendation.price}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ));
+                })()}
               </ScrollView>
             </View>
+            )}
             </ScrollView>
           </View>
          
@@ -866,10 +931,11 @@ export default function PlanDetail() {
       </BottomSheet>
 
       {/* 업체 변경 확인 모달 */}
-      {showChangeVendorModal && (
+      {changeVendorModals[planData.services[selectedTab].type] && (
         <ErrorModal
           planAName={planData.planName}
-          studioName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
+          serviceType={planData.services[selectedTab].type}
+          serviceName={selectedAiRecommendation?.name || planData.services[selectedTab].name}
           onConfirm={handleSaveConfirm}
           onCancel={handleSaveCancel}
         />
