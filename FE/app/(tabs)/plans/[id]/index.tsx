@@ -35,6 +35,10 @@ export default function PlanDetail() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null); // 선택된 시간
   const [showTimePicker, setShowTimePicker] = useState(false); // 시간 선택 버튼 표시 여부
   const [isReserved, setIsReserved] = useState(false); // 예약 완료 상태
+  const [selectedAiRecommendation, setSelectedAiRecommendation] = useState<{
+    name: string;
+    price: string;
+  } | null>(null); // 선택된 AI 추천 업체
   const hasSnappedToMaxRef = useRef(false); // 이미 최대 높이로 올라갔는지 추적
 
   // 시간 옵션 생성 (9시부터 20시까지)
@@ -213,11 +217,40 @@ export default function PlanDetail() {
     // TODO: 다른 업체 보기 로직 구현
   };
 
+  const handleAiRecommendationPress = (recommendation: { name: string; price: string }) => {
+    // 선택된 AI 추천 업체를 메인 상세 섹션에 표시
+    setSelectedAiRecommendation(recommendation);
+    // Bottom sheet를 최대 높이로 열기
+    bottomSheetRef.current?.snapToIndex(1);
+  };
+
+  // 동적 상세 정보 계산
+  const currentDetailInfo = useMemo(() => {
+    if (selectedAiRecommendation) {
+      // 선택된 AI 추천 업체 정보로 상세 정보 생성
+      const serviceType = planData.services[selectedTab].type;
+      return {
+        summary: `AI 추천 ${serviceType} 업체`,
+        name: selectedAiRecommendation.name,
+        address: '주소 정보가 제공되지 않습니다',
+        phone: '전화번호 정보가 제공되지 않습니다',
+        hours: '영업시간 정보가 제공되지 않습니다',
+        service: `${serviceType} 서비스`,
+        prices: [
+          { level: '기본', price: selectedAiRecommendation.price.replace('예상비용 ', '') },
+        ],
+      };
+    }
+    // 기본 서비스 정보 반환
+    return planData.detailInfo;
+  }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
+
   const handleSave = () => {
     if (isSaved) {
       // 저장 취소하기
       setIsSaved(false);
       setSelectedDate(null);
+      setSelectedAiRecommendation(null); // AI 추천 업체 선택 초기화
     } else {
       // 저장하기
       setIsSaved(true);
@@ -467,7 +500,7 @@ export default function PlanDetail() {
               showsVerticalScrollIndicator={false}
             >
             <Text style={styles['detail-name']}>
-              {planData.detailInfo.name}
+              {currentDetailInfo.name}
             </Text>
 
             {/* 이미지 플레이스홀더 */}
@@ -481,32 +514,32 @@ export default function PlanDetail() {
               <View style={styles['detail-info-item']}>
                 <MapPin size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.address}
+                  {currentDetailInfo.address}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <Phone size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.phone}
+                  {currentDetailInfo.phone}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <Clock size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.hours}
+                  {currentDetailInfo.hours}
                 </Text>
               </View>
               <View style={styles['detail-info-item']}>
                 <CircleDollarSign size={16} color={colors.root.text} />
                 <Text style={styles['detail-info-text']}>
-                  {planData.detailInfo.service}
+                  {currentDetailInfo.service}
                 </Text>
               </View>
             </View>
 
             {/* 가격 정보 */}
             <View style={styles['detail-prices']}>
-              {planData.detailInfo.prices.map((price, index) => (
+              {currentDetailInfo.prices.map((price, index) => (
                 <View key={index} style={styles['detail-price-row']}>
                   <Text style={styles['detail-price-level']}>{price.level}</Text>
                   <View style={styles['detail-price-dots']}>
@@ -679,8 +712,16 @@ export default function PlanDetail() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles['ai-recommendations-images']}
                 >
-                  {(planData.aiRecommendations as any)[planData.services[selectedTab].type]?.map((recommendation: any, index: number) => (
-                    <View key={index} style={styles['ai-recommendation-item']}>
+                  {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
+                    ?.filter((recommendation: any) =>
+                      !selectedAiRecommendation || recommendation.name !== selectedAiRecommendation.name
+                    )
+                    ?.map((recommendation: any, index: number) => (
+                    <Pressable
+                      key={index}
+                      style={styles['ai-recommendation-item']}
+                      onPress={() => handleAiRecommendationPress(recommendation)}
+                    >
                       <View style={styles['ai-recommendation-image']} />
                       <View style={styles['ai-recommendation-text-container']}>
                         <Text style={styles['ai-recommendation-name']}>
@@ -690,7 +731,7 @@ export default function PlanDetail() {
                           {recommendation.price}
                         </Text>
                       </View>
-                    </View>
+                    </Pressable>
                   ))}
                 </ScrollView>
               </View>
