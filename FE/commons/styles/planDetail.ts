@@ -790,5 +790,28 @@ export const styles = StyleSheet.create({
   'reservation-action-button': {
     flex: 1,
   },
+
+  // AI 추천 스켈레톤 스타일
+  'ai-recommendation-image-skeleton': {
+    width: 120,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: colors.black['black-3'],
+  },
+
+  'ai-recommendation-name-skeleton': {
+    width: 80,
+    height: 14,
+    borderRadius: 4,
+    backgroundColor: colors.black['black-3'],
+    marginBottom: parseInt(spacing.xs),
+  },
+
+  'ai-recommendation-price-skeleton': {
+    width: 60,
+    height: 12,
+    borderRadius: 4,
+    backgroundColor: colors.black['black-3'],
+  },
 });
 
