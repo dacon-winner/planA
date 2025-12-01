@@ -53,7 +53,11 @@ import KakaoMap, {
   MapMarker,
   KakaoMapRef,
 } from "@/commons/components/kakao-map";
-import { useVendors, useVendorDetail, useAddVendorToPlan } from "@/commons/hooks";
+import {
+  useVendors,
+  useVendorDetail,
+  useAddVendorToPlan,
+} from "@/commons/hooks";
 import { MarkerVariant } from "@/commons/components/marker";
 import { Toast } from "@/commons/components/toast-message";
 import { AddToPlanModal } from "@/commons/components/modal";
@@ -150,20 +154,21 @@ export default function Search() {
   );
 
   // 플랜에 업체 추가/교체
-  const { mutate: addVendorToPlan, isPending: isAddingVendor } = useAddVendorToPlan({
-    onSuccess: (data) => {
-      const message =
-        data.action === "added"
-          ? `${selectedVendor.name}이(가) 플랜에 추가되었습니다`
-          : `기존 업체가 ${selectedVendor.name}(으)로 교체되었습니다`;
-      Toast.success(message);
-      setShowAddToPlanModal(false);
-      bottomSheetRef.current?.close();
-    },
-    onError: (error) => {
-      Toast.error(error.message || "업체 추가에 실패했습니다");
-    },
-  });
+  const { mutate: addVendorToPlan, isPending: isAddingVendor } =
+    useAddVendorToPlan({
+      onSuccess: (data) => {
+        const message =
+          data.action === "added"
+            ? `${selectedVendor.name}이(가) 플랜에 추가되었습니다`
+            : `기존 업체가 ${selectedVendor.name}(으)로 교체되었습니다`;
+        Toast.success(message);
+        setShowAddToPlanModal(false);
+        bottomSheetRef.current?.close();
+      },
+      onError: (error) => {
+        Toast.error(error.message || "업체 추가에 실패했습니다");
+      },
+    });
 
   // 초기 로딩 완료 체크
   useEffect(() => {
@@ -308,6 +313,7 @@ export default function Search() {
   const handleCancelAddToPlan = () => {
     setShowAddToPlanModal(false);
   };
+
 
   return (
     <View style={styles["search-wrapper"]}>
@@ -629,12 +635,13 @@ export default function Search() {
       )}
 
       {/* 플랜에 추가 모달 */}
-      <AddToPlanModal
-        visible={showAddToPlanModal}
-        vendorName={selectedVendor?.name || ""}
-        onConfirm={handleConfirmAddToPlan}
-        onCancel={handleCancelAddToPlan}
-      />
+      {showAddToPlanModal && (
+        <AddToPlanModal
+          vendorName={selectedVendor?.name || ""}
+          onConfirm={handleConfirmAddToPlan}
+          onCancel={handleCancelAddToPlan}
+        />
+      )}
     </View>
   );
 }

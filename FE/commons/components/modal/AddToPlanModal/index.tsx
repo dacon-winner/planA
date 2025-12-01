@@ -16,18 +16,17 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Calendar, MapPin, Wallet, ChevronDown } from 'lucide-react-native';
 import { Modal } from '../Modal';
+import { useModal } from '@/commons/providers/modal/modal.provider';
 import { usePlans } from '@/commons/hooks';
 import { styles } from './styles';
 
 export interface AddToPlanModalProps {
-  /** 모달 표시 여부 */
-  visible: boolean;
   /** 추가할 업체명 */
   vendorName: string;
   /** 확인 버튼 핸들러 */
   onConfirm: (planId: string) => void;
-  /** 취소 버튼 핸들러 */
-  onCancel: () => void;
+  /** 취소 버튼 핸들러 (선택) */
+  onCancel?: () => void;
 }
 
 /**
@@ -61,14 +60,14 @@ const formatBudget = (budget: number | null): string => {
 };
 
 /**
- * AddToPlanModal 컴포넌트
+ * AddToPlanModalContent 컴포넌트 (모달 내용)
  */
-export const AddToPlanModal: React.FC<AddToPlanModalProps> = ({
-  visible,
+export const AddToPlanModalContent: React.FC<AddToPlanModalProps> = ({
   vendorName,
   onConfirm,
   onCancel,
 }) => {
+  const { closeModal } = useModal();
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -86,14 +85,16 @@ export const AddToPlanModal: React.FC<AddToPlanModalProps> = ({
       onConfirm(selectedPlanId);
       setSelectedPlanId(null);
       setIsDropdownOpen(false);
+      closeModal();
     }
   };
 
   // 취소 버튼 핸들러
   const handleCancel = () => {
-    onCancel();
     setSelectedPlanId(null);
     setIsDropdownOpen(false);
+    closeModal();
+    onCancel?.();
   };
 
   // 플랜 선택 핸들러
@@ -101,8 +102,6 @@ export const AddToPlanModal: React.FC<AddToPlanModalProps> = ({
     setSelectedPlanId(planId);
     setIsDropdownOpen(false);
   };
-
-  if (!visible) return null;
 
   return (
     <Modal
@@ -204,5 +203,21 @@ export const AddToPlanModal: React.FC<AddToPlanModalProps> = ({
       </View>
     </Modal>
   );
+};
+
+/**
+ * AddToPlanModal 컴포넌트 (모달 래퍼)
+ */
+export const AddToPlanModal: React.FC<AddToPlanModalProps> = (props) => {
+  const { openModal } = useModal();
+
+  React.useEffect(() => {
+    // 컴포넌트가 마운트되면 자동으로 모달 열기
+    openModal(<AddToPlanModalContent {...props} />);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 이 컴포넌트는 보이지 않는 placeholder만 반환
+  return <View />;
 };
 
