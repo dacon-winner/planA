@@ -9,7 +9,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { buildApiUrl } from '@/commons/config';
 import { useAuth } from '@/commons/providers/auth/auth.provider';
 import { usePlanState } from '@/commons/providers/plan-state/plan-state.provider';
@@ -38,9 +38,9 @@ export interface PlanState {
  */
 export interface ReservationInfo {
   plan_id: string;
-  reservation_date: Date;
+  reservation_date: Date | string;
   reservation_time: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'AWAITING_PAYMENT';
   visitor_name: string;
   visitor_phone: string;
   // TODO: 업체 정보 연동 시 추가
@@ -49,6 +49,18 @@ export interface ReservationInfo {
   //   name: string;
   //   address: string;
   // };
+}
+
+/**
+ * 예약 조회 응답 타입 (백엔드 GetReservationResponseDto 기반)
+ */
+export interface GetReservationResponse {
+  plan_id: string;
+  reservation_date: Date | string;
+  reservation_time: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'AWAITING_PAYMENT';
+  visitor_name: string;
+  visitor_phone: string;
 }
 
 /**
@@ -261,4 +273,119 @@ export function usePlanStateInfo(planId: string) {
   const { getPlanState } = usePlanState();
 
   return getPlanState(planId);
+}
+
+/**
+ * 예약 조회 Hook
+ * 플랜 내 특정 업체의 예약 정보를 조회합니다.
+ *
+ * @param planId 플랜 ID
+ * @param vendorId 업체 ID
+ * @param enabled 쿼리 활성화 여부 (기본: true)
+ * @returns 예약 정보 및 조회 상태
+ *
+ * @example
+ * const { data, isLoading, error } = useGetReservation('plan-123', 'vendor-456');
+ *
+ * // 방문 예정 상태일 때 날짜 | 시간만 표시
+ * const dateTimeDisplay = data && isUpcomingReservation(data)
+ *   ? `${formatDate(data.reservation_date)} | ${data.reservation_time}`
+ *   : null;
+ */
+export function useGetReservation(
+  planId: string | null,
+  vendorId: string | null,
+  enabled: boolean = true
+) {
+  const { getAccessToken } = useAuth();
+
+  return useQuery({
+    queryKey: ['reservation', planId, vendorId],
+    queryFn: async (): Promise<GetReservationResponse | null> => {
+      if (!planId || !vendorId) {
+        return null;
+      }
+
+      console.log('🌐 [API] 예약 조회 요청:', { planId, vendorId });
+
+      const url = buildApiUrl(`api/v1/plans/${planId}/reservations`);
+      const accessToken = await getAccessToken();
+
+      try {
+        const response = await axios.get<{ success: boolean; data: GetReservationResponse }>(
+          url,
+          {
+            params: { vendor_id: vendorId },
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
+        if (!response.data.success) {
+          throw new Error('예약 조회에 실패했습니다.');
+        }
+
+        return response.data.data;
+      } catch (error) {
+        // 404 에러는 예약이 없는 것으로 처리
+        if (isAxiosError(error) && error.response?.status === 404) {
+          return null;
+        }
+        throw error;
+      }
+    },
+    enabled: enabled && !!planId && !!vendorId,
+  });
+}
+
+/**
+ * 방문 예정 상태인지 확인하는 헬퍼 함수
+ * PENDING 또는 CONFIRMED 상태를 방문 예정으로 간주합니다.
+ *
+ * @param reservation 예약 정보
+ * @returns 방문 예정 여부
+ */
+export function isUpcomingReservation(
+  reservation: GetReservationResponse | ReservationInfo | null
+): boolean {
+  if (!reservation) return false;
+  return reservation.status === 'PENDING' || reservation.status === 'CONFIRMED';
+}
+
+/**
+ * 예약 날짜를 포맷팅하는 헬퍼 함수
+ *
+ * @param date 날짜 (Date 객체 또는 문자열)
+ * @returns 포맷팅된 날짜 문자열 (YYYY-MM-DD)
+ */
+export function formatReservationDate(date: Date | string): string {
+  if (typeof date === 'string') {
+    // 문자열인 경우 그대로 반환 (이미 YYYY-MM-DD 형식일 것으로 가정)
+    return date;
+  }
+  // Date 객체인 경우 YYYY-MM-DD 형식으로 변환
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * 방문 예정 상태일 때 날짜 | 시간 형식으로 반환하는 헬퍼 함수
+ *
+ * @param reservation 예약 정보
+ * @returns 날짜 | 시간 문자열 또는 null
+ *
+ * @example
+ * const display = getReservationDateTimeDisplay(reservation);
+ * // "2025-12-25 | 14:00" 또는 null
+ */
+export function getReservationDateTimeDisplay(
+  reservation: GetReservationResponse | ReservationInfo | null
+): string | null {
+  if (!reservation || !isUpcomingReservation(reservation)) {
+    return null;
+  }
+
+  const date = formatReservationDate(reservation.reservation_date);
+  return `${date} | ${reservation.reservation_time}`;
 }
