@@ -217,23 +217,22 @@ export default function KakaoMap({
             
             map = new kakao.maps.Map(container, options);
             sendMessage('LOG', '✅ 지도 생성 완료!');
-            sendMessage('MAP_READY', {});
 
-            // 아주 미세한 이동으로 bounds_changed 이벤트 강제 트리거 (마커 표시를 위한 초기 API 호출)
+            // 지도 로드 직후 초기 bounds를 바로 전송 (마커 표시를 위한 초기 API 호출)
             setTimeout(function() {
-              var currentCenter = map.getCenter();
-              var tinyOffset = 0.00001; // 아주 미세한 이동 (약 1미터)
-              var tempPosition = new kakao.maps.LatLng(
-                currentCenter.getLat() + tinyOffset,
-                currentCenter.getLng() + tinyOffset
-              );
-              map.setCenter(tempPosition);
+              var initialBounds = map.getBounds();
+              var sw = initialBounds.getSouthWest();
+              var ne = initialBounds.getNorthEast();
+              sendMessage('REGION_CHANGE', {
+                swLat: sw.getLat(),
+                swLng: sw.getLng(),
+                neLat: ne.getLat(),
+                neLng: ne.getLng()
+              });
+              sendMessage('LOG', '📍 초기 bounds 전송 완료');
+            }, 200);
 
-              // 바로 원래 위치로 복귀
-              setTimeout(function() {
-                map.setCenter(currentCenter);
-              }, 10);
-            }, 100);
+            sendMessage('MAP_READY', {});
 
             // 영역 변경 이벤트
             kakao.maps.event.addListener(map, 'bounds_changed', function() {
