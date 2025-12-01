@@ -3,7 +3,7 @@
  * 버전: 1.4.0
  * 수정 시각: 2025-12-01
  * 규칙 준수: 03-ui.mdc, 04-func.mdc
- * 
+ *
  * 주요 기능:
  * - [x] 카카오맵 통합 및 표시
  * - [x] 백엔드 API 연동 (지도 영역 기반)
@@ -12,7 +12,7 @@
  * - [x] 비슷한 업체 추천 (3개)
  * - [x] 초기 로딩 스피너
  * - [x] 디바운싱 (지도 이동 1초)
- * 
+ *
  * 스타일 규칙:
  * - [x] tailwind.config.js 수정 안 함
  * - [x] 색상값 직접 입력 0건
@@ -20,50 +20,84 @@
  * - [x] StyleSheet 전용
  */
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { Search as SearchIcon, Crosshair, MapPin, Phone, Clock, CircleDollarSign } from 'lucide-react-native';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { styles, vendorDetailStyles } from './styles';
-import KakaoMap, { MapMarker, KakaoMapRef } from '@/commons/components/kakao-map';
-import { useVendors } from '@/commons/hooks';
-import { MarkerVariant } from '@/commons/components/marker';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { useLocalSearchParams } from "expo-router";
+import {
+  Search as SearchIcon,
+  Crosshair,
+  MapPin,
+  Phone,
+  Clock,
+  CircleDollarSign,
+} from "lucide-react-native";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { styles, vendorDetailStyles } from "./styles";
+import KakaoMap, {
+  MapMarker,
+  KakaoMapRef,
+} from "@/commons/components/kakao-map";
+import {
+  useVendors,
+  useVendorDetail,
+  useAddVendorToPlan,
+} from "@/commons/hooks";
+import { MarkerVariant } from "@/commons/components/marker";
+import { Toast } from "@/commons/components/toast-message";
+import { AddToPlanModal } from "@/commons/components/modal";
 
 const CATEGORIES = [
-  { id: 'ALL', label: '전체' },
-  { id: 'VENUE', label: '웨딩홀' },
-  { id: 'STUDIO', label: '스튜디오' },
-  { id: 'DRESS', label: '드레스' },
-  { id: 'MAKEUP', label: '메이크업' },
+  { id: "ALL", label: "전체" },
+  { id: "VENUE", label: "웨딩홀" },
+  { id: "STUDIO", label: "스튜디오" },
+  { id: "DRESS", label: "드레스" },
+  { id: "MAKEUP", label: "메이크업" },
 ] as const;
 
-type Category = typeof CATEGORIES[number]['id'];
+type Category = (typeof CATEGORIES)[number]["id"];
 
 /**
  * 카테고리를 MarkerVariant으로 변환하는 헬퍼 함수
  * @param category - 백엔드 카테고리 ('VENUE', 'STUDIO', 'DRESS', 'MAKEUP')
  * @returns MarkerVariant ('hotel', 'camera', 'shirt', 'palette')
  */
-function mapCategoryToMarkerVariant(category: string): MarkerVariant | undefined {
+function mapCategoryToMarkerVariant(
+  category: string
+): MarkerVariant | undefined {
   switch (category) {
-    case 'VENUE':
-      return 'hotel';
-    case 'STUDIO':
-      return 'camera';
-    case 'DRESS':
-      return 'shirt';
-    case 'MAKEUP':
-      return 'palette';
+    case "VENUE":
+      return "hotel";
+    case "STUDIO":
+      return "camera";
+    case "DRESS":
+      return "shirt";
+    case "MAKEUP":
+      return "palette";
     default:
       return undefined;
   }
 }
 
 export default function Search() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
+  const params = useLocalSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState<Category>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [mapBounds, setMapBounds] = useState({
     swLat: 37.5,
     swLng: 126.9,
@@ -75,10 +109,11 @@ export default function Search() {
   const [selectedVendor, setSelectedVendor] = useState<any>(null);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [hasInitialData, setHasInitialData] = useState(false);
+  const [showAddToPlanModal, setShowAddToPlanModal] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const mapRef = useRef<KakaoMapRef>(null);
-  const snapPoints = useMemo(() => ['60%', '90%'], []);
+  const snapPoints = useMemo(() => ["60%", "90%"], []);
 
   // 지도 영역이 변경되면 1초 후에 API 호출 (Debounce)
   useEffect(() => {
@@ -88,7 +123,7 @@ export default function Search() {
 
     debounceTimerRef.current = setTimeout(() => {
       setDebouncedMapBounds(mapBounds);
-      console.log('⏰ [Search] Debounced - API 호출 준비');
+      console.log("⏰ [Search] Debounced - API 호출 준비");
     }, 1000); // 1초 대기
 
     return () => {
@@ -99,7 +134,11 @@ export default function Search() {
   }, [mapBounds]);
 
   // 백엔드 API 호출 - Debounced 지도 영역 기준으로 조회
-  const { data: vendorsData, isLoading: isLoadingVendors, error } = useVendors(
+  const {
+    data: vendorsData,
+    isLoading: isLoadingVendors,
+    error,
+  } = useVendors(
     {
       category: selectedCategory,
       ...debouncedMapBounds,
@@ -107,10 +146,34 @@ export default function Search() {
     isMapReady // 지도 준비 완료 후에만 API 호출
   );
 
+  // 선택된 업체의 상세 정보 조회 (이미지 포함)
+  const { data: vendorDetail, isLoading: isLoadingDetail } = useVendorDetail(
+    selectedVendor?.id,
+    undefined,
+    !!selectedVendor?.id
+  );
+
+  // 플랜에 업체 추가/교체
+  const { mutate: addVendorToPlan, isPending: isAddingVendor } =
+    useAddVendorToPlan({
+      onSuccess: (data) => {
+        const message =
+          data.action === "added"
+            ? `${selectedVendor.name}이(가) 플랜에 추가되었습니다`
+            : `기존 업체가 ${selectedVendor.name}(으)로 교체되었습니다`;
+        Toast.success(message);
+        setShowAddToPlanModal(false);
+        bottomSheetRef.current?.close();
+      },
+      onError: (error) => {
+        Toast.error(error.message || "업체 추가에 실패했습니다");
+      },
+    });
+
   // 초기 로딩 완료 체크
   useEffect(() => {
     if (isMapReady && !isLoadingVendors && vendorsData && !hasInitialData) {
-      console.log('✅ [Search] 초기 로딩 완료');
+      console.log("✅ [Search] 초기 로딩 완료");
       setHasInitialData(true);
       // 약간의 딜레이 후 화면 표시 (마커가 그려지는 시간 확보)
       setTimeout(() => {
@@ -119,16 +182,41 @@ export default function Search() {
     }
   }, [isMapReady, isLoadingVendors, vendorsData, hasInitialData]);
 
+  // 새 플랜 생성 후 토스트 메시지 표시
+  useEffect(() => {
+    // URL params에 showNewPlanToast 플래그가 있을 때만 토스트 표시
+    if (params.showNewPlanToast === "true") {
+      console.log("🆕 [Search] 새 플랜 생성 토스트 표시");
+      // 페이지 로드 후 약간의 딜레이 후 토스트 표시
+      setTimeout(() => {
+        Toast.success("새 플랜이 생성되었습니다. 업체를 추가해보세요!", {
+          bottomOffset: 80 as any, // 네비게이션 바로 위에 표시
+        });
+      }, 800);
+    }
+  }, [params.showNewPlanToast]);
+
   // 디버그 로그
   useEffect(() => {
-    console.log('🗺️ [Search] Map Ready:', isMapReady);
-    console.log('📍 [Search] Map Bounds:', mapBounds);
-    console.log('🏷️ [Search] Selected Category:', selectedCategory);
-    console.log('📦 [Search] Total Vendors:', vendorsData?.vendors?.length || 0);
-    console.log('⏳ [Search] Loading Vendors:', isLoadingVendors);
-    console.log('🎨 [Search] Initial Load Complete:', initialLoadComplete);
-    if (error) console.error('❌ [Search] Error:', error);
-  }, [isMapReady, mapBounds, selectedCategory, vendorsData, isLoadingVendors, error, initialLoadComplete]);
+    console.log("🗺️ [Search] Map Ready:", isMapReady);
+    console.log("📍 [Search] Map Bounds:", mapBounds);
+    console.log("🏷️ [Search] Selected Category:", selectedCategory);
+    console.log(
+      "📦 [Search] Total Vendors:",
+      vendorsData?.vendors?.length || 0
+    );
+    console.log("⏳ [Search] Loading Vendors:", isLoadingVendors);
+    console.log("🎨 [Search] Initial Load Complete:", initialLoadComplete);
+    if (error) console.error("❌ [Search] Error:", error);
+  }, [
+    isMapReady,
+    mapBounds,
+    selectedCategory,
+    vendorsData,
+    isLoadingVendors,
+    error,
+    initialLoadComplete,
+  ]);
 
   // 업체 데이터를 마커 형식으로 변환
   const markers: MapMarker[] = useMemo(() => {
@@ -136,9 +224,10 @@ export default function Search() {
 
     return vendorsData.vendors.map((vendor) => {
       // 가장 저렴한 서비스 아이템 가격 찾기
-      const minPrice = vendor.service_items && vendor.service_items.length > 0
-        ? Math.min(...vendor.service_items.map(item => item.price))
-        : undefined;
+      const minPrice =
+        vendor.service_items && vendor.service_items.length > 0
+          ? Math.min(...vendor.service_items.map((item) => item.price))
+          : undefined;
 
       return {
         id: vendor.id,
@@ -158,15 +247,16 @@ export default function Search() {
     if (!selectedVendor || !vendorsData?.vendors) return [];
 
     return vendorsData.vendors
-      .filter((vendor: any) => 
-        vendor.id !== selectedVendor.id && 
-        vendor.category === selectedVendor.category
+      .filter(
+        (vendor: any) =>
+          vendor.id !== selectedVendor.id &&
+          vendor.category === selectedVendor.category
       )
       .map((vendor: any) => {
         // 거리 계산 (단순 유클리드 거리)
         const distance = Math.sqrt(
           Math.pow(vendor.latitude - selectedVendor.latitude, 2) +
-          Math.pow(vendor.longitude - selectedVendor.longitude, 2)
+            Math.pow(vendor.longitude - selectedVendor.longitude, 2)
         );
         return { ...vendor, distance };
       })
@@ -175,41 +265,64 @@ export default function Search() {
   }, [selectedVendor, vendorsData]);
 
   const handleMapReady = () => {
-    console.log('지도 로드 완료');
+    console.log("지도 로드 완료");
     setIsMapReady(true);
   };
 
   const handleRegionChange = (bounds: any) => {
-    console.log('📍 지도 영역 변경:', bounds);
+    console.log("📍 지도 영역 변경:", bounds);
     setMapBounds(bounds);
   };
 
-  const handleMarkerClick = useCallback((markerId: string) => {
-    console.log('마커 클릭:', markerId);
-    const vendor = vendorsData?.vendors?.find((v: any) => v.id === markerId);
-    if (vendor) {
-      setSelectedVendor(vendor);
-      bottomSheetRef.current?.snapToIndex(0);
-    }
-  }, [vendorsData]);
+  const handleMarkerClick = useCallback(
+    (markerId: string) => {
+      console.log("마커 클릭:", markerId);
+      const vendor = vendorsData?.vendors?.find((v: any) => v.id === markerId);
+      if (vendor) {
+        setSelectedVendor(vendor);
+        bottomSheetRef.current?.snapToIndex(0);
+      }
+    },
+    [vendorsData]
+  );
 
   const handleCurrentLocation = () => {
-    console.log('현재 위치로 이동');
+    console.log("현재 위치로 이동");
     // 사전 정의된 좌표(37.568305, 127.010740)로 이동
     if (mapRef.current) {
-      mapRef.current.moveTo(37.568305, 127.010740);
+      mapRef.current.moveTo(37.568305, 127.01074);
     }
   };
 
+  // 저장하기 버튼 핸들러
+  const handleSaveVendor = () => {
+    setShowAddToPlanModal(true);
+  };
+
+  // 플랜 선택 확인 핸들러
+  const handleConfirmAddToPlan = (planId: string) => {
+    if (selectedVendor) {
+      addVendorToPlan({
+        planId,
+        vendorId: selectedVendor.id,
+      });
+    }
+  };
+
+  // 플랜 선택 취소 핸들러
+  const handleCancelAddToPlan = () => {
+    setShowAddToPlanModal(false);
+  };
+
   return (
-    <View style={styles['search-wrapper']}>
-      <SafeAreaView style={styles['search-safe-area']} edges={['top']}>
-        <View style={styles['search-container']}>
+    <View style={styles["search-wrapper"]}>
+      <SafeAreaView style={styles["search-safe-area"]} edges={["top"]}>
+        <View style={styles["search-container"]}>
           {/* 초기 로딩 스피너 */}
           {!initialLoadComplete && (
-            <View style={styles['initial-loading-overlay']}>
+            <View style={styles["initial-loading-overlay"]}>
               <ActivityIndicator size="large" color="#8B7FFF" />
-              <Text style={styles['loading-text']}>지도를 불러오는 중...</Text>
+              <Text style={styles["loading-text"]}>지도를 불러오는 중...</Text>
             </View>
           )}
 
@@ -226,11 +339,11 @@ export default function Search() {
           />
 
           {/* 검색바 */}
-          <View style={styles['search-bar-container']}>
-            <View style={styles['search-bar']}>
+          <View style={styles["search-bar-container"]}>
+            <View style={styles["search-bar"]}>
               <SearchIcon size={20} color="#524a4e" />
               <TextInput
-                style={styles['search-input']}
+                style={styles["search-input"]}
                 placeholder="업체명 또는 서비스로 검색"
                 placeholderTextColor="#524a4e"
                 value={searchQuery}
@@ -240,32 +353,34 @@ export default function Search() {
           </View>
 
           {/* 카테고리 필터 */}
-          <View style={styles['category-filter-container']}>
-            <ScrollView 
-              horizontal 
+          <View style={styles["category-filter-container"]}>
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles['category-filter-scroll']}
+              contentContainerStyle={styles["category-filter-scroll"]}
             >
               {CATEGORIES.map((category) => (
                 <TouchableOpacity
                   key={category.id}
                   onPress={() => setSelectedCategory(category.id)}
                   style={[
-                    styles['category-button'],
-                    selectedCategory === category.id && styles['category-button-selected'],
+                    styles["category-button"],
+                    selectedCategory === category.id &&
+                      styles["category-button-selected"],
                     selectedCategory === category.id && {
-                      shadowColor: '#000',
+                      shadowColor: "#000",
                       shadowOffset: { width: 0, height: 0 },
                       shadowOpacity: 0.1,
                       shadowRadius: 20,
                       elevation: 2,
-                    }
+                    },
                   ]}
                 >
-                  <Text 
+                  <Text
                     style={[
-                      styles['category-button-text'],
-                      selectedCategory === category.id && styles['category-button-text-selected']
+                      styles["category-button-text"],
+                      selectedCategory === category.id &&
+                        styles["category-button-text-selected"],
                     ]}
                   >
                     {category.label}
@@ -278,7 +393,7 @@ export default function Search() {
           {/* 현재 위치 버튼 */}
           <TouchableOpacity
             onPress={handleCurrentLocation}
-            style={styles['location-button']}
+            style={styles["location-button"]}
           >
             <Crosshair size={24} color="#524a4e" />
           </TouchableOpacity>
@@ -304,11 +419,17 @@ export default function Search() {
               <View style={vendorDetailStyles.headerLeft}>
                 <MapPin size={24} color="#000000" />
                 <Text style={vendorDetailStyles.headerLocation}>
-                  {selectedVendor.address?.split(' ').slice(0, 3).join(' ')}
+                  {selectedVendor.address?.split(" ").slice(0, 3).join(" ")}
                 </Text>
               </View>
-              <TouchableOpacity style={vendorDetailStyles.saveButton}>
-                <Text style={vendorDetailStyles.saveButtonText}>저장하기</Text>
+              <TouchableOpacity
+                style={vendorDetailStyles.saveButton}
+                onPress={handleSaveVendor}
+                disabled={isAddingVendor}
+              >
+                <Text style={vendorDetailStyles.saveButtonText}>
+                  {isAddingVendor ? "저장 중..." : "저장하기"}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -323,7 +444,9 @@ export default function Search() {
             </View>
 
             {/* 업체명 */}
-            <Text style={vendorDetailStyles.vendorName}>{selectedVendor.name}</Text>
+            <Text style={vendorDetailStyles.vendorName}>
+              {selectedVendor.name}
+            </Text>
 
             {/* 이미지 갤러리 */}
             <ScrollView
@@ -332,14 +455,22 @@ export default function Search() {
               style={vendorDetailStyles.imageGalleryContainer}
               contentContainerStyle={vendorDetailStyles.imageGalleryContent}
             >
-              {selectedVendor.images && selectedVendor.images.length > 0 ? (
-                selectedVendor.images.map((image: any, index: number) => (
-                  <Image
-                    key={index}
-                    source={{ uri: image.url }}
-                    style={vendorDetailStyles.galleryImage}
-                  />
-                ))
+              {isLoadingDetail ? (
+                <>
+                  <View style={vendorDetailStyles.galleryImagePlaceholder} />
+                  <View style={vendorDetailStyles.galleryImagePlaceholder} />
+                </>
+              ) : vendorDetail?.vendor_images &&
+                vendorDetail.vendor_images.length > 0 ? (
+                vendorDetail.vendor_images.map(
+                  (imageUrl: string, index: number) => (
+                    <Image
+                      key={index}
+                      source={{ uri: imageUrl }}
+                      style={vendorDetailStyles.galleryImage}
+                    />
+                  )
+                )
               ) : (
                 <>
                   <View style={vendorDetailStyles.galleryImagePlaceholder} />
@@ -353,59 +484,71 @@ export default function Search() {
               {/* 주소 */}
               <View style={vendorDetailStyles.infoRow}>
                 <MapPin size={16} color="#524a4e" />
-                <Text style={vendorDetailStyles.infoText}>{selectedVendor.address}</Text>
+                <Text style={vendorDetailStyles.infoText}>
+                  {selectedVendor.address}
+                </Text>
               </View>
 
               {/* 전화번호 */}
               {selectedVendor.phone && (
                 <View style={vendorDetailStyles.infoRow}>
                   <Phone size={16} color="#524a4e" />
-                  <Text style={vendorDetailStyles.infoText}>{selectedVendor.phone}</Text>
+                  <Text style={vendorDetailStyles.infoText}>
+                    {selectedVendor.phone}
+                  </Text>
                 </View>
               )}
 
               {/* 운영시간 */}
-              {selectedVendor.operating_hours && selectedVendor.operating_hours.length > 0 && (
-                <View style={vendorDetailStyles.infoRow}>
-                  <Clock size={16} color="#524a4e" />
-                  <Text style={vendorDetailStyles.infoText}>
-                    {selectedVendor.operating_hours[0].open_time} ~ {selectedVendor.operating_hours[0].close_time}
-                  </Text>
-                </View>
-              )}
+              {selectedVendor.operating_hours &&
+                selectedVendor.operating_hours.length > 0 && (
+                  <View style={vendorDetailStyles.infoRow}>
+                    <Clock size={16} color="#524a4e" />
+                    <Text style={vendorDetailStyles.infoText}>
+                      {selectedVendor.operating_hours[0].open_time} ~{" "}
+                      {selectedVendor.operating_hours[0].close_time}
+                    </Text>
+                  </View>
+                )}
 
               {/* 서비스 정보 */}
-              {selectedVendor.service_items && selectedVendor.service_items.length > 0 && (
-                <View style={vendorDetailStyles.infoRow}>
-                  <CircleDollarSign size={16} color="#524a4e" />
-                  <Text style={vendorDetailStyles.infoText}>
-                    {selectedVendor.service_items[0].name}
-                  </Text>
-                </View>
-              )}
+              {selectedVendor.service_items &&
+                selectedVendor.service_items.length > 0 && (
+                  <View style={vendorDetailStyles.infoRow}>
+                    <CircleDollarSign size={16} color="#524a4e" />
+                    <Text style={vendorDetailStyles.infoText}>
+                      {selectedVendor.service_items[0].name}
+                    </Text>
+                  </View>
+                )}
             </View>
 
             {/* 가격 정보 */}
-            {selectedVendor.service_items && selectedVendor.service_items.length > 0 && (
-              <View style={vendorDetailStyles.priceSection}>
-                {selectedVendor.service_items.map((item: any, index: number) => (
-                  <View key={index} style={vendorDetailStyles.priceRow}>
-                    <Text style={vendorDetailStyles.priceLabel}>{item.name}</Text>
-                    <View style={vendorDetailStyles.priceDivider} />
-                    <Text style={vendorDetailStyles.priceValue}>
-                      {item.price.toLocaleString()} 원
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
+            {selectedVendor.service_items &&
+              selectedVendor.service_items.length > 0 && (
+                <View style={vendorDetailStyles.priceSection}>
+                  {selectedVendor.service_items.map(
+                    (item: any, index: number) => (
+                      <View key={index} style={vendorDetailStyles.priceRow}>
+                        <Text style={vendorDetailStyles.priceLabel}>
+                          {item.name}
+                        </Text>
+                        <View style={vendorDetailStyles.priceDivider} />
+                        <Text style={vendorDetailStyles.priceValue}>
+                          {item.price.toLocaleString()} 원
+                        </Text>
+                      </View>
+                    )
+                  )}
+                </View>
+              )}
 
             {/* CTA 버튼 */}
-            <TouchableOpacity style={vendorDetailStyles.ctaButton}>
+            {/* <TouchableOpacity style={vendorDetailStyles.ctaButton}>
               <Text style={vendorDetailStyles.ctaButtonText}>
                 플랜에 장착작으로 변경합니다.
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {/* 비슷한 업체 추천 */}
             {similarVendors.length > 0 && (
@@ -416,12 +559,19 @@ export default function Search() {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={vendorDetailStyles.similarScrollContent}
+                  contentContainerStyle={
+                    vendorDetailStyles.similarScrollContent
+                  }
                 >
                   {similarVendors.map((vendor: any) => {
-                    const minPrice = vendor.service_items && vendor.service_items.length > 0
-                      ? Math.min(...vendor.service_items.map((item: any) => item.price))
-                      : null;
+                    const minPrice =
+                      vendor.service_items && vendor.service_items.length > 0
+                        ? Math.min(
+                            ...vendor.service_items.map(
+                              (item: any) => item.price
+                            )
+                          )
+                        : null;
 
                     return (
                       <TouchableOpacity
@@ -432,20 +582,29 @@ export default function Search() {
                           bottomSheetRef.current?.snapToIndex(0);
                         }}
                       >
-                        {vendor.images && vendor.images.length > 0 ? (
+                        {vendor.thumbnail_url ? (
                           <Image
-                            source={{ uri: vendor.images[0].url }}
+                            source={{ uri: vendor.thumbnail_url }}
                             style={vendorDetailStyles.similarCardImage}
                           />
                         ) : (
-                          <View style={vendorDetailStyles.similarCardImagePlaceholder} />
+                          <View
+                            style={
+                              vendorDetailStyles.similarCardImagePlaceholder
+                            }
+                          />
                         )}
                         <View style={vendorDetailStyles.similarCardContent}>
-                          <Text style={vendorDetailStyles.similarCardName} numberOfLines={1}>
+                          <Text
+                            style={vendorDetailStyles.similarCardName}
+                            numberOfLines={1}
+                          >
                             {vendor.name}
                           </Text>
                           <View style={vendorDetailStyles.similarCardBadge}>
-                            <Text style={vendorDetailStyles.similarCardBadgeText}>
+                            <Text
+                              style={vendorDetailStyles.similarCardBadgeText}
+                            >
                               {getCategoryLabel(vendor.category)}
                             </Text>
                           </View>
@@ -456,8 +615,11 @@ export default function Search() {
                           )}
                           <View style={vendorDetailStyles.similarCardLocation}>
                             <MapPin size={10} color="#524a4e" />
-                            <Text style={vendorDetailStyles.similarCardLocationText} numberOfLines={1}>
-                              {vendor.address?.split(' ').slice(0, 2).join(' ')}
+                            <Text
+                              style={vendorDetailStyles.similarCardLocationText}
+                              numberOfLines={1}
+                            >
+                              {vendor.address?.split(" ").slice(0, 2).join(" ")}
                             </Text>
                           </View>
                         </View>
@@ -470,6 +632,15 @@ export default function Search() {
           </BottomSheetScrollView>
         </BottomSheet>
       )}
+
+      {/* 플랜에 추가 모달 */}
+      {showAddToPlanModal && (
+        <AddToPlanModal
+          vendorName={selectedVendor?.name || ""}
+          onConfirm={handleConfirmAddToPlan}
+          onCancel={handleCancelAddToPlan}
+        />
+      )}
     </View>
   );
 }
@@ -481,19 +652,15 @@ export default function Search() {
  */
 function getCategoryLabel(category: string): string {
   switch (category) {
-    case 'VENUE':
-      return '웨딩홀';
-    case 'STUDIO':
-      return '스튜디오';
-    case 'DRESS':
-      return '드레스';
-    case 'MAKEUP':
-      return '메이크업';
+    case "VENUE":
+      return "웨딩홀";
+    case "STUDIO":
+      return "스튜디오";
+    case "DRESS":
+      return "드레스";
+    case "MAKEUP":
+      return "메이크업";
     default:
-      return '웨딩';
+      return "웨딩";
   }
 }
-
-
-
-

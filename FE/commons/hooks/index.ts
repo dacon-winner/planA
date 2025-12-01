@@ -3,8 +3,8 @@
  * 버전: 1.0.0
  */
 
-export { useVendors } from './useVendors';
-export type { Vendor, VendorsParams, VendorsResponse } from './useVendors';
+export { useVendors, useVendorDetail } from './useVendors';
+export type { Vendor, VendorsParams, VendorsResponse, VendorDetailResponse } from './useVendors';
 
 export { usePlans, usePlanDetail } from './usePlans';
 export type { PlanInfo, UsersInfo, PlanListItem, PlanListResponse } from './usePlans';
@@ -18,13 +18,30 @@ export type { UserInfo } from './useUser';
 export { useReservations } from './useReservations';
 export type { ReservationInfo, ReservationListResponse } from './useReservations';
 
-export { useAIPlan } from './useAIPlan';
+export { usePlanCreation } from './usePlanCreation';
+export type { UsePlanCreationReturn } from './usePlanCreation';
 
-export { useSetMainPlan } from './useMainPlan';
-export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
+export { useCreateEmptyPlan } from './useCreateEmptyPlan';
+export type { CreateEmptyPlanRequest, CreateEmptyPlanResponse } from './useCreateEmptyPlan';
+
+export { useMainPlan, useSetMainPlan, CATEGORY_LABELS, extractRegion } from './useMainPlan';
+export type { 
+  MainPlanItem, 
+  MainPlanResponse, 
+  VendorCategory,
+  SetMainPlanRequest, 
+  SetMainPlanResponse 
+} from './useMainPlan';
 
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
 
+
 export { useRegenerateVendor } from './useRegenerateVendor';
 export type { RegenerateVendorRequest, RegenerateVendorResponse } from './useRegenerateVendor';
+
+export { usePolicies } from './usePolicies';
+export type { PolicyInfo, PolicyListResponse, PolicyType } from './usePolicies';
+
+export { useAddVendorToPlan } from './useAddVendorToPlan';
+export type { AddVendorToPlanParams, AddVendorToPlanResponse } from './useAddVendorToPlan';

@@ -23,15 +23,16 @@ import { useModal } from "@/commons/providers/modal/modal.provider";
 import { NewPlanModalContent } from "@/commons/components/modal";
 import { getPlanDetailUrl } from "@/commons/enums/url";
 import { GradientBackground } from "@/commons/components/gradient-background";
-import { usePlans, useAIPlan, useSetMainPlan } from "@/commons/hooks";
+import { usePlans, usePlanCreation, useSetMainPlan } from "@/commons/hooks";
 import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
 
 export default function Schedule() {
   const { openModal } = useModal();
   const router = useRouter();
   const { data: planListResponse, isLoading, error, refetch } = usePlans();
-  const { openAIPlanGenerationModal } = useAIPlan();
-  const { mutate: setMainPlan, isPending: isSettingMainPlan } = useSetMainPlan();
+  const { openAIPlanModal, openManualPlanModal } = usePlanCreation();
+  const { mutate: setMainPlan, isPending: isSettingMainPlan } =
+    useSetMainPlan();
 
   // 페이지가 포커스될 때마다 플랜 목록 새로고침
   useFocusEffect(
@@ -58,7 +59,11 @@ export default function Schedule() {
       };
     }) || [];
 
-  const handleSetRepresentative = (planId: string, planName: string, isAlreadyMain: boolean) => {
+  const handleSetRepresentative = (
+    planId: string,
+    planName: string,
+    isAlreadyMain: boolean
+  ) => {
     // 이미 대표 플랜인 경우 - disabled로 처리되므로 이 코드는 실행되지 않음
     // 하지만 안전을 위해 체크 로직은 유지
     if (isAlreadyMain) {
@@ -108,11 +113,8 @@ export default function Schedule() {
     // NewPlanModal 열기
     openModal(
       <NewPlanModalContent
-        onManualAdd={() => {
-          console.log("직접 업체 추가");
-          // TODO: 직접 업체 추가 로직 구현
-        }}
-        onAIGenerate={openAIPlanGenerationModal}
+        onManualAdd={openManualPlanModal}
+        onAIGenerate={openAIPlanModal}
       />
     );
   };
@@ -192,7 +194,13 @@ export default function Schedule() {
               date={plan.date}
               location={plan.location}
               budget={plan.budget}
-              onSetRepresentative={() => handleSetRepresentative(plan.id, plan.planName, plan.isRepresentative)}
+              onSetRepresentative={() =>
+                handleSetRepresentative(
+                  plan.id,
+                  plan.planName,
+                  plan.isRepresentative
+                )
+              }
               onViewDetails={() => handleViewDetails(plan.id)}
             />
           ))
