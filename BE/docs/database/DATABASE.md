@@ -115,20 +115,20 @@
 
 ### 2.2 주요 관계
 
-| 관계                       | 카디널리티 | 설명                                            | ON DELETE |
-| -------------------------- | ---------- | ----------------------------------------------- | --------- |
-| User → UsersInfo           | **1:N**    | 사용자는 여러 상세 정보 보유 가능               | CASCADE   |
-| UsersInfo → Plan           | **1:1**    | 하나의 상세 정보는 하나의 플랜만 보유           | CASCADE   |
-| User → Plan                | 1:N        | 사용자는 여러 플랜 생성 가능 (UsersInfo를 통해) | CASCADE   |
-| Plan → PlanItem            | 1:N        | 플랜은 여러 항목으로 구성                       | CASCADE   |
-| User → Reservation         | 1:N        | 사용자는 여러 예약 가능                         | CASCADE   |
-| Vendor → VendorVenueDetail | 1:1        | 웨딩홀만 상세 정보 보유                         | CASCADE   |
-| Vendor → VendorOperatingHour | **1:N**  | 업체는 요일별 영업시간 보유                     | CASCADE   |
-| Vendor → VendorCostDetail  | 1:1        | 스드메 업체는 추가 비용 정보 보유               | CASCADE   |
-| Vendor → AiResource        | 1:N        | 업체당 여러 AI 리소스                           | SET NULL  |
-| User → AiLog               | 1:N        | 사용자의 AI 요청 이력                           | SET NULL  |
-| PlanItem → ServiceItem     | N:1        | 플랜 항목은 특정 상품 참조 가능                 | SET NULL  |
-| Reservation → Plan         | N:1        | 예약은 플랜과 연결 가능                         | SET NULL  |
+| 관계                         | 카디널리티 | 설명                                            | ON DELETE |
+| ---------------------------- | ---------- | ----------------------------------------------- | --------- |
+| User → UsersInfo             | **1:N**    | 사용자는 여러 상세 정보 보유 가능               | CASCADE   |
+| UsersInfo → Plan             | **1:1**    | 하나의 상세 정보는 하나의 플랜만 보유           | CASCADE   |
+| User → Plan                  | 1:N        | 사용자는 여러 플랜 생성 가능 (UsersInfo를 통해) | CASCADE   |
+| Plan → PlanItem              | 1:N        | 플랜은 여러 항목으로 구성                       | CASCADE   |
+| User → Reservation           | 1:N        | 사용자는 여러 예약 가능                         | CASCADE   |
+| Vendor → VendorVenueDetail   | 1:1        | 웨딩홀만 상세 정보 보유                         | CASCADE   |
+| Vendor → VendorOperatingHour | **1:N**    | 업체는 요일별 영업시간 보유                     | CASCADE   |
+| Vendor → VendorCostDetail    | 1:1        | 스드메 업체는 추가 비용 정보 보유               | CASCADE   |
+| Vendor → AiResource          | 1:N        | 업체당 여러 AI 리소스                           | SET NULL  |
+| User → AiLog                 | 1:N        | 사용자의 AI 요청 이력                           | SET NULL  |
+| PlanItem → ServiceItem       | N:1        | 플랜 항목은 특정 상품 참조 가능                 | SET NULL  |
+| Reservation → Plan           | N:1        | 예약은 플랜과 연결 가능                         | SET NULL  |
 
 ---
 
@@ -249,13 +249,13 @@
 
 #### **vendor_operating_hour** - 업체 영업시간 (정규화)
 
-| 컬럼명       | 타입    | 제약조건                    | 기본값 | 설명                        |
-| ------------ | ------- | --------------------------- | ------ | --------------------------- |
-| vendor_id    | UUID    | PK, FK → vendor.id NOT NULL | -      | 업체 ID                     |
-| day_of_week  | INT     | PK, NOT NULL                | -      | 요일 (0:일요일 ~ 6:토요일)  |
-| open_time    | TIME    | NULLABLE                    | NULL   | 오픈 시간                   |
-| close_time   | TIME    | NULLABLE                    | NULL   | 마감 시간                   |
-| is_holiday   | BOOLEAN | NOT NULL                    | false  | 휴무일 여부                 |
+| 컬럼명      | 타입    | 제약조건                    | 기본값 | 설명                       |
+| ----------- | ------- | --------------------------- | ------ | -------------------------- |
+| vendor_id   | UUID    | PK, FK → vendor.id NOT NULL | -      | 업체 ID                    |
+| day_of_week | INT     | PK, NOT NULL                | -      | 요일 (0:일요일 ~ 6:토요일) |
+| open_time   | TIME    | NULLABLE                    | NULL   | 오픈 시간                  |
+| close_time  | TIME    | NULLABLE                    | NULL   | 마감 시간                  |
+| is_holiday  | BOOLEAN | NOT NULL                    | false  | 휴무일 여부                |
 
 **설계 의도:**
 
@@ -293,18 +293,18 @@
 
 #### **vendor_cost_detail** - 스드메 추가 비용 상세
 
-| 컬럼명               | 타입      | 제약조건                         | 기본값 | 설명                     |
-| -------------------- | --------- | -------------------------------- | ------ | ------------------------ |
-| vendor_id            | UUID      | PK, FK → vendor.id, **NOT NULL** | -      | 업체 ID                  |
-| fitting_fee          | INT       | NOT NULL                         | 0      | 피팅비 (드레스/메이크업) |
-| helper_fee           | INT       | NOT NULL                         | 0      | 헬퍼비 (드레스/메이크업) |
-| early_start_fee      | INT       | NOT NULL                         | 0      | 얼리비 (드레스/메이크업) |
-| original_file_fee    | INT       | NOT NULL                         | 0      | 원본비 (스튜디오)        |
-| modified_file_fee    | INT       | NOT NULL                         | 0      | 수정비 (스튜디오)        |
-| valet_fee            | INT       | NOT NULL                         | 0      | 발렛비 (공통)            |
-| after_party_fee      | INT       | NOT NULL                         | 0      | 피로연 비용 (공통)       |
-| cancellation_policy  | TEXT      | NULLABLE                         | NULL   | 위약금 규정              |
-| created_at           | TIMESTAMP | NOT NULL                         | now()  | 생성일                   |
+| 컬럼명              | 타입      | 제약조건                         | 기본값 | 설명                     |
+| ------------------- | --------- | -------------------------------- | ------ | ------------------------ |
+| vendor_id           | UUID      | PK, FK → vendor.id, **NOT NULL** | -      | 업체 ID                  |
+| fitting_fee         | INT       | NOT NULL                         | 0      | 피팅비 (드레스/메이크업) |
+| helper_fee          | INT       | NOT NULL                         | 0      | 헬퍼비 (드레스/메이크업) |
+| early_start_fee     | INT       | NOT NULL                         | 0      | 얼리비 (드레스/메이크업) |
+| original_file_fee   | INT       | NOT NULL                         | 0      | 원본비 (스튜디오)        |
+| modified_file_fee   | INT       | NOT NULL                         | 0      | 수정비 (스튜디오)        |
+| valet_fee           | INT       | NOT NULL                         | 0      | 발렛비 (공통)            |
+| after_party_fee     | INT       | NOT NULL                         | 0      | 피로연 비용 (공통)       |
+| cancellation_policy | TEXT      | NULLABLE                         | NULL   | 위약금 규정              |
+| created_at          | TIMESTAMP | NOT NULL                         | now()  | 생성일                   |
 
 **설계 의도:**
 
@@ -360,15 +360,16 @@
 
 #### **plan** - 웨딩 플랜
 
-| 컬럼명          | 타입      | 제약조건                         | 기본값             | 설명             |
-| --------------- | --------- | -------------------------------- | ------------------ | ---------------- |
-| id              | UUID      | PK                               | uuid_generate_v4() | 플랜 ID          |
-| user_id         | UUID      | FK → users.id, **NOT NULL**      | -                  | 사용자 ID        |
-| users_info_id   | UUID      | FK → users_info.id, **NOT NULL** | -                  | 사용자 상세 정보 |
-| title           | VARCHAR   | NOT NULL                         | '나의 웨딩'        | 플랜 제목        |
-| total_budget    | INT       | NULLABLE                         | NULL               | 총 예산          |
-| is_ai_generated | BOOLEAN   | NOT NULL                         | false              | AI 생성 여부     |
-| created_at      | TIMESTAMP | NOT NULL                         | now()              | 생성일           |
+| 컬럼명          | 타입      | 제약조건                         | 기본값             | 설명                 |
+| --------------- | --------- | -------------------------------- | ------------------ | -------------------- |
+| id              | UUID      | PK                               | uuid_generate_v4() | 플랜 ID              |
+| user_id         | UUID      | FK → users.id, **NOT NULL**      | -                  | 사용자 ID            |
+| users_info_id   | UUID      | FK → users_info.id, **NOT NULL** | -                  | 사용자 상세 정보     |
+| title           | VARCHAR   | NOT NULL                         | '나의 웨딩'        | 플랜 제목            |
+| total_budget    | INT       | NULLABLE                         | NULL               | 총 예산              |
+| is_ai_generated | BOOLEAN   | NOT NULL                         | false              | AI 생성 여부         |
+| created_at      | TIMESTAMP | NOT NULL                         | now()              | 생성일               |
+| deleted_at      | TIMESTAMP | NULLABLE                         | NULL               | 삭제일 (소프트 삭제) |
 
 **인덱스:**
 
@@ -720,7 +721,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 #### 주요 변경사항
 
 1. **업체 테이블 구조 개선**
-   
+
    **vendor 테이블 변경:**
    - 평점 필드 삭제: `naver_rating`, `review_count`, `total_score` 제거
    - 영업시간 정규화: `operating_hours` 제거 → `vendor_operating_hour` 테이블로 분리
@@ -835,6 +836,6 @@ npm run migration:run
 
 ---
 
-**문서 버전**: 1.2.0  
-**최종 수정일**: 2025.11.30  
-**작성자**: 김동언
+**문서 버전**: 1.2.1
+**최종 수정일**: 2025.12.1  
+**작성자**: 이윤재

@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   ManyToOne,
   OneToOne,
   JoinColumn,
@@ -37,6 +38,9 @@ export class Plan {
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date | null;
 
   // Relations
   @ManyToOne(() => User, (user) => user.plans)
