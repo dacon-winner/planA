@@ -669,9 +669,7 @@ export function usePlanDetailScreen(planId?: string) {
         address: isLoading ? loadingText : vendorDetail.address || defaultInfo.address,
         phone: isLoading ? loadingText : vendorDetail.phone || defaultInfo.phone,
         hours: defaultInfo.hours,
-        service: isLoading
-          ? `${serviceType} 서비스`
-          : vendorDetail.service_items?.[0]?.name || `${serviceType} 서비스`,
+        service: `${serviceType} 서비스`,
         prices: isLoading
           ? [{ level: "기본", price: loadingText }]
           : vendorDetail.service_items?.length
