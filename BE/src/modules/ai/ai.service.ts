@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import { ChatOpenAI } from '@langchain/openai';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { AiResource } from '../../entities/ai-resource.entity';
 import { AiLog } from '../../entities/ai-log.entity';
 import {
@@ -35,6 +38,139 @@ export class AiService {
     this.openai = new OpenAI({
       apiKey: apiKey || 'dummy-key', // 키가 없어도 서비스는 시작됨
     });
+  }
+
+  /**
+   * 스트리밍 방식으로 AI 추천 생성
+   * @param request - 추천 요청 파라미터
+   * @param userId - 요청 사용자 ID
+   * @returns AsyncGenerator - 스트리밍 데이터
+   */
+  async *streamRecommendation(
+    request: RecommendationRequest,
+    userId: string,
+  ): AsyncGenerator<string, void, unknown> {
+    this.logger.log(`스트리밍 AI 추천 시작: userId=${userId}`);
+
+    try {
+      // 1단계: DB에서 후보 업체 추출
+      const candidates = await this.fetchCandidates(request);
+
+      this.logger.log(
+        `후보 업체 수: STUDIO=${candidates.studio.length}, DRESS=${candidates.dress.length}, MAKEUP=${candidates.makeup.length}, VENUE=${candidates.venue.length}`,
+      );
+
+      // 진행 상황을 프론트엔드로 전송
+      yield JSON.stringify({
+        type: 'progress',
+        message: '후보 업체를 찾았습니다...',
+        data: {
+          studio: candidates.studio.length,
+          dress: candidates.dress.length,
+          makeup: candidates.makeup.length,
+          venue: candidates.venue.length,
+        },
+      }) + '\n\n';
+
+      // 2단계: LangChain으로 스트리밍 추천 생성
+      const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+      const model = new ChatOpenAI({
+        modelName: 'gpt-4o',
+        temperature: 0.2,
+        openAIApiKey: apiKey,
+        streaming: true, // 스트리밍 활성화
+      });
+
+      const prompt = this.buildPrompt(candidates, request);
+
+      const promptTemplate = ChatPromptTemplate.fromMessages([
+        [
+          'system',
+          `당신은 결혼 준비를 돕는 전문 웨딩 플래너 AI입니다.
+
+[핵심 규칙 - 절대 위반 금지]
+1. ⚠️ 무조건 4개 카테고리(스튜디오, 드레스, 메이크업, 웨딩홀) 모두를 추천해야 합니다.
+2. ⚠️ 각 카테고리에서 정확히 1개씩, 총 4개를 선택하세요.
+3. ⚠️ 후보 목록에 업체가 있는 카테고리는 절대로 null로 반환하지 마세요.
+4. ⚠️ 4개 중 하나라도 빠지면 안 됩니다. 반드시 studio, dress, makeup, venue 모두 채워야 합니다.
+
+[추천 기준]
+1. 사용자의 예산 범위 내에서 최적의 조합을 선택하세요.
+2. 지역 접근성을 고려하되, 예산을 초과하지 않는 것이 더 중요합니다.
+3. 예산이 부족하면 각 카테고리에서 더 저렴한 옵션을 선택하세요.
+4. 전체 예산을 4개 카테고리에 적절히 배분하세요.
+
+[응답 형식]
+- 반드시 JSON 형식으로만 작성하세요.
+- studio, dress, makeup, venue 필드를 모두 포함해야 합니다.`,
+        ],
+        ['user', '{prompt}'],
+      ]);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      const chain = promptTemplate.pipe(model).pipe(new StringOutputParser());
+
+      // 스트리밍 시작
+      yield JSON.stringify({
+        type: 'progress',
+        message: 'AI가 최적의 조합을 찾고 있습니다...',
+      }) + '\n\n';
+
+      let fullResponse = '';
+
+      const stream = await chain.stream({ prompt });
+
+      // 스트림에서 청크를 받아서 프론트엔드로 전송
+      for await (const chunk of stream) {
+        fullResponse += chunk;
+
+        // 각 청크를 프론트엔드로 전송
+        yield JSON.stringify({
+          type: 'chunk',
+          data: chunk,
+        }) + '\n\n';
+      }
+
+      // 최종 결과 파싱
+      try {
+        const recommendation = JSON.parse(fullResponse) as AiRecommendationResponse;
+        const parsedRecommendation = this.parseRecommendation(recommendation, candidates);
+
+        // AI 로그 저장
+        await this.saveAiLog({
+          user_id: userId,
+          request_prompt: prompt,
+          response_result: recommendation,
+          model_name: 'gpt-4o',
+          input_tokens: 0, // 스트리밍에서는 토큰 카운트를 정확히 알 수 없음
+          output_tokens: 0,
+          total_tokens: 0,
+        });
+
+        // 완료 메시지 전송
+        yield JSON.stringify({
+          type: 'complete',
+          message: '추천이 완료되었습니다!',
+          data: parsedRecommendation,
+        }) + '\n\n';
+      } catch (parseError) {
+        this.logger.error(`JSON 파싱 실패: ${parseError}`);
+        yield JSON.stringify({
+          type: 'error',
+          message: '추천 결과를 처리하는 중 오류가 발생했습니다.',
+        }) + '\n\n';
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      this.logger.error(`스트리밍 AI 추천 실패: ${errorMessage}`);
+
+      yield JSON.stringify({
+        type: 'error',
+        message: errorMessage,
+      }) + '\n\n';
+    }
   }
 
   /**
