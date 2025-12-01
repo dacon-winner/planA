@@ -15,7 +15,9 @@
 | 7 | `@gorhom/bottom-sheet` | `^5` | 25-11-30 | 하단 시트(Bottom Sheet) UI 컴포넌트 라이브러리 |
 | 8 | `react-native-gesture-handler` | `~2.28.0` | 25-11-30 | 제스처 핸들링 라이브러리 (@gorhom/bottom-sheet 의존성) |
 | 9 | `react-native-reanimated` | `~4.1.1` | 25-11-30 | 고성능 애니메이션 라이브러리 (@gorhom/bottom-sheet 의존성) |
-| 10 | `axios` | `^1.13.2` | 25-12-01 | HTTP 클라이언트 라이브러리 |
+| 11 | `react-hook-form` | `^7.53.2` | 25-12-01 | 폼 상태 관리 및 검증 라이브러리 |
+| 12 | `zod` | `^3.23.8` | 25-12-01 | 타입스크립트 우선 스키마 선언 및 검증 라이브러리 |
+| 13 | `@hookform/resolvers` | `^3.9.1` | 25-12-01 | React Hook Form과 Zod 등 외부 검증 라이브러리 연결 |
 
 ---
 
@@ -121,6 +123,36 @@
 | **설치 이유** | HTTP 클라이언트 라이브러리 |
 | **카테고리** | HTTP Client |
 
+### 11. react-hook-form
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `react-hook-form` |
+| **버전** | `^7.53.2` |
+| **설치 날짜** | 25-12-01 |
+| **설치 이유** | 폼 상태 관리 및 검증 라이브러리 |
+| **카테고리** | Form Management |
+
+### 12. zod
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `zod` |
+| **버전** | `^3.23.8` |
+| **설치 날짜** | 25-12-01 |
+| **설치 이유** | 타입스크립트 우선 스키마 선언 및 검증 라이브러리 |
+| **카테고리** | Validation |
+
+### 13. @hookform/resolvers
+
+| 항목 | 내용 |
+|------|------|
+| **이름** | `@hookform/resolvers` |
+| **버전** | `^3.9.1` |
+| **설치 날짜** | 25-12-01 |
+| **설치 이유** | React Hook Form과 Zod 등 외부 검증 라이브러리 연결 |
+| **카테고리** | Validation Adapter |
+
 ---
 
 ## 변경 이력
@@ -134,3 +166,4 @@
 | 1.4.0 | 25-11-29 | expo-blur 패키지 추가 | - |
 | 1.5.0 | 25-11-30 | @gorhom/bottom-sheet, react-native-gesture-handler, react-native-reanimated 패키지 추가 | - |
 | 1.6.0 | 25-12-01 | axios 패키지 추가 | - |
+| 1.7.0 | 25-12-01 | react-hook-form, zod, @hookform/resolvers 패키지 추가 | - |

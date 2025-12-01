@@ -66,7 +66,7 @@ const validateRequiredEnv = (
 export const env: EnvConfig = {
   // 백엔드 API
   apiBaseUrl:
-    getEnvValue("EXPO_PUBLIC_API_BASE_URL") || "http://localhost:3000",
+    getEnvValue("EXPO_PUBLIC_API_BASE_URL") || "http://10.50.1.33:3000",
   apiTimeout: parseInt(getEnvValue("EXPO_PUBLIC_API_TIMEOUT") || "30000", 10),
 
   // 카카오 API (필수)
