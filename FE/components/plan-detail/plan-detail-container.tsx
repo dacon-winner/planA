@@ -227,6 +227,8 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                   horizontal
                   pagingEnabled
                   showsHorizontalScrollIndicator={false}
+                  snapToAlignment="start"
+                  decelerationRate="fast"
                   data={currentDetailInfo.images && currentDetailInfo.images.length > 0
                     ? currentDetailInfo.images
                     : [null]} // 이미지가 없으면 null 하나를 넣어 플레이스홀더 표시

@@ -436,7 +436,7 @@ export const styles = StyleSheet.create({
 
   'detail-image-placeholder': {
     width: 345,
-    height: 168,
+    aspectRatio: 1,
     backgroundColor: colors.black['black-5'], // #d9d9d9
     borderRadius: 0,
   },
