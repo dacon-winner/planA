@@ -9,13 +9,12 @@ import {
   Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { MapPin, Phone, Clock, CircleDollarSign } from "lucide-react-native";
+import { MapPin, Phone, Clock, CircleDollarSign, RotateCw } from "lucide-react-native";
 import BottomSheet, {
   BottomSheetView,
   useBottomSheet,
 } from "@gorhom/bottom-sheet";
 import { useAnimatedReaction, runOnJS } from "react-native-reanimated";
-import { ContentSwitcher } from "@/commons/components/content-switcher";
 import { Button } from "@/commons/components/button";
 import { Calendar } from "@/commons/components/calendar";
 import { SelectButton } from "@/commons/components/select-button";
@@ -196,16 +195,30 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
           <BottomSheetContentWrapper />
 
           {/* Bottom Sheet Handle */}
-          <View style={styles["detail-section-header"]}>
+          <View
+            style={[
+              styles["detail-section-header"],
+              {
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <View style={{ flex: 1 }} />
             <View style={styles["detail-section-handle"]} />
-          </View>
-
-          {/* Content Switcher */}
-          <View style={styles["content-switcher-wrapper"]}>
-            <ContentSwitcher
-              selectedIndex={selectedTab}
-              onSelectionChange={setSelectedTab}
-            />
+            <View style={{ flex: 1, alignItems: "flex-end" }}>
+              <Pressable
+                style={{
+                  padding: 8,
+                }}
+                onPress={() => {
+                  // TODO: RotateCw 버튼 액션 구현
+                }}
+              >
+                <RotateCw size={20} color={colors.root.text} />
+              </Pressable>
+            </View>
           </View>
 
           {/* 상세 정보 컨텐츠 - 스크롤 가능 */}
