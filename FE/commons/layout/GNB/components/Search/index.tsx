@@ -314,7 +314,6 @@ export default function Search() {
     setShowAddToPlanModal(false);
   };
 
-
   return (
     <View style={styles["search-wrapper"]}>
       <SafeAreaView style={styles["search-safe-area"]} edges={["top"]}>

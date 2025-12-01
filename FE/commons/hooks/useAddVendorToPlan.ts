@@ -44,7 +44,7 @@ export interface AddVendorToPlanParams {
  * 업체 추가 요청 Body
  */
 interface AddVendorToPlanRequest {
-  vendor_id: string;
+  vendorId: string;
 }
 
 /**
@@ -85,7 +85,7 @@ export function useAddVendorToPlan(options?: UseAddVendorToPlanOptions) {
       console.log('🌐 [API] 업체 추가/교체 요청:', { planId, vendorId });
 
       const requestBody: AddVendorToPlanRequest = {
-        vendor_id: vendorId,
+        vendorId,
       };
 
       const response = await client.post<{ success: boolean; data: AddVendorToPlanResponse }>(
