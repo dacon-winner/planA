@@ -6,3 +6,6 @@
 export { useVendors } from './useVendors';
 export type { Vendor, VendorsParams, VendorsResponse } from './useVendors';
 
+export { usePlans, usePlanDetail } from './usePlans';
+export type { PlanInfo, UsersInfo, PlanListItem, PlanListResponse } from './usePlans';
+

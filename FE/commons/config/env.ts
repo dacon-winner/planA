@@ -15,6 +15,7 @@ interface EnvConfig {
   // 백엔드 API
   apiBaseUrl: string;
   apiTimeout: number;
+  accessToken: string;
 
   // 카카오 API
   kakaoMapApiKey: string;
@@ -68,6 +69,7 @@ export const env: EnvConfig = {
   apiBaseUrl:
     getEnvValue("EXPO_PUBLIC_API_BASE_URL") || "http://localhost:3000",
   apiTimeout: parseInt(getEnvValue("EXPO_PUBLIC_API_TIMEOUT") || "30000", 10),
+  accessToken: getEnvValue("EXPO_PUBLIC_ACCESS_TOKEN") || "",
 
   // 카카오 API (필수)
   kakaoMapApiKey: validateRequiredEnv(
@@ -92,6 +94,7 @@ if (__DEV__ && env.debugMode) {
   console.log("🔧 환경 변수 설정:");
   console.log(`  - API Base URL: ${env.apiBaseUrl}`);
   console.log(`  - API Timeout: ${env.apiTimeout}ms`);
+  console.log(`  - Access Token: ${env.accessToken ? "✅ 설정됨" : "❌ 미설정"}`);
   console.log(
     `  - Kakao Map API Key: ${env.kakaoMapApiKey ? "✅ 설정됨" : "❌ 미설정"}`
   );
