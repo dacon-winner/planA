@@ -149,6 +149,20 @@ export default function PlanDetail() {
         { level: '실장급', price: '440,000 원' },
       ],
     },
+    aiRecommendations: [
+      {
+        name: '웨딩 스튜디오 A',
+        price: '예상비용 320만원',
+      },
+      {
+        name: '드림 웨딩홀',
+        price: '예상비용 450만원',
+      },
+      {
+        name: '럭셔리 스튜디오',
+        price: '예상비용 380만원',
+      },
+    ],
   };
 
   const handleViewOtherVendors = () => {
@@ -621,9 +635,19 @@ export default function PlanDetail() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles['ai-recommendations-images']}
                 >
-                  <View style={styles['ai-recommendation-image']} />
-                  <View style={styles['ai-recommendation-image']} />
-                  <View style={styles['ai-recommendation-image']} />
+                  {planData.aiRecommendations.map((recommendation, index) => (
+                    <View key={index} style={styles['ai-recommendation-item']}>
+                      <View style={styles['ai-recommendation-image']} />
+                      <View style={styles['ai-recommendation-text-container']}>
+                        <Text style={styles['ai-recommendation-name']}>
+                          {recommendation.name}
+                        </Text>
+                        <Text style={styles['ai-recommendation-price']}>
+                          {recommendation.price}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
                 </ScrollView>
               </View>
             )}

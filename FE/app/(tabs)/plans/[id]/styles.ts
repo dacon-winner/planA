@@ -523,6 +523,41 @@ export const styles = StyleSheet.create({
     borderRadius: 0,
   },
 
+  'ai-recommendation-item': {
+    alignItems: 'center',
+    gap: parseInt(spacing.xs), // 4px
+  },
+
+  'ai-recommendation-text-container': {
+    alignItems: 'center',
+    gap: 2,
+    width: 140, // 이미지 너비와 동일하게
+  },
+
+  'ai-recommendation-name': {
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
+      parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    color: colors.root.text, // #524a4e
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
+  'ai-recommendation-price': {
+    fontSize: parseInt(fontSize['mobile-xs'][0]),
+    lineHeight: parseInt(fontSize['mobile-xs'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
+      parseInt(fontSize['mobile-xs'][0]),
+    fontWeight: fontSize['mobile-xs'][1].fontWeight,
+    color: colors.black['black-13'], // #666666
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
   /* Calendar Section */
   'calendar-section': {
     width: 345,
