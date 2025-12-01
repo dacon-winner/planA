@@ -130,7 +130,7 @@ export default function Search() {
       // 페이지 로드 후 약간의 딜레이 후 토스트 표시
       setTimeout(() => {
         Toast.success('새 플랜이 생성되었습니다. 업체를 추가해보세요!', {
-          bottomOffset: 100 as any, // 네비게이션 높이(약 60-80px)보다 높게 설정
+          bottomOffset: 80 as any, // 네비게이션 바로 위에 표시
         });
       }, 800);
     }
