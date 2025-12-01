@@ -629,7 +629,6 @@ export default function PlanDetail() {
     selectedAiRecommendation,
     selectedTab,
     finalPlanData.services,
-    finalPlanData.detailInfo,
     vendorDetail,
   ]);
 
