@@ -17,12 +17,22 @@ import {
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  VendorStatus,
-  VendorCategory,
-  PlanState,
-  PlanVendorState
-} from "../../hooks/useReservations";
+
+// 플랜 상태 관리 타입들 (중복 정의로 안전하게)
+export type VendorStatus = '업체 저장전' | '업체 저장됨' | '예약됨';
+export type VendorCategory = '스튜디오' | '드레스' | '메이크업' | '웨딩홀';
+
+export interface PlanVendorState {
+  vendorId: string | null;
+  status: VendorStatus;
+}
+
+export interface PlanState {
+  스튜디오: PlanVendorState;
+  드레스: PlanVendorState;
+  메이크업: PlanVendorState;
+  웨딩홀: PlanVendorState;
+}
 
 /**
  * AsyncStorage 키 상수
