@@ -3,15 +3,34 @@
  * 버전: 1.0.0
  * 생성 시각: 2025-12-01
  * 규칙 준수: 04-func.mdc
- * - [x] @tanstack/react-query 사용
- * - [x] 최소한의 useState, useEffect
- * - [x] 독립적인 기능 구현
+ * 
+ * 지도 영역과 카테고리 기반으로 업체 목록을 조회하는 커스텀 훅
+ * 
+ * @description
+ * - React Query를 사용한 서버 상태 관리
+ * - 지도 영역(bounds) 기반 업체 필터링
+ * - 카테고리별 필터링 지원
+ * - 자동 캐싱 및 리페칭 처리
+ * 
+ * @example
+ * ```tsx
+ * const { data, isLoading, error } = useVendors({
+ *   category: 'STUDIO',
+ *   swLat: 37.5,
+ *   swLng: 126.9,
+ *   neLat: 37.6,
+ *   neLng: 127.0,
+ * }, true);
+ * ```
  */
 
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { buildApiUrl } from '@/commons/config';
 
+/**
+ * 업체 정보 인터페이스
+ */
 export interface Vendor {
   id: string;
   category: 'ALL' | 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
@@ -33,18 +52,33 @@ export interface Vendor {
   }[];
 }
 
+/**
+ * 업체 조회 파라미터 인터페이스
+ */
 export interface VendorsParams {
+  /** 업체 카테고리 */
   category: 'ALL' | 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
+  /** 남서쪽 위도 */
   swLat: number;
+  /** 남서쪽 경도 */
   swLng: number;
+  /** 북동쪽 위도 */
   neLat: number;
+  /** 북동쪽 경도 */
   neLng: number;
 }
 
+/**
+ * 업체 조회 응답 인터페이스
+ */
 export interface VendorsResponse {
+  /** 업체 목록 */
   vendors: Vendor[];
+  /** 전체 업체 수 */
   total: number;
+  /** 현재 페이지 */
   page: number;
+  /** 페이지당 항목 수 */
   limit: number;
 }
 
