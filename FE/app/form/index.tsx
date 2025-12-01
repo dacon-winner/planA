@@ -4,7 +4,6 @@
  */
 
 import React from "react";
-import { Stack } from "expo-router";
 import { WeddingForm } from "@/components/wedding-form/form/form";
 
 export default function FormPage() {
@@ -17,19 +16,6 @@ export default function FormPage() {
   };
 
   return (
-    <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: "",
-          headerBackTitle: " ",
-          headerShadowVisible: false,
-        }}
-      />
-      <WeddingForm
-        onDateSelected={handleDateSelected}
-        onSubmit={handleSubmit}
-      />
-    </>
+    <WeddingForm onDateSelected={handleDateSelected} onSubmit={handleSubmit} />
   );
 }
