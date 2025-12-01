@@ -1,20 +1,16 @@
 /**
  * SignUp Component
- * 버전: v1.0.0
- * 생성 시각: 2025-11-30
+ * 버전: v1.1.0
+ * 생성 시각: 2025-12-01
  * 피그마 노드ID: 4201:4552
  *
- * 체크리스트:
- * [✓] tailwind.config.js 수정 안 함 확인
- * [✓] 색상값 직접 입력 0건 (hex/rgb/hsl 사용 0건)
- * [✓] 인라인 스타일 0건
- * [✓] index.tsx → 구조만 / styles.ts → 스타일만 분리 유지
- * [✓] nativewind 토큰 참조만 사용
- * [✓] 피그마 구조 대비 누락 섹션 없음
- * [✓] 접근성: 시맨틱/포커스/명도 대비/탭타겟 통과
+ * 변경 사항:
+ * - [x] react-hook-form & zod 적용
+ * - [x] useSignUp Hook 연결
+ * - [x] 유효성 검사 강화
  */
 
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -22,49 +18,106 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { Input } from "@/commons/components/input";
 import { RadioGroup } from "@/commons/components/radio";
 import { Button } from "@/commons/components/button";
+import { URL_PATHS } from "@/commons/enums/url"; // URL_PATHS import 추가 필요
 import { styles } from "./styles";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignUp } from "@/commons/hooks/useAuth";
+import { useRouter } from "expo-router"; // useRouter import 추가 필요
+
+// 유효성 검사 스키마 정의
+const signUpSchema = z
+  .object({
+    name: z.string().min(1, "이름을 입력해주세요."),
+    gender: z.string(), // 기본값 설정으로 필수 체크는 생략 가능하지만 명시
+    email: z.string().email("올바른 이메일 형식이 아닙니다."),
+    password: z
+      .string()
+      .min(8, "비밀번호는 최소 8자 이상이어야 합니다.")
+      .regex(
+        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+        "영문, 숫자, 특수문자를 모두 포함해야 합니다."
+      ),
+    passwordConfirm: z.string().min(1, "비밀번호를 확인해주세요."),
+    phone: z
+      .string()
+      .regex(/^010-\d{4}-\d{4}$/, "010-0000-0000 형식으로 입력해주세요."),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "비밀번호가 일치하지 않습니다.",
+    path: ["passwordConfirm"],
+  });
+
+// 폼 데이터 타입 추론
+type SignUpFormData = z.infer<typeof signUpSchema>;
 
 /**
  * SignUp 컴포넌트
  * 피그마 디자인 시스템을 기반으로 한 회원가입 페이지
  */
 export const SignUp: React.FC = () => {
-  // 폼 상태 관리
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("female"); // 기본값: 여성 (피그마 디자인 기준)
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [phone, setPhone] = useState("");
+  // useRouter Hook 사용
+  const router = useRouter();
+  // useSignUp Hook 사용
+  const signUpMutation = useSignUp();
 
-  /**
-   * 폼 유효성 검사: 모든 필드가 채워져 있는지 확인
-   */
-  const isFormValid =
-    name.trim() !== "" &&
-    email.trim() !== "" &&
-    password.trim() !== "" &&
-    passwordConfirm.trim() !== "" &&
-    phone.trim() !== "";
+  // react-hook-form 설정
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid },
+    watch,
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    mode: "onChange", // 입력 시 실시간 검증
+    defaultValues: {
+      name: "",
+      gender: "female",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+      phone: "",
+    },
+  });
 
   /**
    * 회원가입 처리
    */
-  const handleSignUp = () => {
-    // TODO: 실제 회원가입 API 연동
-    console.log("SignUp attempt:", {
-      name,
-      gender,
-      email,
-      password,
-      passwordConfirm,
-      phone,
-    });
+  const onSubmit = (data: SignUpFormData) => {
+    console.log("📝 [SignUp] Form Data 제출:", data);
+
+    signUpMutation.mutate(
+      {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        gender: data.gender.toUpperCase(), // 서버 요구사항: 'MALE' or 'FEMALE'
+        phone: data.phone,
+      },
+      {
+        onSuccess: () => {
+          console.log("✅ [SignUp] 회원가입 성공, 홈으로 이동합니다.");
+          router.replace(URL_PATHS.HOME);
+        },
+        onError: (error: any) => {
+          if (error.response?.status === 409) {
+            Alert.alert("회원가입 실패", "이미 사용 중인 이메일입니다.");
+          } else {
+            Alert.alert(
+              "회원가입 실패",
+              "일시적인 오류가 발생했습니다. 다시 시도해주세요."
+            );
+          }
+        },
+      }
+    );
   };
 
   /**
@@ -113,71 +166,172 @@ export const SignUp: React.FC = () => {
                   {/* 입력 필드 영역 */}
                   <View style={styles.inputSection}>
                     {/* 이름 입력 */}
-                    <Input
-                      label="이름"
-                      placeholder="이름을 입력해주세요."
-                      value={name}
-                      onChangeText={setName}
-                      autoComplete="name"
-                      size="medium"
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({ field: { onChange, value } }) => (
+                        <View>
+                          <Input
+                            label="이름"
+                            placeholder="이름을 입력해주세요."
+                            value={value}
+                            onChangeText={onChange}
+                            autoComplete="name"
+                            size="medium"
+                          />
+                          {errors.name && (
+                            <Text
+                              style={{
+                                color: "red",
+                                fontSize: 12,
+                                marginTop: 4,
+                              }}
+                            >
+                              {errors.name.message}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                     />
 
                     {/* 성별 선택 */}
                     <View style={styles.genderContainer}>
                       <Text style={styles.genderLabel}>성별</Text>
-                      <RadioGroup
-                        value={gender}
-                        onChange={setGender}
-                        options={genderOptions}
-                        direction="horizontal"
+                      <Controller
+                        control={control}
+                        name="gender"
+                        render={({ field: { onChange, value } }) => (
+                          <RadioGroup
+                            value={value}
+                            onChange={onChange}
+                            options={genderOptions}
+                            direction="horizontal"
+                          />
+                        )}
                       />
                     </View>
 
                     {/* 이메일 입력 */}
-                    <Input
-                      label="이메일"
-                      placeholder="이메일을 입력해주세요."
-                      value={email}
-                      onChangeText={setEmail}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoComplete="email"
-                      size="medium"
+                    <Controller
+                      control={control}
+                      name="email"
+                      render={({ field: { onChange, value } }) => (
+                        <View>
+                          <Input
+                            label="이메일"
+                            placeholder="이메일을 입력해주세요."
+                            value={value}
+                            onChangeText={onChange}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            size="medium"
+                          />
+                          {errors.email && (
+                            <Text
+                              style={{
+                                color: "red",
+                                fontSize: 12,
+                                marginTop: 4,
+                              }}
+                            >
+                              {errors.email.message}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                     />
 
                     {/* 비밀번호 입력 */}
-                    <Input
-                      label="비밀번호"
-                      placeholder="비밀번호를 입력해주세요."
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoComplete="password"
-                      size="medium"
+                    <Controller
+                      control={control}
+                      name="password"
+                      render={({ field: { onChange, value } }) => (
+                        <View>
+                          <Input
+                            label="비밀번호"
+                            placeholder="비밀번호를 입력해주세요."
+                            value={value}
+                            onChangeText={onChange}
+                            secureTextEntry
+                            autoCapitalize="none"
+                            autoComplete="password"
+                            size="medium"
+                          />
+                          {errors.password && (
+                            <Text
+                              style={{
+                                color: "red",
+                                fontSize: 12,
+                                marginTop: 4,
+                              }}
+                            >
+                              {errors.password.message}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                     />
 
                     {/* 비밀번호 확인 입력 */}
-                    <Input
-                      label="비밀번호 확인"
-                      placeholder="비밀번호를 한 번 더 입력해주세요."
-                      value={passwordConfirm}
-                      onChangeText={setPasswordConfirm}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoComplete="password"
-                      size="medium"
+                    <Controller
+                      control={control}
+                      name="passwordConfirm"
+                      render={({ field: { onChange, value } }) => (
+                        <View>
+                          <Input
+                            label="비밀번호 확인"
+                            placeholder="비밀번호를 한 번 더 입력해주세요."
+                            value={value}
+                            onChangeText={onChange}
+                            secureTextEntry
+                            autoCapitalize="none"
+                            autoComplete="password"
+                            size="medium"
+                          />
+                          {errors.passwordConfirm && (
+                            <Text
+                              style={{
+                                color: "red",
+                                fontSize: 12,
+                                marginTop: 4,
+                              }}
+                            >
+                              {errors.passwordConfirm.message}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                     />
 
                     {/* 연락처 입력 */}
-                    <Input
-                      label="연락처"
-                      placeholder="010-1234-5678"
-                      value={phone}
-                      onChangeText={setPhone}
-                      keyboardType="phone-pad"
-                      autoComplete="tel"
-                      size="medium"
+                    <Controller
+                      control={control}
+                      name="phone"
+                      render={({ field: { onChange, value } }) => (
+                        <View>
+                          <Input
+                            label="연락처"
+                            placeholder="010-1234-5678"
+                            value={value}
+                            onChangeText={onChange}
+                            keyboardType="phone-pad"
+                            autoComplete="tel"
+                            size="medium"
+                          />
+                          {errors.phone && (
+                            <Text
+                              style={{
+                                color: "red",
+                                fontSize: 12,
+                                marginTop: 4,
+                              }}
+                            >
+                              {errors.phone.message}
+                            </Text>
+                          )}
+                        </View>
+                      )}
                     />
                   </View>
 
@@ -187,10 +341,10 @@ export const SignUp: React.FC = () => {
                     <Button
                       variant="filled"
                       size="medium"
-                      onPress={handleSignUp}
-                      disabled={!isFormValid}
+                      onPress={handleSubmit(onSubmit)}
+                      disabled={!isValid || signUpMutation.isPending}
                     >
-                      회원가입
+                      {signUpMutation.isPending ? "가입 중..." : "회원가입"}
                     </Button>
                   </View>
                 </View>

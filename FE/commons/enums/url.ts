@@ -33,7 +33,7 @@ export const URL_PATHS = {
   /** 폼 로딩 페이지 */
   FORM_LOADING: "/form/loading",
   /** 홈 페이지 */
-  HOME: "/home",
+  HOME: "/(tabs)",
   /** 상세페이지 (다이나믹 라우팅) */
   PLANS_DETAIL: "/plans/[id]",
   /** 검색페이지 */
