@@ -350,9 +350,11 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
                   {/* 날짜/시간 선택 UI */}
                   <View style={styles["datetime-picker-container"]}>
-                    <Pressable
-                      style={styles["datetime-picker-item"]}
-                      onPress={() => setShowTimePicker(false)}
+                    <View
+                      style={[
+                        styles["datetime-picker-item"],
+                        isReserved && { opacity: 0.6 }
+                      ]}
                     >
                       <Text style={styles["datetime-picker-label"]}>날짜</Text>
                       <Text style={styles["datetime-picker-value"]}>
@@ -362,28 +364,33 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                             }월 ${selectedDate.getDate()}일`
                           : "-"}
                       </Text>
-                    </Pressable>
+                    </View>
 
                     <View style={styles["datetime-picker-divider"]} />
 
-                    <Pressable
-                      style={styles["datetime-picker-item"]}
-                      disabled={!selectedDate}
-                      onPress={() => {
-                        if (selectedDate) {
-                          setShowTimePicker(true);
-                        }
-                      }}
+                    <View
+                      style={[
+                        styles["datetime-picker-item"],
+                        isReserved && { opacity: 0.6 }
+                      ]}
                     >
                       <Text style={styles["datetime-picker-label"]}>시간</Text>
                       <Text style={styles["datetime-picker-value"]}>
-                        {selectedTime || "-"}
+                        {selectedTime
+                          ? selectedTime.split(":").slice(0, 2).join(":")
+                          : "-"}
                       </Text>
-                    </Pressable>
+                    </View>
                   </View>
 
-                  {/* 달력 또는 시간 선택 버튼 그리드 */}
-                  {!isReserved && (
+                  {/* 예약된 경우 예약 정보 표시, 아닌 경우 달력 또는 시간 선택 버튼 그리드 */}
+                  {isReserved && selectedDate && selectedTime ? (
+                    <View style={styles["reservation-info-container"]}>
+                      <Text style={styles["reservation-info-text"]}>
+                        예약이 완료되었습니다.
+                      </Text>
+                    </View>
+                  ) : (
                     <>
                       {showTimePicker && selectedDate ? (
                         <View style={styles["time-picker-container"]}>

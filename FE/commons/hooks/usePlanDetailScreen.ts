@@ -177,9 +177,13 @@ const transformPlanData = (
     let statusIcon: "clock" | "clockCheck" | null = null;
 
     if (is_confirmed && reservation) {
+      // 시간에서 초 제거 (HH:MM:SS -> HH:MM)
+      const timeWithoutSeconds = reservation.reservation_time
+        ? reservation.reservation_time.split(":").slice(0, 2).join(":")
+        : reservation.reservation_time;
       status = `${
         formatDateToKorean(reservation.reservation_date).split(" ")[0]
-      } ${reservation.reservation_time} 방문 예정`;
+      } ${timeWithoutSeconds} 방문 예정`;
       statusIcon = "clockCheck";
     } else if (is_confirmed) {
       status = "업체 저장됨";
@@ -253,9 +257,30 @@ export function usePlanDetailScreen(planId?: string) {
     });
   }, []);
 
-  useEffect(() => {
-    resetReservationState();
-  }, [selectedTab, resetReservationState]);
+  // 예약 날짜 문자열(yyyy-mm-dd)을 Date 객체로 변환
+  const parseReservationDate = useCallback((dateStr: string | null): Date | null => {
+    if (!dateStr) return null;
+    try {
+      // yyyy-mm-dd 형식을 파싱
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return null;
+      
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const day = parseInt(parts[2], 10);
+      
+      // 유효성 검사
+      if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+      if (year < 1900 || year > 2100) return null;
+      if (month < 1 || month > 12) return null;
+      if (day < 1 || day > 31) return null;
+      
+      return new Date(year, month - 1, day);
+    } catch (error) {
+      console.error("예약 날짜 파싱 실패:", dateStr, error);
+      return null;
+    }
+  }, []);
 
   const { data: planDetailData, isLoading, error } = usePlanDetail(
     normalizedPlanId
@@ -278,6 +303,58 @@ export function usePlanDetailScreen(planId?: string) {
 
     return planItem?.vendor.id || null;
   }, [planDetailData, selectedTab]);
+
+  // 탭 변경 시 예약 상태 초기화
+  useEffect(() => {
+    resetReservationState();
+  }, [selectedTab, resetReservationState]);
+
+  // 예약 데이터 초기화: 서버에서 가져온 예약 정보를 상태에 반영
+  // resetReservationState 이후에 실행되어야 하므로 별도의 useEffect 사용
+  useEffect(() => {
+    if (!planDetailData || !planDetailData.plan_items) return;
+
+    const targetCategory = getVendorCategoryByIndex(selectedTab);
+    if (!targetCategory) return;
+
+    const planItem = planDetailData.plan_items.find((item: any) => {
+      const normalized = mapApiCategoryToVendorCategory(item.vendor.category);
+      return normalized === targetCategory;
+    });
+
+    // 예약 정보가 있는 경우 상태 초기화
+    if (planItem?.reservation) {
+      const reservation = planItem.reservation;
+      console.log("📅 예약 데이터 로드:", {
+        reservation_date: reservation.reservation_date,
+        reservation_time: reservation.reservation_time,
+        raw: reservation,
+      });
+      
+      const reservationDate = parseReservationDate(reservation.reservation_date);
+      console.log("📅 파싱된 날짜:", reservationDate);
+      
+      if (reservationDate && reservation.reservation_time) {
+        setSelectedDate(reservationDate);
+        setSelectedTime(reservation.reservation_time);
+        setIsReserved(true);
+        setShowTimePicker(false);
+        console.log("✅ 예약 상태 초기화 완료:", {
+          date: reservationDate,
+          time: reservation.reservation_time,
+        });
+      } else {
+        console.warn("⚠️ 예약 데이터 파싱 실패:", {
+          date: reservation.reservation_date,
+          time: reservation.reservation_time,
+          parsedDate: reservationDate,
+        });
+      }
+    } else {
+      // 예약 정보가 없는 경우 - 상태는 이미 resetReservationState에서 초기화됨
+      console.log("📅 예약 정보 없음");
+    }
+  }, [planDetailData, selectedTab, parseReservationDate, setSelectedDate, setSelectedTime, setIsReserved, setShowTimePicker]);
 
   const {
     data: aiRecommendationsData,

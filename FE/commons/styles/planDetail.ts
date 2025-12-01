@@ -852,6 +852,30 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
+  'reservation-info-container': {
+    width: 345,
+    alignSelf: 'center',
+    paddingVertical: parseInt(spacing.md),
+    paddingHorizontal: parseInt(spacing.md),
+    backgroundColor: colors.red['red-1'],
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'reservation-info-text': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-s'][1].letterSpacing) *
+      parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.red['red-9'],
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
+  },
+
   // AI 추천 스켈레톤 스타일
   'ai-recommendation-image-skeleton': {
     width: 120,
