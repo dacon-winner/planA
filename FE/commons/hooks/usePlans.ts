@@ -71,7 +71,7 @@ export function usePlans(enabled: boolean = true) {
       });
 
       console.log('✅ [API] 플랜 목록 응답:', {
-        items: response.data.data.items?.length || 0,
+        items: response.data.data.items || 0,
       });
 
       // 백엔드 응답 구조: { success, data: { items } }
