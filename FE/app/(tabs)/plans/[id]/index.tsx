@@ -23,7 +23,7 @@ import { SelectButton } from '@/commons/components/select-button';
 import { ErrorModal } from '@/commons/components/modal/ErrorModal';
 import { styles, getDetailContentScrollStyle } from './styles';
 import { colors } from '@/commons/enums/color';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import BottomSheet, { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
 import { useAnimatedReaction, runOnJS } from 'react-native-reanimated';
 
@@ -54,6 +54,17 @@ export default function PlanDetail() {
       };
     });
   }, []);
+
+  // 탭 변경 시 AI 추천 선택 상태 초기화
+  useEffect(() => {
+    setSelectedAiRecommendation(null);
+    setIsSaved(false);
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setShowTimePicker(false);
+    setIsReserved(false);
+    setAiRecommendationsCount(3);
+  }, [selectedTab]);
   
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -341,8 +352,25 @@ export default function PlanDetail() {
         ],
       };
     }
-    // 기본 서비스 정보 반환
-    return planData.detailInfo;
+    // 현재 선택된 탭의 서비스 정보 반환
+    const currentService = planData.services[selectedTab];
+    if (selectedTab === 0) {
+      // 스튜디오 탭 (기본 detailInfo 사용)
+      return planData.detailInfo;
+    } else {
+      // 다른 탭들은 기본 정보 생성
+      return {
+        summary: `${currentService.type} 기본 정보`,
+        name: currentService.name,
+        address: '주소 정보가 제공되지 않습니다',
+        phone: '전화번호 정보가 제공되지 않습니다',
+        hours: '영업시간 정보가 제공되지 않습니다',
+        service: `${currentService.type} 서비스`,
+        prices: [
+          { level: '기본', price: '정보 없음' },
+        ],
+      };
+    }
   }, [selectedAiRecommendation, selectedTab, planData.services, planData.detailInfo]);
 
   const handleSaveConfirm = () => {
@@ -834,28 +862,31 @@ export default function PlanDetail() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles['ai-recommendations-images']}
               >
-                {(planData.aiRecommendations as any)[planData.services[selectedTab].type]
-                  ?.filter((recommendation: any) =>
-                    recommendation.name !== currentDetailInfo.name
-                  )
-                  ?.slice(0, aiRecommendationsCount)
-                  ?.map((recommendation: any, index: number) => (
-                  <Pressable
-                    key={index}
-                    style={styles['ai-recommendation-item']}
-                    onPress={() => handleAiRecommendationPress(recommendation)}
-                  >
-                    <View style={styles['ai-recommendation-image']} />
-                    <View style={styles['ai-recommendation-text-container']}>
-                      <Text style={styles['ai-recommendation-name']}>
-                        {recommendation.name}
-                      </Text>
-                      <Text style={styles['ai-recommendation-price']}>
-                        {recommendation.price}
-                      </Text>
-                    </View>
-                  </Pressable>
-                ))}
+                {(() => {
+                  const currentMainServiceName = selectedAiRecommendation?.name || planData.services[selectedTab].name;
+                  return (planData.aiRecommendations as any)[planData.services[selectedTab].type]
+                    ?.filter((recommendation: any) =>
+                      recommendation.name !== currentMainServiceName
+                    )
+                    ?.slice(0, aiRecommendationsCount)
+                    ?.map((recommendation: any, index: number) => (
+                      <Pressable
+                        key={index}
+                        style={styles['ai-recommendation-item']}
+                        onPress={() => handleAiRecommendationPress(recommendation)}
+                      >
+                        <View style={styles['ai-recommendation-image']} />
+                        <View style={styles['ai-recommendation-text-container']}>
+                          <Text style={styles['ai-recommendation-name']}>
+                            {recommendation.name}
+                          </Text>
+                          <Text style={styles['ai-recommendation-price']}>
+                            {recommendation.price}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ));
+                })()}
               </ScrollView>
             </View>
             </ScrollView>
