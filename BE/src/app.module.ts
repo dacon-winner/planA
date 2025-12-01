@@ -14,6 +14,7 @@ import { AiModule } from './modules/ai';
 import { PlansModule } from './modules/plans';
 import { VendorsModule } from './modules/vendors';
 import { ReservationsModule } from './modules/reservations';
+import { PoliciesModule } from './modules/policies/policies.module';
 import {
   User,
   UsersInfo,
@@ -82,6 +83,7 @@ import {
     UsersInfoModule,
     VendorsModule,
     ReservationsModule,
+    PoliciesModule,
   ],
   controllers: [AppController],
   providers: [

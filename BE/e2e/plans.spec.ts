@@ -229,6 +229,56 @@ test.describe('Plans API Tests', () => {
     expect(Array.isArray(responseData.data.plan_items)).toBe(true);
   });
 
+  test('메인 플랜 조회', async ({ request }) => {
+    const response = await request.get(`${BASE_URL}${PLANS_PREFIX}/main`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    expect(response.ok()).toBeTruthy();
+
+    const responseData = (await response.json()) as {
+      success: boolean;
+      data: {
+        plan_id: string;
+        plan_title: string;
+        wedding_date: string | null;
+        items: Array<{
+          plan_item_id: string;
+          vendor_id: string;
+          vendor_name: string;
+          category: string;
+          address: string;
+          reservation_date: string | null;
+        }>;
+      };
+    };
+
+    console.log('메인 플랜 조회 응답:', JSON.stringify(responseData, null, 2));
+
+    // 검증
+    expect(responseData.success).toBe(true);
+    expect(responseData.data).toBeDefined();
+    expect(responseData.data.plan_id).toBe(planId1); // 첫 번째 플랜이 메인 플랜
+    expect(responseData.data.plan_title).toBeDefined();
+    expect(responseData.data.wedding_date).toBe('2025-06-15');
+    expect(responseData.data.items).toBeDefined();
+    expect(Array.isArray(responseData.data.items)).toBe(true);
+
+    // 각 아이템의 필드가 snake_case인지 확인
+    if (responseData.data.items.length > 0) {
+      const item = responseData.data.items[0];
+      expect(item.plan_item_id).toBeDefined();
+      expect(item.vendor_id).toBeDefined();
+      expect(item.vendor_name).toBeDefined();
+      expect(item.category).toBeDefined();
+      expect(item.address).toBeDefined();
+      // reservation_date는 null일 수 있음
+      expect(item).toHaveProperty('reservation_date');
+    }
+  });
+
   test('대표 플랜 설정 - 두 번째 플랜을 대표 플랜으로 변경', async ({ request }) => {
     // 1. 대표 플랜 설정 API 호출
     const setMainResponse = await request.post(`${BASE_URL}${PLANS_PREFIX}/main`, {
@@ -291,6 +341,31 @@ test.describe('Plans API Tests', () => {
 
     expect(plan1Item?.users_info.is_main_plan).toBe(false);
     expect(plan2Item?.users_info.is_main_plan).toBe(true);
+
+    // 3. 메인 플랜 조회로 변경 사항 확인
+    const mainPlanResponse = await request.get(`${BASE_URL}${PLANS_PREFIX}/main`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    expect(mainPlanResponse.ok()).toBeTruthy();
+
+    const mainPlanData = (await mainPlanResponse.json()) as {
+      success: boolean;
+      data: {
+        plan_id: string;
+        plan_title: string;
+        wedding_date: string | null;
+      };
+    };
+
+    console.log('대표 플랜 변경 후 메인 플랜 조회:', JSON.stringify(mainPlanData, null, 2));
+
+    // 검증: 두 번째 플랜이 조회되어야 함
+    expect(mainPlanData.success).toBe(true);
+    expect(mainPlanData.data.plan_id).toBe(planId2);
+    expect(mainPlanData.data.wedding_date).toBe('2025-08-20');
   });
 
   test('대표 플랜 설정 - 다시 첫 번째 플랜을 대표 플랜으로 변경', async ({ request }) => {

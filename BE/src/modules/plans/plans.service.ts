@@ -16,6 +16,8 @@ import {
   CreatePlanResponseDto,
   AddPlanVendorResponseDto,
   DeletePlanResponseDto,
+  MainPlanResponseDto,
+  MainPlanItemDto,
 } from './dto';
 
 /**
@@ -300,7 +302,7 @@ export class PlansService {
         const reservation = reservationMap.get(item.vendor_id);
         if (reservation) {
           reservationInfo = {
-            reservation_date: reservation.reservation_date.toISOString().split('T')[0],
+            reservation_date: this.formatDate(reservation.reservation_date)!,
             reservation_time: reservation.reservation_time,
           };
         }
@@ -656,6 +658,96 @@ export class PlansService {
     return {
       message: '플랜이 삭제되었습니다.',
       planId,
+    };
+  }
+
+  /**
+   * 메인 플랜 조회
+   * @description 사용자의 메인 플랜(is_main_plan=true)의 업체 정보를 조회합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 추출)
+   * @returns 메인 플랜 정보 및 포함된 업체 목록
+   *
+   * @throws NotFoundException - 메인 플랜을 찾을 수 없는 경우
+   *
+   * 데이터 조회 흐름:
+   * 1. users_info 테이블에서 user_id와 is_main_plan=true 조건으로 조회
+   * 2. 해당 users_info_id로 plan 테이블 조회
+   * 3. plan_id로 plan_item 테이블 조회
+   * 4. plan_item의 vendor_id로 vendor 정보 조회
+   * 5. 각 vendor와 plan에 대한 reservation 조회
+   */
+  async getMainPlan(userId: string): Promise<MainPlanResponseDto> {
+    this.logger.log(`메인 플랜 조회 시작: userId=${userId}`);
+
+    // 1. users_info에서 is_main_plan=true인 레코드 조회
+    const mainUsersInfo = await this.usersInfoRepository.findOne({
+      where: {
+        user_id: userId,
+        is_main_plan: true,
+      },
+    });
+
+    if (!mainUsersInfo) {
+      throw new NotFoundException('메인 플랜이 설정되지 않았습니다.');
+    }
+
+    this.logger.log(`메인 users_info 조회 완료: usersInfoId=${mainUsersInfo.id}`);
+
+    // 2. 해당 users_info_id로 plan 조회
+    const plan = await this.planRepository.findOne({
+      where: {
+        users_info_id: mainUsersInfo.id,
+      },
+    });
+
+    if (!plan) {
+      throw new NotFoundException('메인 플랜을 찾을 수 없습니다.');
+    }
+
+    this.logger.log(`메인 플랜 조회 완료: planId=${plan.id}`);
+
+    // 3. plan_id로 plan_items 조회 (vendor 정보 포함)
+    const planItems = await this.planItemRepository.find({
+      where: {
+        plan_id: plan.id,
+      },
+      relations: ['vendor'],
+      order: { order_index: 'ASC' },
+    });
+
+    this.logger.log(`플랜 아이템 조회 완료: ${planItems.length}개`);
+
+    // 4. 각 vendor에 대한 reservation 조회
+    const items: MainPlanItemDto[] = [];
+
+    for (const planItem of planItems) {
+      // 해당 vendor와 plan에 대한 예약 조회
+      const reservation = await this.reservationRepository.findOne({
+        where: {
+          vendor_id: planItem.vendor_id,
+          plan_id: plan.id,
+        },
+      });
+
+      items.push({
+        plan_item_id: planItem.id,
+        vendor_id: planItem.vendor.id,
+        vendor_name: planItem.vendor.name,
+        category: planItem.vendor.category,
+        address: planItem.vendor.address,
+        reservation_date: reservation ? this.formatDate(reservation.reservation_date) : null,
+      });
+    }
+
+    this.logger.log(`메인 플랜 조회 완료: userId=${userId}, planId=${plan.id}`);
+
+    // 5. 응답 데이터 구성
+    return {
+      plan_id: plan.id,
+      plan_title: plan.title,
+      wedding_date: this.formatDate(mainUsersInfo.wedding_date),
+      items,
     };
   }
 }

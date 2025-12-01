@@ -12,6 +12,7 @@ import {
   AddPlanVendorDto,
   AddPlanVendorResponseDto,
   DeletePlanResponseDto,
+  MainPlanResponseDto,
 } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -133,6 +134,88 @@ export class PlansController {
   })
   async getPlans(@CurrentUser('id') userId: string): Promise<PlanListResponseDto> {
     return this.plansService.getPlanList(userId);
+  }
+
+  /**
+   * 메인 플랜 조회 API
+   * @description 사용자의 메인 플랜(is_main_plan=true)의 업체 정보를 조회합니다.
+   *
+   * @param userId - 사용자 ID (JWT에서 자동 추출)
+   * @returns 메인 플랜 정보 및 포함된 업체 목록
+   *
+   * @example
+   * GET /api/v1/plans/main
+   *
+   * // 응답 예시
+   * {
+   *   "success": true,
+   *   "data": {
+   *     "plan_id": "550e8400-e29b-41d4-a716-446655440000",
+   *     "plan_title": "나의 웨딩",
+   *     "wedding_date": "2025-06-15",
+   *     "items": [
+   *       {
+   *         "plan_item_id": "uuid",
+   *         "vendor_id": "uuid",
+   *         "vendor_name": "○○웨딩홀",
+   *         "category": "VENUE",
+   *         "address": "서울시 강남구 ...",
+   *         "reservation_date": "2025-03-15"
+   *       },
+   *       {
+   *         "plan_item_id": "uuid",
+   *         "vendor_id": "uuid",
+   *         "vendor_name": "××스튜디오",
+   *         "category": "STUDIO",
+   *         "address": "서울시 서초구 ...",
+   *         "reservation_date": null
+   *       }
+   *     ]
+   *   }
+   * }
+   *
+   * @throws 401 Unauthorized - 인증 실패
+   * @throws 404 Not Found - 메인 플랜을 찾을 수 없음
+   */
+  @Get('main')
+  @ApiOperation({
+    summary: '메인 플랜 조회',
+    description:
+      '사용자의 메인 플랜 정보를 조회합니다.\n\n' +
+      '**데이터 조회 흐름:**\n' +
+      '1. JWT 토큰에서 user_id 추출\n' +
+      '2. users_info 테이블에서 is_main_plan=true인 레코드 조회\n' +
+      '3. plan 테이블에서 해당 users_info_id로 플랜 조회\n' +
+      '4. plan_item 테이블에서 plan_id로 모든 아이템 조회\n' +
+      '5. 각 아이템의 vendor 정보 조회 (name, category, address)\n' +
+      '6. 각 vendor에 대한 reservation 조회 (있는 경우만)\n\n' +
+      '**반환 필드:**\n' +
+      '- plan_id: 플랜 UUID\n' +
+      '- plan_title: 플랜 제목\n' +
+      '- wedding_date: 결혼 예정일\n' +
+      '- items: 플랜에 포함된 업체 목록\n' +
+      '  - plan_item_id: 플랜 아이템 UUID\n' +
+      '  - vendor_id: 업체 UUID\n' +
+      '  - vendor_name: 업체명\n' +
+      '  - category: 업체 카테고리 (VENUE, STUDIO, DRESS, MAKEUP)\n' +
+      '  - address: 업체 주소\n' +
+      '  - reservation_date: 예약일 (nullable)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '메인 플랜 조회 성공',
+    type: MainPlanResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '메인 플랜을 찾을 수 없음',
+  })
+  async getMainPlan(@CurrentUser('id') userId: string): Promise<MainPlanResponseDto> {
+    return this.plansService.getMainPlan(userId);
   }
 
   /**
