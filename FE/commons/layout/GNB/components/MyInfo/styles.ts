@@ -284,10 +284,14 @@ export const styles = StyleSheet.create({
   },
 
   'schedule-item': {
+    flexDirection: 'column',
+    gap: parseInt(spacing.xs),
+  },
+
+  'schedule-item-header': {
     flexDirection: 'row',
     alignItems: 'center',
     gap: parseInt(spacing.sm),
-    height: 24,
   },
 
   'schedule-time': {
@@ -298,14 +302,10 @@ export const styles = StyleSheet.create({
     color: colors.root.text,
     opacity: 0.7,
     fontFamily: 'Pretendard',
-    width: 40,
   },
 
   'schedule-item-content': {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
 
   'schedule-item-name': {
@@ -324,6 +324,7 @@ export const styles = StyleSheet.create({
     fontWeight: fontSize['mobile-xs'][1].fontWeight,
     color: colors.brown['brown-4'],
     fontFamily: 'Pretendard',
+    paddingLeft: 48,
   },
 
   /* ========================================
