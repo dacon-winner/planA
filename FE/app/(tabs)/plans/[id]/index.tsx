@@ -127,6 +127,23 @@ export default function PlanDetail() {
   // TODO: 실제 데이터로 교체 필요 (planId 기반으로 API 호출)
   // 현재는 planId를 사용하지 않지만, 나중에 API 호출 시 사용 예정
   void planId;
+
+  // 결혼 예정일 파싱 함수
+  const parseWeddingDate = (dateString: string): Date | null => {
+    try {
+      // "2026년 3월 28일 토요일" 형태에서 연도, 월, 일을 추출
+      const match = dateString.match(/(\d{4})년\s+(\d{1,2})월\s+(\d{1,2})일/);
+      if (match) {
+        const [, year, month, day] = match;
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+      return null;
+    } catch (error) {
+      console.error('결혼 예정일 파싱 실패:', error);
+      return null;
+    }
+  };
+
   const planData = {
     planName: '김철수님만을 위한 플랜A',
     daysLeft: 'N',
@@ -883,6 +900,7 @@ export default function PlanDetail() {
                             setShowTimePicker(true); // 날짜 선택 시 자동으로 시간 선택 버튼 표시
                           }}
                           subtitle="날짜를 선택하세요"
+                          weddingDate={parseWeddingDate(planData.date)}
                         />
                       </View>
                     )}
