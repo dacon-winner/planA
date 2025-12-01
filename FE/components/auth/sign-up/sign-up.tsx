@@ -106,7 +106,15 @@ export const SignUp: React.FC = () => {
             error,
             "일시적인 오류가 발생했습니다. 다시 시도해주세요."
           );
-          Alert.alert("회원가입 실패", message);
+          Alert.alert("회원가입 실패", message, [
+            {
+              text: "확인",
+              onPress: () => {
+                // mutation 상태 초기화
+                signUpMutation.reset();
+              },
+            },
+          ]);
         },
       }
     );
@@ -276,9 +284,14 @@ export const SignUp: React.FC = () => {
                     variant="filled"
                     size="medium"
                     onPress={handleSubmit(onSubmit)}
-                    disabled={!isValid || signUpMutation.isPending}
+                    disabled={
+                      !isValid ||
+                      (signUpMutation.isPending && !signUpMutation.isError)
+                    }
                   >
-                    {signUpMutation.isPending ? "가입 중..." : "회원가입"}
+                    {signUpMutation.isPending && !signUpMutation.isError
+                      ? "가입 중..."
+                      : "회원가입"}
                   </Button>
                 </View>
               </View>

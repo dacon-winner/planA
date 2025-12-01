@@ -75,17 +75,22 @@ export const Login: React.FC = () => {
         router.replace(URL_PATHS.HOME);
       },
       onError: (error: any) => {
-        if (error.response?.status === 401) {
-          Alert.alert(
-            "로그인 실패",
-            "이메일 또는 비밀번호가 올바르지 않습니다."
-          );
-        } else {
-          Alert.alert(
-            "오류 발생",
-            "일시적인 오류가 발생했습니다. 다시 시도해주세요."
-          );
-        }
+        const title =
+          error.response?.status === 401 ? "로그인 실패" : "오류 발생";
+        const message =
+          error.response?.status === 401
+            ? "이메일 또는 비밀번호가 올바르지 않습니다."
+            : "일시적인 오류가 발생했습니다. 다시 시도해주세요.";
+
+        Alert.alert(title, message, [
+          {
+            text: "확인",
+            onPress: () => {
+              // mutation 상태 초기화
+              loginMutation.reset();
+            },
+          },
+        ]);
       },
     });
   };
@@ -217,9 +222,14 @@ export const Login: React.FC = () => {
                   variant="filled"
                   size="medium"
                   onPress={handleSubmit(onSubmit)}
-                  disabled={!isValid || loginMutation.isPending}
+                  disabled={
+                    !isValid ||
+                    (loginMutation.isPending && !loginMutation.isError)
+                  }
                 >
-                  {loginMutation.isPending ? "로그인 중..." : "로그인"}
+                  {loginMutation.isPending && !loginMutation.isError
+                    ? "로그인 중..."
+                    : "로그인"}
                 </Button>
 
                 {/* 회원가입 링크 */}
