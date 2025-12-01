@@ -14,7 +14,7 @@ import { buildApiUrl } from '@/commons/config';
 
 export interface Vendor {
   id: string;
-  category: 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
+  category: 'ALL' | 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
   name: string;
   address: string;
   phone: string;
@@ -23,17 +23,22 @@ export interface Vendor {
   thumbnail_url?: string;
   badges: string[];
   introduction?: string;
-  price?: number;
+  service_items?: {
+    id: string;
+    name: string;
+    price: number;
+    description?: string;
+    thumbnail_url?: string;
+    is_package: boolean;
+  }[];
 }
 
 export interface VendorsParams {
-  category: 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
+  category: 'ALL' | 'VENUE' | 'STUDIO' | 'DRESS' | 'MAKEUP';
   swLat: number;
   swLng: number;
   neLat: number;
   neLng: number;
-  page?: number;
-  limit?: number;
 }
 
 export interface VendorsResponse {
@@ -63,21 +68,31 @@ export function useVendors(params: VendorsParams, enabled: boolean = true) {
   return useQuery({
     queryKey: ['vendors', params],
     queryFn: async () => {
-      const response = await axios.get<VendorsResponse>(
-        buildApiUrl('/api/v1/vendors'),
-        {
-          params: {
-            category: params.category,
-            swLat: params.swLat.toString(),
-            swLng: params.swLng.toString(),
-            neLat: params.neLat.toString(),
-            neLng: params.neLng.toString(),
-            page: params.page?.toString() || '1',
-            limit: params.limit?.toString() || '20',
-          },
-        }
-      );
-      return response.data;
+      // 'ALL'일 때는 category 파라미터 제외
+      const queryParams: Record<string, string> = {
+        swLat: params.swLat.toString(),
+        swLng: params.swLng.toString(),
+        neLat: params.neLat.toString(),
+        neLng: params.neLng.toString(),
+      };
+
+      // 'ALL'이 아닐 때만 category 추가
+      if (params.category !== 'ALL') {
+        queryParams.category = params.category;
+      }
+
+      const url = buildApiUrl('/api/v1/vendors');
+      console.log('🌐 [API] 요청:', queryParams);
+
+      const response = await axios.get<{ success: boolean; data: VendorsResponse }>(url, { params: queryParams });
+      
+      console.log('✅ [API] 응답:', {
+        total: response.data.data.total,
+        vendors: response.data.data.vendors?.length || 0,
+      });
+
+      // 백엔드 응답 구조: { success, data: { vendors, total } }
+      return response.data.data;
     },
     enabled,
   });

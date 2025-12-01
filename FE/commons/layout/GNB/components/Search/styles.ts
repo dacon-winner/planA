@@ -78,6 +78,98 @@ export const styles = StyleSheet.create({
     padding: 40,
     fontFamily: 'Pretendard',
   },
+
+  /* Search Bar */
+  'search-bar-container': {
+    position: 'absolute',
+    top: 16,
+    left: 24,
+    right: 24,
+    zIndex: 20,
+  },
+
+  'search-bar': {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+  },
+
+  'search-input': {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+  },
+
+  /* Category Filter */
+  'category-filter-container': {
+    position: 'absolute',
+    top: 82,
+    left: 24,
+    right: 24,
+    zIndex: 10,
+  },
+
+  'category-filter-scroll': {
+    gap: 8,
+  },
+
+  'category-button': {
+    paddingHorizontal: 12,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#d1d5dc',
+  },
+
+  'category-button-selected': {
+    backgroundColor: '#655d61',
+    borderColor: '#655d61',
+  },
+
+  'category-button-text': {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#524a4e',
+    fontFamily: 'Pretendard',
+    lineHeight: 20,
+    letterSpacing: -0.1504,
+  },
+
+  'category-button-text-selected': {
+    color: '#FFFFFF',
+  },
+
+  /* Current Location Button */
+  'location-button': {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    zIndex: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#800c3a',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 5,
+  },
 });
 
 

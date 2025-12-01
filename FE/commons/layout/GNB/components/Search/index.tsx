@@ -13,14 +13,17 @@
  * - [x] 마커 표시
  */
 
-import { useState } from 'react';
-import { View, SafeAreaView, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Search as SearchIcon, Crosshair } from 'lucide-react-native';
 import { styles } from './styles';
 import KakaoMap, { MapMarker } from '@/commons/components/kakao-map';
 import { useVendors } from '@/commons/hooks';
 
 const CATEGORIES = [
+  { id: 'ALL', label: '전체' },
   { id: 'VENUE', label: '웨딩홀' },
   { id: 'STUDIO', label: '스튜디오' },
   { id: 'DRESS', label: '드레스' },
@@ -30,32 +33,77 @@ const CATEGORIES = [
 type Category = typeof CATEGORIES[number]['id'];
 
 export default function Search() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>('STUDIO');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [mapBounds, setMapBounds] = useState({
     swLat: 37.5,
     swLng: 126.9,
     neLat: 37.6,
     neLng: 127.0,
   });
+  const [debouncedMapBounds, setDebouncedMapBounds] = useState(mapBounds);
   const [isMapReady, setIsMapReady] = useState(false);
+  const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // 백엔드 API 호출 - 업체 목록 조회
-  const { data: vendorsData } = useVendors(
+  // 지도 영역이 변경되면 1초 후에 API 호출 (Debounce)
+  React.useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedMapBounds(mapBounds);
+      console.log('⏰ [Search] Debounced - API 호출 준비');
+    }, 1000); // 1초 대기
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [mapBounds]);
+
+  // 백엔드 API 호출 - Debounced 지도 영역 기준으로 조회
+  const { data: vendorsData, isLoading: isLoadingVendors, error } = useVendors(
     {
       category: selectedCategory,
-      ...mapBounds,
+      ...debouncedMapBounds,
     },
     isMapReady // 지도 준비 완료 후에만 API 호출
   );
 
+  // 디버그 로그
+  React.useEffect(() => {
+    console.log('🗺️ [Search] Map Ready:', isMapReady);
+    console.log('📍 [Search] Map Bounds:', mapBounds);
+    console.log('🏷️ [Search] Selected Category:', selectedCategory);
+    console.log('📦 [Search] Total Vendors:', vendorsData?.vendors?.length || 0);
+    console.log('⏳ [Search] Loading Vendors:', isLoadingVendors);
+    if (error) console.error('❌ [Search] Error:', error);
+  }, [isMapReady, mapBounds, selectedCategory, vendorsData, isLoadingVendors, error]);
+
   // 업체 데이터를 마커 형식으로 변환
-  const markers: MapMarker[] = vendorsData?.vendors?.map((vendor) => ({
-    id: vendor.id,
-    latitude: vendor.latitude,
-    longitude: vendor.longitude,
-    title: vendor.name,
-    content: vendor.address,
-  })) ?? [];
+  const markers: MapMarker[] = React.useMemo(() => {
+    if (!vendorsData?.vendors) return [];
+
+    return vendorsData.vendors.map((vendor) => {
+      // 가장 저렴한 서비스 아이템 가격 찾기
+      const minPrice = vendor.service_items && vendor.service_items.length > 0
+        ? Math.min(...vendor.service_items.map(item => item.price))
+        : undefined;
+      
+      return {
+        id: vendor.id,
+        latitude: vendor.latitude,
+        longitude: vendor.longitude,
+        title: vendor.name,
+        content: vendor.address,
+        category: vendor.category !== 'ALL' ? vendor.category : undefined,
+        price: minPrice,
+        vendorName: vendor.name,
+      };
+    });
+  }, [vendorsData]);
 
   const handleMapReady = () => {
     console.log('지도 로드 완료');
@@ -63,7 +111,7 @@ export default function Search() {
   };
 
   const handleRegionChange = (bounds: any) => {
-    console.log('지도 영역 변경:', bounds);
+    console.log('📍 지도 영역 변경:', bounds);
     setMapBounds(bounds);
   };
 
@@ -72,31 +120,68 @@ export default function Search() {
     // TODO: 업체 상세 정보 표시 (모달 또는 하단 시트)
   };
 
+  const handleCurrentLocation = () => {
+    console.log('현재 위치로 이동');
+    // TODO: 현재 위치 가져오기 및 지도 이동
+  };
+
   return (
     <View style={styles['search-wrapper']}>
-      <SafeAreaView style={styles['search-safe-area']}>
+      <SafeAreaView style={styles['search-safe-area']} edges={['top']}>
         <View style={styles['search-container']}>
-          {/* 카테고리 탭 */}
-          <View className="absolute top-4 left-0 right-0 z-10 px-4">
+          {/* 지도 (배경) */}
+          <KakaoMap
+            latitude={37.5240}
+            longitude={127.0430}
+            level={5}
+            markers={markers}
+            onMapReady={handleMapReady}
+            onRegionChange={handleRegionChange}
+            onMarkerClick={handleMarkerClick}
+          />
+
+          {/* 검색바 */}
+          <View style={styles['search-bar-container']}>
+            <View style={styles['search-bar']}>
+              <SearchIcon size={20} color="#524a4e" />
+              <TextInput
+                style={styles['search-input']}
+                placeholder="업체명 또는 서비스로 검색"
+                placeholderTextColor="#524a4e"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+          </View>
+
+          {/* 카테고리 필터 */}
+          <View style={styles['category-filter-container']}>
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8 }}
+              contentContainerStyle={styles['category-filter-scroll']}
             >
               {CATEGORIES.map((category) => (
                 <TouchableOpacity
                   key={category.id}
                   onPress={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-full shadow-sm ${
-                    selectedCategory === category.id 
-                      ? 'bg-indigo-600 border border-indigo-600' 
-                      : 'bg-white border border-gray-200'
-                  }`}
+                  style={[
+                    styles['category-button'],
+                    selectedCategory === category.id && styles['category-button-selected'],
+                    selectedCategory === category.id && {
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 0 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 20,
+                      elevation: 2,
+                    }
+                  ]}
                 >
                   <Text 
-                    className={`text-sm font-bold ${
-                      selectedCategory === category.id ? 'text-white' : 'text-gray-700'
-                    }`}
+                    style={[
+                      styles['category-button-text'],
+                      selectedCategory === category.id && styles['category-button-text-selected']
+                    ]}
                   >
                     {category.label}
                   </Text>
@@ -105,15 +190,14 @@ export default function Search() {
             </ScrollView>
           </View>
 
-          <KakaoMap
-            latitude={37.5240} // 청담동 중심 (순수 청담본점 근처)
-            longitude={127.0430}
-            level={5}
-            markers={markers}
-            onMapReady={handleMapReady}
-            onRegionChange={handleRegionChange}
-            onMarkerClick={handleMarkerClick}
-          />
+          {/* 현재 위치 버튼 */}
+          <TouchableOpacity
+            onPress={handleCurrentLocation}
+            style={styles['location-button']}
+          >
+            <Crosshair size={24} color="#524a4e" />
+          </TouchableOpacity>
+
           <StatusBar style="auto" />
         </View>
       </SafeAreaView>

@@ -10,7 +10,8 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   'kakao-map-wrapper': {
     flex: 1,
-    position: 'relative',
+    width: '100%',
+    height: '100%',
   },
   
   'kakao-map-webview': {
@@ -25,7 +26,6 @@ export const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     zIndex: 10,
   },
 });

@@ -21,7 +21,7 @@ import { Toast } from '@/commons/components/toast-message';
 import { Calendar } from '@/commons/components/calendar';
 import { SelectButton } from '@/commons/components/select-button';
 import { ErrorModal } from '@/commons/components/modal/ErrorModal';
-import { styles, getDetailContentScrollStyle } from './styles';
+import { styles, getDetailContentScrollStyle } from '@/commons/styles/planDetail';
 import { colors } from '@/commons/enums/color';
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import BottomSheet, { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
