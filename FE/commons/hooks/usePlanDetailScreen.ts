@@ -270,7 +270,7 @@ export function usePlanDetailScreen(planId?: string) {
   const {
     data: aiRecommendationsData,
     isLoading: isAiRecommendationsLoading,
-  } = useAiRecommendations(currentVendorId);
+  } = useAiRecommendations(currentVendorId, false); // AI 추천 기능 비활성화
 
   const planData = useMemo(
     () => transformPlanData(planDetailData, aiRecommendationsData),
