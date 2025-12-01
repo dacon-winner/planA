@@ -529,7 +529,7 @@ export const styles = StyleSheet.create({
   },
 
   'ai-recommendation-text-container': {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 2,
     width: 140, // 이미지 너비와 동일하게
   },
@@ -541,7 +541,7 @@ export const styles = StyleSheet.create({
       parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
       parseInt(fontSize['mobile-xs'][0]),
     fontWeight: '700', // Bold - 더 굵게 표시
-    color: colors.root.text, // #524a4e
+    color: colors.black['black-12'], 
     fontFamily: 'Pretendard',
     textAlign: 'left', // 왼쪽 정렬
   },
@@ -553,7 +553,7 @@ export const styles = StyleSheet.create({
       parseFloat(fontSize['mobile-xs'][1].letterSpacing) *
       parseInt(fontSize['mobile-xs'][0]),
     fontWeight: '400', // Regular - 얇게 표시
-    color: colors.black['black-13'], // #666666
+    color: colors.black['black-11'], 
     fontFamily: 'Pretendard',
     textAlign: 'left', // 왼쪽 정렬
   },
