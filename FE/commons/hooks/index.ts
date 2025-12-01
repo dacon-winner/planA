@@ -36,6 +36,10 @@ export type {
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
 
+
+export { useRegenerateVendor } from './useRegenerateVendor';
+export type { RegenerateVendorRequest, RegenerateVendorResponse } from './useRegenerateVendor';
+
 export { usePolicies } from './usePolicies';
 export type { PolicyInfo, PolicyListResponse, PolicyType } from './usePolicies';
 

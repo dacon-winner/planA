@@ -430,16 +430,45 @@ export const styles = StyleSheet.create({
   },
 
   'detail-images': {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+
+  'detail-images-scroll-content': {
+    // ScrollView contentContainerStyle - gap 없이 이미지들이 연속으로 배치
   },
 
   'detail-image-placeholder': {
-    width: 168,
-    height: 168,
+    // width는 인라인 스타일로 동적으로 설정됨 (화면 너비)
+    aspectRatio: 4/3,
     backgroundColor: colors.black['black-5'], // #d9d9d9
     borderRadius: 0,
+  },
+
+  'image-indicator-container': {
+    position: 'absolute',
+    bottom: parseInt(spacing.md),
+    flexDirection: 'row',
+    gap: parseInt(spacing.xs),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
+  'image-indicator-dot': {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.black['black-1'],
+    opacity: 0.4,
+  },
+
+  'image-indicator-dot-active': {
+    opacity: 1,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 
   'detail-info-list': {
@@ -821,6 +850,30 @@ export const styles = StyleSheet.create({
 
   'reservation-action-button': {
     flex: 1,
+  },
+
+  'reservation-info-container': {
+    width: 345,
+    alignSelf: 'center',
+    paddingVertical: parseInt(spacing.md),
+    paddingHorizontal: parseInt(spacing.md),
+    backgroundColor: colors.red['red-1'],
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: parseInt(spacing.md),
+  },
+
+  'reservation-info-text': {
+    fontSize: parseInt(fontSize['mobile-s'][0]),
+    lineHeight: parseInt(fontSize['mobile-s'][1].lineHeight),
+    letterSpacing:
+      parseFloat(fontSize['mobile-s'][1].letterSpacing) *
+      parseInt(fontSize['mobile-s'][0]),
+    fontWeight: fontSize['mobile-s'][1].fontWeight,
+    color: colors.red['red-9'],
+    fontFamily: 'Pretendard',
+    textAlign: 'center',
   },
 
   // AI 추천 스켈레톤 스타일

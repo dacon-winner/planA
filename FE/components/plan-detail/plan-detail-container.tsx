@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo } from "react";
+import React, { useRef, useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,12 @@ import {
   Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { MapPin, Phone, Clock, CircleDollarSign } from "lucide-react-native";
+import { MapPin, Phone, Clock, CircleDollarSign, RotateCw } from "lucide-react-native";
 import BottomSheet, {
   BottomSheetView,
   useBottomSheet,
 } from "@gorhom/bottom-sheet";
 import { useAnimatedReaction, runOnJS } from "react-native-reanimated";
-import { ContentSwitcher } from "@/commons/components/content-switcher";
 import { Button } from "@/commons/components/button";
 import { Calendar } from "@/commons/components/calendar";
 import { SelectButton } from "@/commons/components/select-button";
@@ -26,10 +25,12 @@ import {
 import { colors } from "@/commons/enums/color";
 import { usePlanDetailScreen } from "@/commons/hooks/usePlanDetailScreen";
 import { usePlanDetailStore } from "@/commons/stores/usePlanDetailStore";
+import { useRegenerateVendor } from "@/commons/hooks/useRegenerateVendor";
+import { usePlanDetail } from "@/commons/hooks/usePlans";
+import { getVendorCategoryByIndex, mapApiCategoryToVendorCategory } from "@/commons/utils";
 import { PlanHeader } from "./plan-header";
 import { ServiceGrid } from "./service-grid";
 import { PlanLoadingState } from "./plan-loading-state";
-import { AiRecommendations } from "./ai-recommendations";
 import { PlanVendorChangeModal } from "@/commons/components/plan-detail/vendor-change-modal";
 import { showPlanToast } from "@/commons/components/plan-detail/plan-toast";
 
@@ -44,23 +45,18 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
   const {
     isLoading,
     error,
-    isAiRecommendationsLoading,
     isReservationLoading,
     finalPlanData,
     serviceCards,
     currentDetailInfo,
-    aiRecommendationsForCurrentTab,
     selectedTab,
     setSelectedTab,
     timeOptions,
     parseWeddingDate,
-    recommendationDisplayCount,
     isServiceSaved,
     handleSave,
     handleSaveConfirm,
     handleSaveCancel,
-    handleViewOtherVendors,
-    handleAiRecommendationPress,
     handleReservation,
     changeVendorModals,
   } = usePlanDetailScreen(planId);
@@ -79,11 +75,90 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
     selectedAiRecommendation,
   } = usePlanDetailStore();
 
+  // 플랜 상세 데이터 조회 (예약 정보 확인용)
+  const { data: planDetailData } = usePlanDetail(planId);
+
+  // 업체 재생성 훅
+  const regenerateVendorMutation = useRegenerateVendor();
+
+  // 현재 선택된 탭의 예약 여부 확인
+  const hasReservation = useMemo(() => {
+    if (!planDetailData || !planDetailData.plan_items) {
+      return false;
+    }
+
+    const targetCategory = getVendorCategoryByIndex(selectedTab);
+    if (!targetCategory) {
+      return false;
+    }
+
+    const planItem = planDetailData.plan_items.find((item: any) => {
+      const normalized = mapApiCategoryToVendorCategory(item.vendor.category);
+      return normalized === targetCategory;
+    });
+
+    return planItem?.reservation !== null && planItem?.reservation !== undefined;
+  }, [planDetailData, selectedTab]);
+
+  // 현재 선택된 업체 ID
+  const currentVendorId = useMemo(() => {
+    if (!planDetailData || !planDetailData.plan_items) {
+      return null;
+    }
+
+    const targetCategory = getVendorCategoryByIndex(selectedTab);
+    if (!targetCategory) {
+      return null;
+    }
+
+    const planItem = planDetailData.plan_items.find((item: any) => {
+      const normalized = mapApiCategoryToVendorCategory(item.vendor.category);
+      return normalized === targetCategory;
+    });
+
+    return planItem?.vendor.id || null;
+  }, [planDetailData, selectedTab]);
+
+  // 업체 재생성 핸들러
+  const handleRegenerateVendor = useCallback(async () => {
+    console.log("🔄 [Regenerate] 버튼 클릭됨", {
+      planId,
+      currentVendorId,
+      hasReservation,
+    });
+
+    if (!currentVendorId) {
+      showPlanToast({
+        variant: "error",
+        message: "업체를 선택해주세요.",
+      });
+      return;
+    }
+
+    try {
+      console.log("🔄 [Regenerate] API 호출 시작", {
+        planId,
+        vendorId: currentVendorId,
+      });
+      await regenerateVendorMutation.mutateAsync({
+        planId,
+        vendorId: currentVendorId,
+      });
+    } catch {
+      // 에러는 훅 내부에서 토스트로 표시됨
+    }
+  }, [planId, currentVendorId, regenerateVendorMutation, hasReservation]);
+
   const hasSnappedToMaxRef = useRef(false);
+
+  // 이미지 캐러셀 인덱스 추적
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageScrollViewRef = useRef<ScrollView>(null);
 
   // Bottom Sheet 설정
   const bottomSheetRef = useRef<BottomSheet>(null);
   const screenHeight = useMemo(() => Dimensions.get("window").height, []);
+  const screenWidth = useMemo(() => Dimensions.get("window").width, []);
   const snapPoints = useMemo(
     () => [screenHeight * 0.35, screenHeight * 0.7],
     [screenHeight]
@@ -134,15 +209,14 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
     [setSelectedTab, expandBottomSheet]
   );
 
-  const handleOtherVendorsPress = useCallback(
-    () => handleViewOtherVendors(expandBottomSheet),
-    [handleViewOtherVendors, expandBottomSheet]
-  );
-
-  const handleRecommendationSelect = useCallback(
-    (recommendation: { vendor_id: string; name: string; price: string }) =>
-      handleAiRecommendationPress(recommendation, expandBottomSheet),
-    [handleAiRecommendationPress, expandBottomSheet]
+  // 이미지 스크롤 핸들러
+  const handleImageScroll = useCallback(
+    (event: { nativeEvent: { contentOffset: { x: number } } }) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const index = Math.round(offsetX / screenWidth);
+      setCurrentImageIndex(index);
+    },
+    [screenWidth]
   );
 
   // 로딩/에러/데이터 없음 상태 처리
@@ -198,16 +272,51 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
           <BottomSheetContentWrapper />
 
           {/* Bottom Sheet Handle */}
-          <View style={styles["detail-section-header"]}>
+          <View
+            style={[
+              styles["detail-section-header"],
+              {
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              },
+            ]}
+          >
+            <View style={{ flex: 1 }} />
             <View style={styles["detail-section-handle"]} />
-          </View>
-
-          {/* Content Switcher */}
-          <View style={styles["content-switcher-wrapper"]}>
-            <ContentSwitcher
-              selectedIndex={selectedTab}
-              onSelectionChange={setSelectedTab}
-            />
+            <View style={{ flex: 1, alignItems: "flex-end" }}>
+              {!hasReservation && currentVendorId ? (
+                <Pressable
+                  style={({ pressed }) => [
+                    {
+                      padding: 8,
+                      opacity: pressed ? 0.6 : 1,
+                    },
+                  ]}
+                  onPress={handleRegenerateVendor}
+                  disabled={regenerateVendorMutation.isPending}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <RotateCw 
+                    size={20} 
+                    color={
+                      regenerateVendorMutation.isPending
+                        ? colors.root.text + "80"
+                        : colors.root.text
+                    } 
+                  />
+                </Pressable>
+              ) : (
+                // 디버깅용: 버튼이 왜 안 보이는지 확인
+                __DEV__ && (
+                  <View style={{ padding: 8 }}>
+                    <Text style={{ fontSize: 10, color: colors.root.text + "50" }}>
+                      {!currentVendorId ? "no vendor" : "has reservation"}
+                    </Text>
+                  </View>
+                )
+              )}
+            </View>
           </View>
 
           {/* 상세 정보 컨텐츠 - 스크롤 가능 */}
@@ -222,25 +331,51 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
 
               {/* 이미지 섹션 */}
               <View style={styles["detail-images"]}>
-                {currentDetailInfo.images &&
-                currentDetailInfo.images.length > 0 ? (
-                  <>
-                    {currentDetailInfo.images
-                      .slice(0, 2)
-                      .map((imageUrl: string, index: number) => (
+                <ScrollView
+                  ref={imageScrollViewRef}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  snapToInterval={screenWidth}
+                  snapToAlignment="start"
+                  decelerationRate="fast"
+                  onScroll={handleImageScroll}
+                  scrollEventThrottle={16}
+                  contentContainerStyle={styles["detail-images-scroll-content"]}
+                >
+                  {currentDetailInfo.images && currentDetailInfo.images.length > 0
+                    ? currentDetailInfo.images.map((imageUrl, index) => (
                         <Image
                           key={index}
                           source={{ uri: imageUrl }}
-                          style={styles["detail-image-placeholder"]}
+                          style={[
+                            styles["detail-image-placeholder"],
+                            { width: screenWidth }
+                          ]}
                           resizeMode="cover"
                         />
-                      ))}
-                  </>
-                ) : (
-                  <>
-                    <View style={styles["detail-image-placeholder"]} />
-                    <View style={styles["detail-image-placeholder"]} />
-                  </>
+                      ))
+                    : (
+                      <View
+                        style={[
+                          styles["detail-image-placeholder"],
+                          { width: screenWidth }
+                        ]}
+                      />
+                    )}
+                </ScrollView>
+                {/* 페이지 인디케이터 */}
+                {currentDetailInfo.images && currentDetailInfo.images.length > 1 && (
+                  <View style={styles["image-indicator-container"]}>
+                    {currentDetailInfo.images.map((_, index) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles["image-indicator-dot"],
+                          index === currentImageIndex && styles["image-indicator-dot-active"]
+                        ]}
+                      />
+                    ))}
+                  </View>
                 )}
               </View>
 
@@ -267,7 +402,8 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                 <View style={styles["detail-info-item"]}>
                   <CircleDollarSign size={16} color={colors.root.text} />
                   <Text style={styles["detail-info-text"]}>
-                    {currentDetailInfo.service}
+                    {`${getVendorCategoryByIndex(selectedTab)} 서비스`}
+                    {/* {currentDetailInfo.service} */}
                   </Text>
                 </View>
               </View>
@@ -297,15 +433,6 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
               {/* 액션 버튼 */}
               <View style={styles["detail-actions"]}>
                 <View style={styles["detail-action-button"]}>
-                  <Button
-                    variant="outlined"
-                    size="medium"
-                    onPress={handleOtherVendorsPress}
-                  >
-                    다른 업체 보기
-                  </Button>
-                </View>
-                <View style={styles["detail-action-button"]}>
                   <Button variant="filled" size="medium" onPress={handleSave}>
                     {isServiceSaved(finalPlanData.services[selectedTab].type)
                       ? "저장 변경하기"
@@ -314,18 +441,19 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                 </View>
               </View>
 
-              {/* 방문 예약하기 - 현재 서비스가 저장된 경우에만 표시 */}
-              {isServiceSaved(finalPlanData.services[selectedTab].type) && (
-                <View style={styles["reservation-section"]}>
-                  <View style={styles["reservation-divider"]} />
+              {/* 방문 예약하기 */}
+              <View style={styles["reservation-section"]}>
+                <View style={styles["reservation-divider"]} />
 
-                  <Text style={styles["reservation-title"]}>방문 예약하기</Text>
+                <Text style={styles["reservation-title"]}>방문 예약하기</Text>
 
                   {/* 날짜/시간 선택 UI */}
                   <View style={styles["datetime-picker-container"]}>
-                    <Pressable
-                      style={styles["datetime-picker-item"]}
-                      onPress={() => setShowTimePicker(false)}
+                    <View
+                      style={[
+                        styles["datetime-picker-item"],
+                        isReserved && { opacity: 0.6 }
+                      ]}
                     >
                       <Text style={styles["datetime-picker-label"]}>날짜</Text>
                       <Text style={styles["datetime-picker-value"]}>
@@ -335,28 +463,33 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                             }월 ${selectedDate.getDate()}일`
                           : "-"}
                       </Text>
-                    </Pressable>
+                    </View>
 
                     <View style={styles["datetime-picker-divider"]} />
 
-                    <Pressable
-                      style={styles["datetime-picker-item"]}
-                      disabled={!selectedDate}
-                      onPress={() => {
-                        if (selectedDate) {
-                          setShowTimePicker(true);
-                        }
-                      }}
+                    <View
+                      style={[
+                        styles["datetime-picker-item"],
+                        isReserved && { opacity: 0.6 }
+                      ]}
                     >
                       <Text style={styles["datetime-picker-label"]}>시간</Text>
                       <Text style={styles["datetime-picker-value"]}>
-                        {selectedTime || "-"}
+                        {selectedTime
+                          ? selectedTime.split(":").slice(0, 2).join(":")
+                          : "-"}
                       </Text>
-                    </Pressable>
+                    </View>
                   </View>
 
-                  {/* 달력 또는 시간 선택 버튼 그리드 */}
-                  {!isReserved && (
+                  {/* 예약된 경우 예약 정보 표시, 아닌 경우 달력 또는 시간 선택 버튼 그리드 */}
+                  {isReserved && selectedDate && selectedTime ? (
+                    <View style={styles["reservation-info-container"]}>
+                      <Text style={styles["reservation-info-text"]}>
+                        예약이 완료되었습니다.
+                      </Text>
+                    </View>
+                  ) : (
                     <>
                       {showTimePicker && selectedDate ? (
                         <View style={styles["time-picker-container"]}>
@@ -452,20 +585,7 @@ export const PlanDetailContainer: React.FC<PlanDetailContainerProps> = ({
                       </View>
                     </View>
                   )}
-                </View>
-              )}
-
-              {/* AI 추천 업체 */}
-              <AiRecommendations
-                isLoading={isAiRecommendationsLoading}
-                recommendations={aiRecommendationsForCurrentTab}
-                currentServiceName={
-                  selectedAiRecommendation?.name ||
-                  finalPlanData.services[selectedTab].name
-                }
-                displayCount={recommendationDisplayCount}
-                onRecommendationPress={handleRecommendationSelect}
-              />
+              </View>
             </ScrollView>
           </View>
         </BottomSheetView>
