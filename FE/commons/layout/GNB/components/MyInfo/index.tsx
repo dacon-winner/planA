@@ -14,14 +14,14 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { 
-  Phone, 
-  Calendar, 
-  MapPin, 
-  Wallet, 
-  Edit, 
-  User, 
-  CalendarClock, 
+import {
+  Phone,
+  Calendar,
+  MapPin,
+  Wallet,
+  Edit,
+  User,
+  CalendarClock,
   Bell,
   Settings
 } from 'lucide-react-native';
@@ -31,6 +31,7 @@ import { Toggle } from '@/commons/components/toggle';
 import { GradientBackground } from '@/commons/components/gradient-background';
 import { Button } from '@/commons/components/button';
 import { colors } from '@/commons/enums/color';
+import { useMe, usePlans, useReservations } from '@/commons/hooks';
 
 // 임시 데이터 (추후 API로 대체)
 const userInfo = {
@@ -86,12 +87,75 @@ const notificationSettings = [
 ];
 
 export default function MyInfo() {
+  // API 데이터 조회
+  const { data: userData, isLoading: userLoading } = useMe();
+  const { data: plansData } = usePlans();
+  const { data: reservationsData } = useReservations();
+
   const [notifications, setNotifications] = useState(
     notificationSettings.reduce((acc, item) => {
       acc[item.id] = item.enabled ? 'on' : 'off';
       return acc;
     }, {} as Record<string, 'on' | 'off'>)
   );
+
+  // API 데이터 기반 계산값들
+  const userInfo = userData ? {
+    name: userData.name,
+    weddingInfo: userData.wedding_date
+      ? `${userData.name} 님의 웨딩 정보`
+      : '웨딩 정보가 설정되지 않았습니다',
+    phone: userData.phone,
+    date: userData.wedding_date
+      ? new Date(userData.wedding_date).toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+        })
+      : '날짜 미설정',
+    location: userData.preferred_region || '지역 미설정',
+    budget: userData.budget_limit
+      ? `${(userData.budget_limit / 10000).toLocaleString()}만원`
+      : '예산 미설정',
+  } : null;
+
+  const stats = {
+    planCount: plansData?.items?.length || 0,
+    reservationCount: reservationsData?.total || 0,
+  };
+
+  // TODO: 예약 API가 완성되면 실제 예약 데이터로 교체
+  // TODO: 업체 정보 연동을 위해 useVendors hook과 결합 필요
+  // 다가오는 예약 일정을 날짜 순으로 정렬하여 표시
+  const upcomingSchedulesFromAPI = reservationsData?.items
+    ?.filter(reservation => new Date(reservation.reservation_date) >= new Date())
+    ?.sort((a, b) => new Date(a.reservation_date).getTime() - new Date(b.reservation_date).getTime())
+    ?.reduce((acc, reservation) => {
+      const dateStr = new Date(reservation.reservation_date).toLocaleDateString('ko-KR', {
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const existingDateGroup = acc.find(group => group.date === dateStr);
+      if (existingDateGroup) {
+        existingDateGroup.items.push({
+          time: reservation.reservation_time,
+          name: `예약 ${reservation.visitor_name}`, // TODO: 업체 정보 연동 시 수정
+          address: '주소 정보 미연동', // TODO: 업체 정보 연동 시 수정
+        });
+      } else {
+        acc.push({
+          date: dateStr,
+          items: [{
+            time: reservation.reservation_time,
+            name: `예약 ${reservation.visitor_name}`, // TODO: 업체 정보 연동 시 수정
+            address: '주소 정보 미연동', // TODO: 업체 정보 연동 시 수정
+          }],
+        });
+      }
+      return acc;
+    }, [] as typeof upcomingSchedules) || [];
 
   const handleToggle = (id: string, newState: 'on' | 'off') => {
     setNotifications((prev) => ({
@@ -115,7 +179,9 @@ export default function MyInfo() {
         <View style={styles['header-container']}>
           <View style={styles['header-section']}>
             <Text style={styles['header-title']}>{MY_INFO_CONTENT.HEADER_TITLE}</Text>
-            <Text style={styles['header-subtitle']}>{userInfo.weddingInfo}</Text>
+            <Text style={styles['header-subtitle']}>
+              {userLoading ? '로딩 중...' : userInfo?.weddingInfo || '웨딩 정보가 설정되지 않았습니다'}
+            </Text>
           </View>
         </View>
         {/* 사용자 정보 카드 */}
@@ -127,7 +193,7 @@ export default function MyInfo() {
                     <User size={24} color={colors.root.brand} />
                   </View>
                   <View style={styles['user-name-container']}>
-                    <Text style={styles['user-name']}>{userInfo.name}</Text>
+                    <Text style={styles['user-name']}>{userLoading ? '로딩 중...' : userInfo?.name || '이름 없음'}</Text>
                     <Text style={styles['user-name-suffix']}>님</Text>
                   </View>
                 </View>
@@ -147,19 +213,27 @@ export default function MyInfo() {
             <View style={styles['user-details']}>
               <View style={styles['detail-row']}>
                 <Phone size={14} color={colors.root.text} />
-                <Text style={styles['detail-text']}>{userInfo.phone}</Text>
+                <Text style={styles['detail-text']}>
+                  {userLoading ? '로딩 중...' : userInfo?.phone || '전화번호 미설정'}
+                </Text>
               </View>
               <View style={styles['detail-row']}>
                 <Calendar size={14} color={colors.root.text} />
-                <Text style={styles['detail-text']}>{userInfo.date}</Text>
+                <Text style={styles['detail-text']}>
+                  {userLoading ? '로딩 중...' : userInfo?.date || '날짜 미설정'}
+                </Text>
               </View>
               <View style={styles['detail-row']}>
                 <MapPin size={14} color={colors.root.text} />
-                <Text style={styles['detail-text']}>{userInfo.location}</Text>
+                <Text style={styles['detail-text']}>
+                  {userLoading ? '로딩 중...' : userInfo?.location || '지역 미설정'}
+                </Text>
               </View>
               <View style={styles['detail-row']}>
                 <Wallet size={14} color={colors.root.text} />
-                <Text style={styles['detail-text']}>{userInfo.budget}</Text>
+                <Text style={styles['detail-text']}>
+                  {userLoading ? '로딩 중...' : userInfo?.budget || '예산 미설정'}
+                </Text>
               </View>
             </View>
           </View>
@@ -194,7 +268,7 @@ export default function MyInfo() {
             </View>
 
             <View style={styles['schedule-content']}>
-              {upcomingSchedules.map((schedule, scheduleIndex) => (
+              {(upcomingSchedulesFromAPI.length > 0 ? upcomingSchedulesFromAPI : upcomingSchedules).map((schedule, scheduleIndex) => (
                 <View key={scheduleIndex} style={styles['schedule-date-group']}>
                   <View style={styles['schedule-date-header']}>
                     <Text style={styles['schedule-date']}>{schedule.date}</Text>
