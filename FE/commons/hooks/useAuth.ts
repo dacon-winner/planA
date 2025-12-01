@@ -8,8 +8,7 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { buildApiUrl } from "@/commons/config";
+import { client } from "@/commons/api/client";
 import { useAuth } from "@/commons/providers/auth/auth.provider";
 import { useRouter } from "expo-router";
 import { URL_PATHS } from "@/commons/enums/url";
@@ -52,9 +51,8 @@ export function useSignUp() {
 
   return useMutation({
     mutationFn: async (payload: SignUpPayload) => {
-      const url = buildApiUrl("/api/v1/users/auth/register");
-      const response = await axios.post<ApiResponse<AuthResponseData>>(
-        url,
+      const response = await client.post<ApiResponse<AuthResponseData>>(
+        "/api/v1/users/auth/register",
         payload
       );
       return response.data.data; // .data.data로 실제 데이터 추출
@@ -92,9 +90,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (payload: Pick<SignUpPayload, "email" | "password">) => {
-      const url = buildApiUrl("/api/v1/users/auth/login");
-      const response = await axios.post<ApiResponse<AuthResponseData>>(
-        url,
+      const response = await client.post<ApiResponse<AuthResponseData>>(
+        "/api/v1/users/auth/login",
         payload
       );
       return response.data.data; // .data.data로 실제 데이터 추출
@@ -121,4 +118,3 @@ export function useLogin() {
     },
   });
 }
-

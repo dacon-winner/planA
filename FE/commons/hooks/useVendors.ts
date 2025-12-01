@@ -25,8 +25,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { buildApiUrl } from '@/commons/config';
+import { client } from '@/commons/api/client';
 
 /**
  * 업체 정보 인터페이스
@@ -115,10 +114,9 @@ export function useVendors(params: VendorsParams, enabled: boolean = true) {
         queryParams.category = params.category;
       }
 
-      const url = buildApiUrl('/api/v1/vendors');
       console.log('🌐 [API] 요청:', queryParams);
 
-      const response = await axios.get<{ success: boolean; data: VendorsResponse }>(url, { params: queryParams });
+      const response = await client.get<{ success: boolean; data: VendorsResponse }>('/api/v1/vendors', { params: queryParams });
       
       console.log('✅ [API] 응답:', {
         total: response.data.data.total,

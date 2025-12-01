@@ -9,9 +9,7 @@
  */
 
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { buildApiUrl } from "@/commons/config";
-import { useAuth } from "@/commons/providers/auth/auth.provider";
+import { client } from "@/commons/api/client";
 import {
   CreateUsersInfoRequest,
   UsersInfoResponse,
@@ -31,26 +29,14 @@ import {
  * });
  */
 export function useCreateUsersInfo() {
-  const { getAccessToken } = useAuth();
-
   return useMutation({
     mutationFn: async (data: CreateUsersInfoRequest) => {
-      const url = buildApiUrl("/api/v1/users-info");
       console.log("🌐 [API] 사용자 정보 생성 및 AI 플랜 요청:", data);
 
-      const accessToken = await getAccessToken();
-      if (!accessToken) {
-        throw new Error("Access token이 없습니다. 로그인이 필요합니다.");
-      }
-
-      const response = await axios.post<{
+      const response = await client.post<{
         success: boolean;
         data: UsersInfoResponse;
-      }>(url, data, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      }>("/api/v1/users-info", data);
 
       console.log("✅ [API] 사용자 정보 생성 응답:", response.data);
 
