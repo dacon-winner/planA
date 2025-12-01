@@ -129,24 +129,6 @@ export default function Home() {
             </Text>
           </View>
 
-          {/* 폼 페이지로 이동 버튼 */}
-          <View style={styles["form-button-container"]}>
-            <View style={styles["form-button"]}>
-              <Link href={URL_PATHS.FORM} asChild>
-                <Button variant="filled" size="medium">
-                  결혼 정보 입력하기
-                </Button>
-              </Link>
-            </View>
-            <View style={styles["login-button"]}>
-              <Link href={URL_PATHS.AUTH_LOGIN} asChild>
-                <Button variant="filled" size="medium">
-                  로그인 하기
-                </Button>
-              </Link>
-            </View>
-          </View>
-
           {/* 중앙 정보 카드 */}
           <View style={styles["info-card-wrapper"]}>
             <View style={styles["info-card-blur"]} />
