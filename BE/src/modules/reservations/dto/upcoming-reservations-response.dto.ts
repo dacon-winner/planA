@@ -57,4 +57,3 @@ export class UpcomingReservationsResponseDto {
   })
   reservations: UpcomingReservationItemDto[];
 }
-

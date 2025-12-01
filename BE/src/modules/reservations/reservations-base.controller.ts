@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ReservationsService } from './reservations.service';
 import { UpcomingReservationsResponseDto } from './dto';
@@ -33,7 +27,7 @@ export class ReservationsBaseController {
    *
    * @example
    * GET /reservations/upcoming
-   * 
+   *
    * Response:
    * {
    *   "reservations": [
@@ -57,20 +51,16 @@ export class ReservationsBaseController {
     summary: '다가오는 일정 조회',
     description: '사용자의 모든 예약 중 예약 날짜 기준으로 가장 빠른 4개의 예약을 반환합니다.',
   })
-  @ApiResponse({
-    status: 200,
+  @ApiCommonResponse(UpcomingReservationsResponseDto, {
     description: '다가오는 일정 조회 성공',
-    type: UpcomingReservationsResponseDto,
   })
   @ApiResponse({
     status: 401,
     description: '인증 실패',
   })
-  @ApiCommonResponse(UpcomingReservationsResponseDto)
   async getUpcomingReservations(
     @CurrentUser('id') userId: string,
   ): Promise<UpcomingReservationsResponseDto> {
     return this.reservationsService.getUpcomingReservations(userId);
   }
 }
-

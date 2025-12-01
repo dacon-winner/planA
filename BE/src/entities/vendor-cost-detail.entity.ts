@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  CreateDateColumn,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn, OneToOne, JoinColumn } from 'typeorm';
 import { Vendor } from './vendor.entity';
 
 /**
@@ -53,4 +46,3 @@ export class VendorCostDetail {
   @JoinColumn({ name: 'vendor_id' })
   vendor: Vendor;
 }
-

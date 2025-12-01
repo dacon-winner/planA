@@ -128,4 +128,3 @@ export class UpdateVendorSchema1734000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "vendor_operating_hour"`);
   }
 }
-
