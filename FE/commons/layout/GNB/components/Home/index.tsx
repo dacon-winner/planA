@@ -23,10 +23,105 @@ import {
 import { Link } from "expo-router";
 import { GradientBackground } from "@/commons/components/gradient-background";
 import { Button } from "@/commons/components/button";
-import { Card } from "@/commons/components/card";
+import { Card, type CardProps } from "@/commons/components/card";
 import { URL_PATHS } from "@/commons/enums/url";
 import { styles } from "./styles";
 import { colors } from "../../../../enums/color";
+
+// 정책 카드 데이터
+const POLICY_DATA: Omit<CardProps, "onApply" | "onPress">[] = [
+  {
+    categories: ["loan", "always"],
+    title: "신혼부부 전세자금 대출",
+    description: "무주택 신혼부부를 위한 저금리 전세자금 대출",
+    benefits: { text: "연 1.2~2.1% 저금리 대출", amount: "최대 20,000만원" },
+    details: [
+      { icon: "📋", text: "주택도시기금" },
+      { icon: "ℹ️", text: "혼인신고 후 7년 이내, 부부합산 소득 7천만원 이하" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "무주택 세대주인 신혼부부(혼인신고일로부터 7년 이내)를 대상으로 연 1.2~2.1%의 저금리로 최대 2억원까지 전세자금을 대출해드립니다.",
+  },
+  {
+    categories: ["subsidy", "always"],
+    title: "결혼축하금",
+    description: "지자체별 신혼부부에게 지급하는 축하금",
+    benefits: { text: "1회성 축하금 지급", amount: "최대 100만원" },
+    details: [
+      { icon: "📋", text: "지방자치단체" },
+      { icon: "ℹ️", text: "해당 지역 거주 신혼부부, 혼인신고 후 1년 이내" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "각 지방자치단체별로 신혼부부를 위한 결혼축하금을 지급합니다. 지역마다 금액과 조건이 다르니 거주지 지자체에 문의하세요.",
+  },
+  {
+    categories: ["loan", "always"],
+    title: "신혼부부 주택구입 자금 대출",
+    description: "내 집 마련을 위한 정부지원 저금리 대출",
+    benefits: { text: "연 1.85~3.0% 저금리 대출", amount: "최대 40,000만원" },
+    details: [
+      { icon: "📋", text: "한국주택금융공사" },
+      { icon: "ℹ️", text: "혼인신고 후 7년 이내, 생애최초 주택구입" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "생애최초로 주택을 구입하는 신혼부부를 위한 특별 저금리 대출상품입니다. 최대 4억원까지 지원 가능합니다.",
+  },
+  {
+    categories: ["loan", "always"],
+    title: "청년 신혼부부 버팀목 전세대출",
+    description: "만 19~34세 신혼부부 전세자금 특례대출",
+    benefits: { text: "연 1.0~2.4% 저금리 대출", amount: "최대 25,000만원" },
+    details: [
+      { icon: "📋", text: "주택도시기금" },
+      { icon: "ℹ️", text: "만 19~34세, 무주택 신혼부부" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "청년층 신혼부부의 주거 안정을 위한 전세자금 대출 상품입니다. 보증금의 80% 이내에서 최대 2억 5천만원까지 대출 가능합니다.",
+  },
+  {
+    categories: ["subsidy", "period"],
+    title: "신혼부부 임차보증금 이자지원",
+    description: "전세 보증금에 대한 이자 부담 경감",
+    benefits: { text: "월 최대 10만원 이자 지원", amount: "연간 최대 120만원" },
+    details: [
+      { icon: "📋", text: "서울시" },
+      { icon: "ℹ️", text: "서울시 거주, 신혼 3년 이내" },
+      { icon: "📅", text: "신청기한: 기간제" },
+    ],
+    fullDescription:
+      "서울시에 거주하는 신혼부부의 전세 보증금에 대한 대출 이자를 지원합니다.",
+  },
+  {
+    categories: ["loan", "always"],
+    title: "디딤돌 대출",
+    description: "생애최초 주택구입 저금리 대출",
+    benefits: { text: "연 1.85~3.7% 저금리", amount: "최대 40,000만원" },
+    details: [
+      { icon: "📋", text: "주택도시기금" },
+      { icon: "ℹ️", text: "부부합산 연소득 6천만원 이하" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "생애최초 주택 구입자를 위한 정부 지원 주택담보대출 상품입니다.",
+  },
+  {
+    categories: ["loan", "always"],
+    title: "신생아 특례대출",
+    description: "출산 가구 주택 구입·전세 자금 지원",
+    benefits: { text: "최저 연 1.6% 금리", amount: "최대 50,000만원" },
+    details: [
+      { icon: "📋", text: "주택도시기금" },
+      { icon: "ℹ️", text: "2년 이내 출산(예정) 가구" },
+      { icon: "📅", text: "신청기한: 상시" },
+    ],
+    fullDescription:
+      "2년 이내 출산한 가구 또는 출산 예정인 가구를 위한 특례 대출 상품입니다.",
+  },
+];
 
 export default function Home() {
   return (
@@ -250,42 +345,32 @@ export default function Home() {
             <Text style={styles["policy-title"]} allowFontScaling={false}>
               신혼부부를 위한 지원 사업
             </Text>
-            <Pressable style={styles["policy-more-button"]}>
-              <Text style={styles["policy-more-text"]} allowFontScaling={false}>
-                더보기
-              </Text>
-              <ArrowRight
-                size={12}
-                color={colors.brown["brown-5"]}
-                strokeWidth={2}
-              />
-            </Pressable>
           </View>
 
-          {/* 정책 카드 */}
-          <View style={styles["policy-card-container"]}>
-            <Card
-              categories={["loan", "always"]}
-              title="신혼부부 전세자금 대출"
-              description="무주택 신혼부부를 위한 저금리 전세자금 대출"
-              benefits={{
-                text: "연 1.2~2.1% 저금리 대출",
-                amount: "최대 20,000만원",
-              }}
-              details={[
-                { icon: "📋", text: "주택도시기금" },
-                {
-                  icon: "ℹ️",
-                  text: "혼인신고 후 7년 이내, 부부합산 소득 7천만원 이하",
-                },
-                { icon: "📅", text: "신청기한: 상시" },
-              ]}
-              fullDescription="무주택 세대주인 신혼부부(혼인신고일로부터 7년 이내)를 대상으로 연 1.2~2.1%의 저금리로 최대 2억원까지 전세자금을 대출해드립니다."
-              onApply={() => {
-                console.log("신청하기 클릭");
-              }}
-            />
-          </View>
+          {/* 정책 카드 리스트 (가로 스크롤) */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles["policy-scroll-content"]}
+            decelerationRate="fast"
+            snapToInterval={345 + 12} // Card width + gap
+            snapToAlignment="start"
+          >
+            {POLICY_DATA.map((policy, index) => (
+              <Card
+                key={index}
+                categories={policy.categories}
+                title={policy.title}
+                description={policy.description}
+                benefits={policy.benefits}
+                details={policy.details}
+                fullDescription={policy.fullDescription}
+                onApply={() => {
+                  console.log(`${policy.title} 신청하기 클릭`);
+                }}
+              />
+            ))}
+          </ScrollView>
         </View>
       </ScrollView>
     </View>
