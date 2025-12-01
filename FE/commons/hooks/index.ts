@@ -24,8 +24,14 @@ export type { UsePlanCreationReturn } from './usePlanCreation';
 export { useCreateEmptyPlan } from './useCreateEmptyPlan';
 export type { CreateEmptyPlanRequest, CreateEmptyPlanResponse } from './useCreateEmptyPlan';
 
-export { useSetMainPlan } from './useMainPlan';
-export type { SetMainPlanRequest, SetMainPlanResponse } from './useMainPlan';
+export { useMainPlan, useSetMainPlan, CATEGORY_LABELS, extractRegion } from './useMainPlan';
+export type { 
+  MainPlanItem, 
+  MainPlanResponse, 
+  VendorCategory,
+  SetMainPlanRequest, 
+  SetMainPlanResponse 
+} from './useMainPlan';
 
 export { useAiRecommendations } from './useAiRecommendations';
 export type { AiRecommendedVendor, AiRecommendationsResponse } from './useAiRecommendations';
