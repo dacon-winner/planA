@@ -1,10 +1,13 @@
+import { useRouter } from "expo-router";
 import { useModal } from "@/commons/providers/modal/modal.provider";
 import { EditModalContent } from "@/commons/components/modal";
 import { useMe } from "./useUser";
 import { formatWeddingDate, formatBudget, formatRegion } from "@/commons/utils";
+import { URL_PATHS } from "@/commons/enums/url";
 
 export const useAIPlan = () => {
-  const { openModal } = useModal();
+  const router = useRouter();
+  const { openModal, closeModal } = useModal();
   const { data: userData } = useMe();
 
   const openAIPlanGenerationModal = () => {
@@ -21,11 +24,24 @@ export const useAIPlan = () => {
         scheduleInfo={scheduleInfo}
         onKeep={() => {
           console.log("유지하기 - 현재 정보로 AI 플랜 생성");
-          // TODO: AI 플랜 생성 로직 구현
+          
+          // 모달 닫기
+          closeModal();
+
+          // 로딩 화면으로 이동하면서 사용자 데이터 전달
+          router.push({
+            pathname: URL_PATHS.FORM_LOADING,
+            params: {
+              wedding_date: userData?.wedding_date?.toString() || "",
+              preferred_region: userData?.preferred_region || "",
+              budget_limit: userData?.budget_limit?.toString() || "",
+            },
+          } as any);
         }}
         onEdit={() => {
           console.log("수정하기 - 폼 페이지로 이동");
-          // TODO: 폼 페이지로 이동 로직 구현
+          // TODO: Phase 2에서 구현
+          closeModal();
         }}
       />
     );
